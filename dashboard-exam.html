@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at top left, rgba(138, 43, 226, 0.15), transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(0, 191, 255, 0.15), transparent 50%);
+            animation: backgroundPulse 25s ease-in-out infinite;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.08) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 20, 0.6);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            border-radius: 6px;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 6px solid rgba(138, 43, 226, 0.3);
+            border-top: 6px solid #8a2be2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00bfff;
+            font-size: 1.3rem;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(15, 15, 25, 0.95);
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            animation: loginSlideUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes loginSlideUp {
+            from { opacity: 0; transform: translateY(50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .login-header h1 {
+            color: #00bfff;
+            font-size: 2.3rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: #8a2be2;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #00bfff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(10, 10, 20, 0.8);
+            color: #fff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00bfff;
+            box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(138, 43, 226, 0.6);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00bfff, #00d4ff);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa500, #ffb733);
+            color: white;
+        }
+
+        .btn-logout {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #ff3366;
+            text-align: center;
+            margin-top: 18px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .navbar {
+            background: rgba(15, 15, 25, 0.95);
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .user-info:hover {
+            background: rgba(138, 43, 226, 0.15);
+        }
+
+        .user-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            overflow: hidden;
+            border: 3px solid rgba(0, 191, 255, 0.4);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            color: #00bfff;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .user-role {
+            font-size: 0.88rem;
+            color: #8a2be2;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: 0 auto;
+            padding: 35px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 35px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            flex-wrap: wrap;
+            padding-bottom: 2px;
+        }
+
+        .tab {
+            padding: 14px 28px;
+            background: rgba(15, 15, 25, 0.6);
+            color: #00bfff;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            font-size: 1.02rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(138, 43, 226, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            color: #00bfff;
+            font-size: 1.9rem;
+            font-weight: 800;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: rgba(15, 15, 25, 0.85);
+            color: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            transition: all 0.4s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.03);
+        }
+
+        .stat-card:nth-child(1) { border-top: 4px solid #8a2be2; }
+        .stat-card:nth-child(2) { border-top: 4px solid #00bfff; }
+        .stat-card:nth-child(3) { border-top: 4px solid #8a2be2; }
+        .stat-card:nth-child(4) { border-top: 4px solid #00bfff; }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            min-width: 50px;
+        }
+
+        .stat-label {
+            font-size: 1.05rem;
+            opacity: 0.95;
+            color: #00bfff;
+            font-weight: 600;
+        }
+
+        .question-list {
+            display: grid;
+            gap: 22px;
+        }
+
+        .question-card {
+            background: rgba(15, 15, 25, 0.85);
+            border-radius: 16px;
+            padding: 24px;
+            border-left: 5px solid #8a2be2;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            transition: all 0.4s;
+        }
+
+        .question-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.4);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 18px;
+        }
+
+        .question-id {
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: #00bfff;
+            margin-bottom: 18px;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .choices-list {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .choice-item {
+            padding: 12px 18px;
+            background: rgba(10, 10, 20, 0.7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            transition: all 0.3s;
+        }
+
+        .choice-item:hover {
+            background: rgba(138, 43, 226, 0.15);
+        }
+
+        .choice-item.correct {
+            background: rgba(0, 191, 255, 0.15);
+            border: 2px solid #00bfff;
+        }
+
+        .choice-text {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .correct-badge {
+            background: #00bfff;
+            color: #0a0a0f;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .matching-pairs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .matching-column {
+            background: rgba(10, 10, 20, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .matching-column h4 {
+            color: #00bfff;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .matching-item {
+            background: rgba(138, 43, 226, 0.1);
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            color: #fff;
+        }
+
+        .results-table, .codes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 22px;
+            background: rgba(15, 15, 25, 0.85);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .results-table th,
+        .results-table td,
+        .codes-table th,
+        .codes-table td {
+            padding: 16px;
+            text-align: right;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .results-table th,
+        .codes-table th {
+            background: rgba(138, 43, 226, 0.25);
+            font-weight: 700;
+            color: #00bfff;
+            font-size: 1.05rem;
+        }
+
+        .results-table td,
+        .codes-table td {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .score-badge {
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #00bfff, #00d4ff);
+            color: white;
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, #ff3366, #ff6b8a);
+            color: white;
+        }
+
+        .switch-container {
+            background: rgba(15, 15, 25, 0.85);
+            padding: 20px 25px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            margin-top: 30px;
+        }
+
+        .switch-container label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00bfff;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ff3366;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00bfff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(15, 15, 25, 0.98);
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(138, 43, 226, 0.4);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .modal-header h3 {
+            color: #00bfff;
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2.2rem;
+            cursor: pointer;
+            color: #8a2be2;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            color: #00bfff;
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .settings-card {
+            background: rgba(10, 10, 20, 0.7);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .settings-card h4 {
+            color: #00bfff;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .setting-description {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .pair-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .pair-input {
+            flex: 1;
+            padding: 10px;
+            background: #0a0a0f !important;
+            border: 1px solid #555 !important;
+            color: #fff !important;
+            border-radius: 6px;
+        }
+
+        .pair-icon {
+            color: #8a2be2;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .btn-remove-pair {
+            background: none;
+            border: none;
+            color: #ff3366;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .btn-remove-pair:hover { 
+            color: #ff0000; 
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: rgba(15, 15, 25, 0.85);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
+        }
+
+        .profile-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .profile-avatar-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 3rem;
+            overflow: hidden;
+            border: 5px solid rgba(0, 191, 255, 0.4);
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-avatar-large:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.6);
+        }
+
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s;
+            border-radius: 50%;
+        }
+
+        .profile-avatar-large:hover .profile-avatar-overlay {
+            opacity: 1;
+        }
+
+        .profile-avatar-text {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .profile-info-item {
+            background: rgba(10, 10, 20, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .profile-info-label {
+            color: #8a2be2;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .profile-info-value {
+            color: #00bfff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .profile-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .profile-action-btn {
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .profile-action-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        div:where(.swal2-container) div:where(.swal2-popup) {
+            background: #151520 !important;
+            border: 2px solid #8a2be2 !important;
+            border-radius: 15px !important;
+            color: #fff !important;
+        }
+
+        div:where(.swal2-container) input.swal2-input,
+        div:where(.swal2-container) textarea.swal2-textarea {
+            background: rgba(0, 0, 0, 0.5) !important;
+            color: #fff !important;
+            border: 1px solid #444 !important;
+            border-radius: 8px !important;
+        }
+
+        div:where(.swal2-container) .swal2-title {
+            color: #00bfff !important;
+        }
+
+        select option {
+            background-color: #151520;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 18px; }
+            .navbar { padding: 18px; flex-direction: column; gap: 15px; }
+            .section-header { flex-direction: column; align-items: flex-start; }
+            .stat-value { font-size: 2.2rem; }
+            .matching-pairs { grid-template-columns: 1fr; }
+            .profile-card { padding: 25px; }
+            .profile-avatar-large { width: 120px; height: 120px; font-size: 2.5rem; }
+        }
+
+        /* ===== UI refresh + appointments/groups ===== */
+        body { font-family: Cairo, Tahoma, Arial, sans-serif; }
+        :focus-visible { outline: 3px solid #00bfff; outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+        .navbar { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(10px); }
+        .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
+        .tab { white-space: nowrap; padding: 12px 20px; }
+        .results-table tbody tr:hover, .codes-table tbody tr:hover { background: rgba(0,191,255,.07); }
+        .panel { background: rgba(15,15,25,.85); border: 1px solid rgba(138,43,226,.3); border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; }
+        .panel h4 { color: #00bfff; margin-bottom: 14px; }
+        .panel .switch-container { margin-top: 0; margin-bottom: 12px; background: transparent; padding: 10px 0; border: 0; border-bottom: 1px solid rgba(138,43,226,.2); }
+        .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+        .field-row > div { display: flex; flex-direction: column; gap: 6px; min-width: 140px; flex: 1; }
+        .field-row label { color: #9fe3ff; font-size: .9rem; }
+        .inp { padding: 10px 12px; border-radius: 8px; background: rgba(10,10,20,.8); color: #fff; border: 2px solid rgba(138,43,226,.3); font-family: inherit; font-size: 1rem; }
+        .gbadge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-weight: 700; font-size: .85rem; }
+        .g-I { background: rgba(0,255,127,.15); color: #3dffa0; border: 1px solid #3dffa0; } .g-B { background: rgba(0,191,255,.15); color: #4dd2ff; border: 1px solid #4dd2ff; }
+        .g-C { background: rgba(255,193,7,.15); color: #ffd24d; border: 1px solid #ffd24d; } .g-none { background: rgba(255,51,102,.15); color: #ff8899; border: 1px solid #ff3366; }
+        .slot-card-adm { background: rgba(15,15,25,.85); border: 1px solid rgba(138,43,226,.3); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
+        .slot-card-adm > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 20px; background: rgba(138,43,226,.18); }
+        .slot-card-adm > header b { font-size: 1.1rem; color: #fff; } .mini { padding: 6px 12px !important; font-size: .85rem !important; width: auto !important; }
+        .tbl-wrap { overflow-x: auto; } .muted { color: #9aa; }
+        @media (max-width: 700px) { .container { padding: 14px; } .section-header { flex-direction: column; align-items: stretch; gap: 10px; } .panel { padding: 14px; } }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🔥 جاري تحميل Firebase...</div>
+    </div>
+
+    <div class="login-container hidden" id="loginScreen">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>لوحة التحكم 🎯</h1>
+                <p>Admin Dashboard</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>اسم المستخدم / Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور / Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn-login">تسجيل الدخول / Login</button>
+                <div class="error-message" id="loginError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard hidden" id="dashboardScreen">
+        <nav class="navbar">
+            <div class="navbar-brand">📊 لوحة التحكم</div>
+            <div class="navbar-user">
+                <div class="user-info" onclick="switchTab('profile')">
+                    <div class="user-avatar" id="userAvatar">
+                        <span id="userInitial">A</span>
+                    </div>
+                    <div>
+                        <div class="user-name" id="userName">Admin</div>
+                        <div class="user-role" id="userRole">Super Admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">تسجيل الخروج</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('overview')">📈 نظرة عامة</button>
+                <button class="tab" onclick="switchTab('questions')">❓ إدارة الأسئلة</button>
+                <button class="tab" onclick="switchTab('examSettings')">⚙️ إعدادات الامتحان</button>
+                <button class="tab" onclick="switchTab('results')">🏆 النتائج</button>
+                <button class="tab" onclick="switchTab('codes')">🎫 أكواد الدخول</button>
+                <button class="tab" onclick="switchTab('appointments')">📅 تحديد المواعيد</button>
+                <button class="tab" onclick="switchTab('groups')">👥 المجموعات</button>
+                <button class="tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
+            </div>
+
+            <div class="tab-content active" id="overviewTab">
+                <div class="section-header">
+                    <h2>نظرة عامة / Overview</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQuestions">0</div>
+                        <div class="stat-label">إجمالي الأسئلة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalResults">0</div>
+                        <div class="stat-label">إجمالي النتائج</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCodes">0</div>
+                        <div class="stat-label">الأكواد المتاحة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgScore">0%</div>
+                        <div class="stat-label">متوسط الدرجات</div>
+                    </div>
+                </div>
+                <div class="switch-container">
+                    <label for="examStatusToggle">حالة الامتحان (مفتوح / مغلق)</label>
+                    <label class="switch">
+                        <input type="checkbox" id="examStatusToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="questionsTab">
+                <div class="section-header">
+                    <h2>إدارة الأسئلة / Question Management</h2>
+                    <button class="btn btn-primary" onclick="openAddQuestionModal()">➕ إضافة سؤال جديد</button>
+                </div>
+                <div class="question-list" id="questionList"></div>
+            </div>
+
+            <div class="tab-content hidden" id="examSettingsTab">
+                <div class="section-header">
+                    <h2>إعدادات الامتحان / Exam Settings</h2>
+                    <button class="btn btn-success" onclick="saveExamSettings()">💾 حفظ الإعدادات</button>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h4>⏱️ إعدادات المؤقت / Timer Settings</h4>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">نوع المؤقت / Timer Mode</div>
+                                <div class="setting-description">اختر بين مؤقت للامتحان كامل أو مؤقت لكل سؤال</div>
+                            </div>
+                            <select id="timerMode" style="padding: 8px 15px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                                <option value="perQuestion">مؤقت لكل سؤال</option>
+                                <option value="full">مؤقت للامتحان كامل</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">الوقت الكلي (ثواني) / Total Time</div>
+                                <div class="setting-description">الوقت الكلي للامتحان</div>
+                            </div>
+                            <input type="number" id="totalTime" value="1800" min="60" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">الوقت لكل سؤال (ثواني) / Question Time</div>
+                            </div>
+                            <input type="number" id="questionTime" value="15" min="5" max="120" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <h4>🛡️ نظام منع الغش / Anti-Cheat System</h4>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">تفعيل نظام منع الغش</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="antiCheatEnabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">منع تبديل التبويبات</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="blockTabSwitch" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">إجبار ملء الشاشة</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="forceFullscreen" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <h4>📹 مراقبة الكاميرا / Camera Proctoring</h4>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">تفعيل الكاميرا</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="cameraEnabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <div class="setting-label">فترة التقاط الصور (ملي ثانية)</div>
+                            </div>
+                            <input type="number" id="captureInterval" value="30000" min="10000" step="1000" style="width: 120px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                        </div>
+                    </div>
+                </div>
+                <div class="panel" style="margin-top:20px">
+                    <h4>🎓 قواعد تصنيف الطلاب / Grouping Rules</h4>
+                    <p class="muted" style="margin-bottom:12px">الحد الأدنى للنسبة المئوية لكل مجموعة (يُحسب من الدرجة الفعلية ÷ الدرجة الكلية للامتحان). أقل من أقل حد = غير مصنف / يحتاج مراجعة. حدود المجموعات لا تتداخل (الحد الأدنى شامل).</p>
+                    <div id="tiersEditor" class="field-row"></div>
+                    <div style="margin-top:14px"><button class="btn btn-success mini" onclick="saveTiers()">💾 حفظ القواعد وإعادة التصنيف</button></div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="resultsTab">
+                <div class="section-header">
+                    <h2>نتائج المتسابقين / Participant Results</h2>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-warning mini" onclick="reclassifyAll(true)">🔄 إعادة التصنيف</button><button class="btn btn-success" onclick="exportResults()">📥 تصدير Excel</button></div>
+                </div>
+                <div class="field-row" style="margin-bottom:14px"><div><label for="resultsSearch">بحث بالاسم أو الكود</label><input class="inp" id="resultsSearch" oninput="displayResults()" placeholder="ابحث..."></div><div><label for="resultsGroupFilter">المجموعة</label><select class="inp" id="resultsGroupFilter" onchange="displayResults()"></select></div></div>
+                <div id="resultsContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="codesTab">
+                <div class="section-header">
+                    <h2>أكواد الدخول / Access Codes</h2>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="newCustomCode" placeholder="اكتب كود..." style="padding: 8px; border-radius: 5px; border: 1px solid #8a2be2; background: #0a0a0f; color: #fff; width: 120px;">
+                        <button class="btn btn-primary" onclick="addNewCode()">➕ إضافة</button>
+                        <button class="btn btn-success" onclick="exportCodes()">📥 تصدير</button>
+                        <button class="btn btn-warning" onclick="resetAllCodes()">🔄 تصفير الكل</button>
+                    </div>
+                </div>
+                <div id="codesContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="appointmentsTab">
+                <div class="section-header">
+                    <h2>تحديد المواعيد / Appointment Scheduling</h2>
+                    <button class="btn btn-success mini" onclick="exportAllSlots()">📦 تصدير كل المواعيد (ZIP)</button>
+                </div>
+                <div class="panel">
+                    <div class="switch-container"><label for="apptEnabled">تفعيل نظام المواعيد (تشغيل / إيقاف)</label><label class="switch"><input type="checkbox" id="apptEnabled"><span class="slider"></span></label></div>
+                    <div class="switch-container"><label for="apptOpen">فتح الحجز للطلاب (مفتوح / مغلق)</label><label class="switch"><input type="checkbox" id="apptOpen"><span class="slider"></span></label></div>
+                    <div class="field-row"><div><label for="apptInstitution">اسم المؤسسة (يظهر في ملفات PDF)</label><input class="inp" id="apptInstitution" maxlength="80"></div><button class="btn btn-primary mini" onclick="saveInstitution()">حفظ</button></div>
+                </div>
+                <div class="panel">
+                    <h4>➕ إضافة موعد جديد</h4>
+                    <div class="field-row">
+                        <div><label for="apptDay">اليوم</label><select class="inp" id="apptDay"></select></div>
+                        <div><label for="apptTime">الوقت</label><input class="inp" type="time" id="apptTime" value="10:00"></div>
+                        <div><label for="apptCap">السعة القصوى</label><input class="inp" type="number" id="apptCap" value="30" min="1" max="200"></div>
+                        <button class="btn btn-primary mini" onclick="addSlot()">➕ إضافة</button>
+                    </div>
+                </div>
+                <div id="apptContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="groupsTab">
+                <div class="section-header"><h2>المجموعات / Student Groups</h2></div>
+                <div class="panel"><div class="field-row">
+                    <div><label for="grpSearch">بحث بالاسم أو الكود</label><input class="inp" id="grpSearch" oninput="displayGroups()" placeholder="ابحث..."></div>
+                    <div><label for="grpSlotFilter">الموعد</label><select class="inp" id="grpSlotFilter" onchange="displayGroups()"></select></div>
+                    <div><label for="grpGroupFilter">المجموعة</label><select class="inp" id="grpGroupFilter" onchange="displayGroups()"></select></div>
+                </div></div>
+                <div id="groupsContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="profileTab">
+                <div class="section-header">
+                    <h2>الملف الشخصي / Profile</h2>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-avatar-section">
+                            <div class="profile-avatar-large" id="profileAvatarLarge" onclick="changeProfilePhoto()">
+                                <span id="profileInitial">A</span>
+                                <div class="profile-avatar-overlay">
+                                    <div class="profile-avatar-text">📷<br>تغيير الصورة</div>
+                                </div>
+                            </div>
+                            <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">👤 الاسم الكامل</span>
+                                <span class="profile-info-value" id="profileName">Admin User</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">🔑 اسم المستخدم</span>
+                                <span class="profile-info-value" id="profileUsername">admin</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-info-label">🎖️ الصلاحية</span>
+                                <span class="profile-info-value" id="profileRole">Super Admin</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="profile-action-btn btn-primary" onclick="editProfileName()">
+                                ✏️ تعديل الاسم
+                            </button>
+                            <button class="profile-action-btn btn-warning" onclick="changeUsername()">
+                                🔄 تغيير اسم المستخدم
+                            </button>
+                            <button class="profile-action-btn btn-danger" onclick="changePassword()">
+                                🔒 تغيير كلمة المرور
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">إضافة سؤال جديد</h3>
+                <button class="close-modal" onclick="closeQuestionModal()">×</button>
+            </div>
+            <form id="questionForm">
+                <input type="hidden" id="editQuestionId">
+                <div class="form-group">
+                    <label>نوع السؤال / Question Type</label>
+                    <select id="questionType" onchange="updateQuestionForm()">
+                        <option value="mcq">اختيار من متعدد</option>
+                        <option value="multiple">اختيار متعدد</option>
+                        <option value="truefalse">صح / خطأ</option>
+                        <option value="matching">مطابقة</option>
+                        <option value="essay">سؤال مقالي</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>نص السؤال / Question Text</label>
+                    <textarea id="questionText" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الوقت المحدد (ثواني)</label>
+                    <input type="number" id="questionTimeout" value="15" min="5" max="300" required>
+                </div>
+                <div id="questionFormContent"></div>
+                <div class="form-group">
+                    <label>صورة السؤال (اختياري)</label>
+                    <input type="file" id="questionImageInput" accept="image/*" onchange="uploadQuestionImage(event)">
+                    <img id="questionImagePreview" style="max-width: 100%; max-height: 200px; margin-top: 15px; display: none; border-radius: 12px;" alt="Preview">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">💾 حفظ السؤال</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, update, remove, push, runTransaction, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyB07Y_PLpim4coY9zT0KxrhfmDLu-xe_bM",
+            authDomain: "el-qaheraweya.firebaseapp.com",
+            databaseURL: "https://el-qaheraweya-default-rtdb.firebaseio.com",
+            projectId: "el-qaheraweya",
+            storageBucket: "el-qaheraweya.appspot.com",
+            messagingSenderId: "380945019833",
+            appId: "1:380945019833:web:24f293bade8ea5ffdcfc68"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        window.firebaseDB = { database: getDatabase(app), ref, set, get, update, remove, push, runTransaction, onValue };
+        
+        initializeAppData().then(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }).catch(err => {
+            console.error('Firebase init error:', err);
+            alert('خطأ في تحميل Firebase');
+        });
+    </script>
+
+    <script>
+        const VALID_CODES = ["QZ8K2M","QZ7N4P","QZ3R6T","QZ9W1Y","QZ5X8A","QZ2B5C","QZ4D7E","QZ6F9G","QZ1H3J","QZ8K4L","QZ3M6N","QZ5P8Q","QZ7R1S","QZ9T4U","QZ2V6W","QZ4X8Y","QZ6Z1A","QZ1C3D","QZ8E5F","QZ3G7H","QZ5J9K","QZ7L2M","QZ9N4P","QZ2Q6R","QZ4S8T","QZ6U1V","QZ1W3X","QZ8Y5Z","QZ3A7B","QZ5C9D","QZ7E2F","QZ9G4H","QZ2J6K","QZ4L8M","QZ6N1P","QZ1Q3R","QZ8S5T","QZ3U7V","QZ5W9X","QZ7Y2Z","QZ9A4B","QZ2C6D","QZ4E8F","QZ6G1H","QZ1J3K","QZ8L5M","QZ3N7P","QZ5Q9R","QZ7S2T","QZ9U4V","QZ2W6X","QZ4Y8Z","QZ6A1B","QZ1C3E","QZ8D5F","QZ3G7J","QZ5H9K","QZ7L2N","QZ9M4P","QZ2Q6S","QZ4R8T","QZ6U1W","QZ1V3X","QZ8Y5A","QZ3Z7B","QZ5C9E","QZ7D2F","QZ9G4J","QZ2H6K","QZ4L8N","QZ6M1P","QZ1Q3S","QZ8R5T","QZ3U7W","QZ5V9X","QZ7Y2A","QZ9Z4B","QZ2C6E","QZ4D8F","QZ6G1J","QZ1H3L","QZ8K5N","QZ3M7P","QZ5Q9S","QZ7R2U","QZ9T4W","QZ2V6Y","QZ4X8A","QZ6Z1C","QZ1B3D","QZ8E5G","QZ3F7H","QZ5J9L","QZ7K2M","QZ9N4Q","QZ2P6R","QZ4S8U","QZ6T1V","QZ1W3Y","QZ8X5Z","QZ3A7C","QZ5B9D","QZ7E2G","QZ9F4H","QZ2J6L","QZ4K8M","QZ6N1Q","QZ1P3R","QZ8S5U","QZ3T7V","QZ5W9Y","QZ7X2Z","QZ9A4C","QZ2B6D","QZ4E8G","QZ6F1H","QZ1J3M","QZ8K5P","QZ3L7Q","QZ5N9R","QZ7S2U","QZ9T4W","QZ2V6X","QZ4Y8A","QZ6Z1B","QZ1C3E","QZ8D5F","QZ3G7J","QZ5H9K","QZ7L2N","QZ9M4P","QZ2Q6S","QZ4R8T","QZ6U1W","QZ1V3X","QZ8Y5A","QZ3Z7B","QZ5C9E","QZ7D2F","QZ9G4J","QZ2H6K","QZ4L8N","QZ6M1P","QZ1Q3S","QZ8R5T","QZ3U7W","QZ5V9X","QZ7Y2A","QZ9Z4B","QZ2C6E","QZ4D8F","QZ6G1J","QZ1H3L","QZ8K5N","QZ3M7P","QZ5Q9S","QZ7R2U","QZ9T4W","QZ2V6Y","QZ4X8A","QZ6Z1C","QZ1B3D","QZ8E5G","QZ3F7H","QZ5J9L","QZ7K2M","QZ9N4Q","QZ2P6R","QZ4S8U","QZ6T1V","QZ1W3Y","QZ8X5Z","QZ3A7C","QZ5B9D","QZ7E2G","QZ9F4H","QZ2J6L","QZ4K8M","QZ6N1Q","QZ1P3R","QZ8S5U","QZ3T7V","QZ5W9Y","QZ7X2Z","QZ9A4C","QZ2B6D","QZ4E8G","QZ6F1H","QZ1J3M","QZ8K5P","QZ3L7Q","QZ5N9R","QZ7S2U","QZ9T4W","QZ2V6X","QZ4Y8A","QZ6Z1B","QZ1C3E","QZ8D5F","QZ3G7J","QZ5H9K","QZ7L2N","QZ9M4P","QZ2Q6S","QZ4R8T","QZ6U1W","QZ1V3X","QZ8Y5A","QZ3Z7B","QZ5C9E","QZ7D2F","QZ9G4J","QZ2H6K","QZ4L8N","QZ6M1P"];
+        
+        const DB = { 
+            questions: [], 
+            results: [], 
+            admins: [], 
+            accessCodes: [], 
+            quizState: { isActive: true },
+            appointments: {}, seats: {}, bookings: {}, apptSettings: {}, tiers: null,
+            examSettings: {
+                antiCheat: { enabled: false, blockTabSwitch: true, forceFullscreen: true },
+                camera: { enabled: false, captureInterval: 30000 },
+                timer: { mode: 'perQuestion', totalTime: 1800, questionTime: 15 }
+            }
+        };
+        
+        let currentUser = null;
+        let editingQuestionId = null;
+        let currentQuestionImage = null;
+
+        async function initializeAppData() {
+            try {
+                await Promise.all([loadAdmins(), loadAccessCodes(), loadQuestions(), loadResults(), loadQuizState(), loadExamSettings()]);
+                setupEventListeners();
+                setupRealtimeListeners();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                throw error;
+            }
+        }
+
+        async function loadFromFirebase(path) {
+            const { database, ref, get } = window.firebaseDB;
+            const snapshot = await get(ref(database, path));
+            return snapshot.exists() ? snapshot.val() : null;
+        }
+
+        async function loadAdmins() {
+            const data = await loadFromFirebase('admins');
+            if (data) {
+                DB.admins = Object.values(data);
+            } else {
+                DB.admins = [
+                    { id: 1, name: 'Super Admin', username: 'super', password: '123', role: 'super', photo: null },
+                    { id: 2, name: 'Admin User', username: 'admin', password: '123', role: 'admin', photo: null }
+                ];
+                const adminsObj = {};
+                DB.admins.forEach(admin => { adminsObj[admin.id] = admin; });
+                await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'admins'), adminsObj);
+            }
+        }
+
+        async function loadAccessCodes() {
+            const data = await loadFromFirebase('accessCodes');
+            if (data) {
+                DB.accessCodes = Object.values(data);
+            } else {
+                const codesObj = {};
+                VALID_CODES.forEach(code => {
+                    codesObj[code] = { code: code, used: false, usedBy: null, usedAt: null };
+                });
+                await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'accessCodes'), codesObj);
+                DB.accessCodes = Object.values(codesObj);
+            }
+        }
+
+        async function loadQuizState() {
+            const data = await loadFromFirebase('quizState');
+            if (data) {
+                DB.quizState = data;
+            } else {
+                await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'quizState'), DB.quizState);
+            }
+            document.getElementById('examStatusToggle').checked = DB.quizState.isActive;
+        }
+
+        async function loadExamSettings() {
+            const data = await loadFromFirebase('examSettings');
+            if (data) DB.examSettings = { ...DB.examSettings, ...data };
+            updateExamSettingsUI();
+        }
+
+        async function loadQuestions() {
+            const data = await loadFromFirebase('questions') || {};
+            DB.questions = Object.values(data).sort((a, b) => a.id - b.id);
+        }
+
+        async function loadResults() {
+            DB.results = Object.values(await loadFromFirebase('results') || {});
+        }
+
+        function setupRealtimeListeners() {
+            const { database, ref, onValue } = window.firebaseDB;
+            onValue(ref(database, 'results'), snapshot => {
+                DB.results = snapshot.exists() ? Object.values(snapshot.val()) : [];
+                updateStats();
+                if (!document.getElementById('resultsTab').classList.contains('hidden')) displayResults();
+                refreshAppt(); syncGroups();
+            });
+            onValue(ref(database, 'questions'), snapshot => {
+                DB.questions = snapshot.exists() ? Object.values(snapshot.val()).sort((a, b) => a.id - b.id) : [];
+                updateStats();
+                if (!document.getElementById('questionsTab').classList.contains('hidden')) displayQuestions();
+            });
+            onValue(ref(database, 'appointmentSettings'), s => { DB.apptSettings = s.val() || {}; syncApptSwitches(); });
+            onValue(ref(database, 'appointments'), s => { DB.appointments = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'seats'), s => { DB.seats = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'studentBookings'), s => { DB.bookings = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'groupSettings'), s => {
+                const v = s.val(); DB.tiers = v && v.tiers ? (Array.isArray(v.tiers) ? v.tiers : Object.values(v.tiers)) : null;
+                renderTiersEditor(); refreshAppt(); syncGroups();
+            });
+            onValue(ref(database, 'accessCodes'), snapshot => {
+                DB.accessCodes = snapshot.exists() ? Object.values(snapshot.val()) : [];
+                updateStats();
+                if (!document.getElementById('codesTab').classList.contains('hidden')) displayCodes();
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('examStatusToggle').addEventListener('change', handleExamStatusToggle);
+            document.getElementById('questionForm').addEventListener('submit', handleQuestionSubmit);
+            bindApptEvents();
+            document.getElementById('profilePhotoInput').addEventListener('change', handleProfilePhotoUpload);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const user = DB.admins.find(a => a.username === username && a.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').classList.add('hidden');
+                setTimeout(syncGroups, 400);
+                document.getElementById('dashboardScreen').classList.remove('hidden');
+                updateUserUI();
+                updateStats(true);
+            } else {
+                const errorMsg = document.getElementById('loginError');
+                errorMsg.classList.add('show');
+                setTimeout(() => errorMsg.classList.remove('show'), 3000);
+            }
+        }
+
+        function updateUserUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role === 'super' ? 'مشرف عام' : 'مشرف';
+            const avatar = document.getElementById('userAvatar');
+            const initial = document.getElementById('userInitial');
+            
+            if (currentUser.photo) {
+                avatar.innerHTML = `<img src="${currentUser.photo}" alt="${currentUser.name}">`;
+            } else {
+                initial.textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+            
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileUsername').textContent = currentUser.username;
+            document.getElementById('profileRole').textContent = currentUser.role === 'super' ? 'مشرف عام' : 'مشرف';
+            
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const profileInitial = document.getElementById('profileInitial');
+            
+            if (currentUser.photo) {
+                profileAvatarLarge.innerHTML = `<img src="${currentUser.photo}" alt="${currentUser.name}"><div class="profile-avatar-overlay"><div class="profile-avatar-text">📷<br>تغيير الصورة</div></div>`;
+            } else {
+                profileInitial.textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        window.logout = function() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                currentUser = null;
+                document.getElementById('dashboardScreen').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('loginForm').reset();
+            }
+        };
+
+        async function handleExamStatusToggle(event) {
+            const isActive = event.target.checked;
+            await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'quizState/isActive'), isActive);
+            showAlert('success', `تم ${isActive ? 'فتح' : 'إغلاق'} الامتحان بنجاح`);
+        }
+
+        function showAlert(type, message) {
+            Swal.fire({ icon: type, title: message, timer: 2000, showConfirmButton: false });
+        }
+
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => {
+                c.classList.remove('active');
+                c.classList.add('hidden');
+            });
+            
+            const clickedTab = Array.from(document.querySelectorAll('.tab')).find(t => 
+                t.getAttribute('onclick').includes(tabName)
+            );
+            if (clickedTab) clickedTab.classList.add('active');
+            
+            const activeTab = document.getElementById(tabName + 'Tab');
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                activeTab.classList.add('active');
+            }
+            
+            const actions = {
+                'questions': displayQuestions,
+                'results': displayResults,
+                'codes': displayCodes,
+                'examSettings': updateExamSettingsUI,
+                'overview': () => updateStats(true),
+                'appointments': displayAppointments,
+                'groups': displayGroups,
+                'profile': updateUserUI
+            };
+            if (actions[tabName]) actions[tabName]();
+        };
+
+        function animateValue(obj, start, end, duration) {
+            if (start === end) {
+                obj.innerText = end;
+                return;
+            }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        window.updateStats = function(shouldAnimate = false) {
+            const elQ = document.getElementById('totalQuestions');
+            const elR = document.getElementById('totalResults');
+            const elC = document.getElementById('totalCodes');
+            const elA = document.getElementById('avgScore');
+
+            if (!elQ || !elR || !elC || !elA) return;
+
+            const questions = DB.questions || [];
+            const results = DB.results || [];
+            const accessCodes = DB.accessCodes || [];
+
+            const qCount = questions.length;
+            const rCount = results.length;
+            const codesArray = Array.isArray(accessCodes) ? accessCodes : Object.values(accessCodes);
+            const cCount = codesArray.filter(c => !c.used).length;
+            
+            let avg = 0;
+            if (rCount > 0) {
+                const total = results.reduce((sum, r) => sum + (parseInt(r.percentage) || 0), 0);
+                avg = Math.round(total / rCount);
+            }
+
+            if (shouldAnimate) {
+                animateValue(elQ, 0, qCount, 1000);
+                animateValue(elR, 0, rCount, 1000);
+                animateValue(elC, 0, cCount, 1000);
+                elA.innerText = avg + '%';
+            } else {
+                elQ.innerText = qCount;
+                elR.innerText = rCount;
+                elC.innerText = cCount;
+                elA.innerText = avg + '%';
+            }
+        };
+
+        window.changeProfilePhoto = function() {
+            document.getElementById('profilePhotoInput').click();
+        };
+
+        async function handleProfilePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('error', 'حجم الصورة كبير! الحد الأقصى 5MB');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const photoData = e.target.result;
+                
+                try {
+                    const { database, ref, update } = window.firebaseDB;
+                    await update(ref(database, `admins/${currentUser.id}`), {
+                        photo: photoData
+                    });
+                    
+                    currentUser.photo = photoData;
+                    updateUserUI();
+                    showAlert('success', 'تم تحديث الصورة بنجاح');
+                } catch (error) {
+                    showAlert('error', 'حدث خطأ أثناء تحديث الصورة');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.editProfileName = async function() {
+            const { value: newName } = await Swal.fire({
+                title: 'تعديل الاسم',
+                input: 'text',
+                inputValue: currentUser.name,
+                inputPlaceholder: 'أدخل الاسم الجديد',
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء',
+                inputValidator: (value) => {
+                    if (!value || value.trim() === '') {
+                        return 'الرجاء إدخال اسم صحيح!';
+                    }
+                }
+            });
+            
+            if (newName) {
+                try {
+                    const { database, ref, update } = window.firebaseDB;
+                    await update(ref(database, `admins/${currentUser.id}`), {
+                        name: newName.trim()
+                    });
+                    
+                    currentUser.name = newName.trim();
+                    updateUserUI();
+                    showAlert('success', 'تم تحديث الاسم بنجاح');
+                } catch (error) {
+                    showAlert('error', 'حدث خطأ أثناء تحديث الاسم');
+                }
+            }
+        };
+
+        window.changeUsername = async function() {
+            const { value: newUsername } = await Swal.fire({
+                title: 'تغيير اسم المستخدم',
+                input: 'text',
+                inputValue: currentUser.username,
+                inputPlaceholder: 'أدخل اسم المستخدم الجديد',
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء',
+                inputValidator: (value) => {
+                    if (!value || value.trim() === '') {
+                        return 'الرجاء إدخال اسم مستخدم صحيح!';
+                    }
+                    if (DB.admins.find(a => a.username === value.trim() && a.id !== currentUser.id)) {
+                        return 'اسم المستخدم موجود بالفعل!';
+                    }
+                }
+            });
+            
+            if (newUsername) {
+                try {
+                    const { database, ref, update } = window.firebaseDB;
+                    await update(ref(database, `admins/${currentUser.id}`), {
+                        username: newUsername.trim()
+                    });
+                    
+                    currentUser.username = newUsername.trim();
+                    updateUserUI();
+                    showAlert('success', 'تم تحديث اسم المستخدم بنجاح');
+                } catch (error) {
+                    showAlert('error', 'حدث خطأ أثناء تحديث اسم المستخدم');
+                }
+            }
+        };
+
+        window.changePassword = async function() {
+            const { value: formValues } = await Swal.fire({
+                title: 'تغيير كلمة المرور',
+                html:
+                    '<input id="oldPassword" type="password" class="swal2-input" placeholder="كلمة المرور الحالية">' +
+                    '<input id="newPassword" type="password" class="swal2-input" placeholder="كلمة المرور الجديدة">' +
+                    '<input id="confirmPassword" type="password" class="swal2-input" placeholder="تأكيد كلمة المرور">',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => {
+                    const oldPassword = document.getElementById('oldPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (!oldPassword || !newPassword || !confirmPassword) {
+                        Swal.showValidationMessage('الرجاء ملء جميع الحقول');
+                        return false;
+                    }
+                    
+                    if (oldPassword !== currentUser.password) {
+                        Swal.showValidationMessage('كلمة المرور الحالية غير صحيحة');
+                        return false;
+                    }
+                    
+                    if (newPassword.length < 3) {
+                        Swal.showValidationMessage('كلمة المرور الجديدة قصيرة جداً (3 أحرف على الأقل)');
+                        return false;
+                    }
+                    
+                    if (newPassword !== confirmPassword) {
+                        Swal.showValidationMessage('كلمات المرور غير متطابقة');
+                        return false;
+                    }
+                    
+                    return { newPassword };
+                }
+            });
+            
+            if (formValues) {
+                try {
+                    const { database, ref, update } = window.firebaseDB;
+                    await update(ref(database, `admins/${currentUser.id}`), {
+                        password: formValues.newPassword
+                    });
+                    
+                    currentUser.password = formValues.newPassword;
+                    showAlert('success', 'تم تحديث كلمة المرور بنجاح');
+                } catch (error) {
+                    showAlert('error', 'حدث خطأ أثناء تحديث كلمة المرور');
+                }
+            }
+        };
+
+        function displayQuestions() {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';
+            
+            if (!DB.questions || DB.questions.length === 0) {
+                questionList.innerHTML = '<p style="text-align: center; color: #8a2be2; padding: 50px;">لا توجد أسئلة حالياً</p>';
+                return;
+            }
+
+            DB.questions.forEach((q, index) => {
+                const typeLabels = {
+                    'mcq': 'اختيار من متعدد',
+                    'multiple': 'اختيار متعدد',
+                    'truefalse': 'صح / خطأ',
+                    'matching': 'مطابقة',
+                    'essay': 'سؤال مقالي'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                
+                let contentHTML = `
+                    <div class="question-header">
+                        <span class="question-id">السؤال #${index + 1} - ${typeLabels[q.type] || q.type}</span>
+                        <div class="question-actions">
+                            <button class="btn btn-warning" onclick="editQuestion(${q.id})" style="padding: 10px 18px;">✏️ تعديل</button>
+                            <button class="btn btn-danger" onclick="deleteQuestion(${q.id})" style="padding: 10px 18px;">🗑️ حذف</button>
+                        </div>
+                    </div>
+                    <div class="question-text">${escapeHtml(q.text)}</div>
+                    ${q.image ? `<img src="${q.image}" style="max-width: 200px; border-radius: 12px; margin: 12px 0;">` : ''}
+                    <div style="color: #8a2be2; font-size: 0.95rem; margin-top: 12px;">⏱️ الوقت: ${q.timeout} ثانية</div>
+                `;
+
+                if (q.type === 'mcq' || q.type === 'multiple') {
+                    contentHTML += '<div class="choices-list">';
+                    q.choices.forEach((choice, i) => {
+                        const isCorrect = q.type === 'mcq' ? i === q.correctChoice : (q.correctChoices && q.correctChoices.includes(i));
+                        contentHTML += `
+                            <div class="choice-item ${isCorrect ? 'correct' : ''}">
+                                <span class="choice-text">${escapeHtml(choice)}</span>
+                                ${isCorrect ? '<span class="correct-badge">✓ صحيح</span>' : ''}
+                            </div>`;
+                    });
+                    contentHTML += '</div>';
+                } else if (q.type === 'truefalse') {
+                    contentHTML += `
+                        <div class="choices-list">
+                            <div class="choice-item ${q.correctAnswer === 'true' ? 'correct' : ''}">
+                                <span class="choice-text">✓ صحيح</span>
+                                ${q.correctAnswer === 'true' ? '<span class="correct-badge">✓ صحيح</span>' : ''}
+                            </div>
+                            <div class="choice-item ${q.correctAnswer === 'false' ? 'correct' : ''}">
+                                <span class="choice-text">✗ خطأ</span>
+                                ${q.correctAnswer === 'false' ? '<span class="correct-badge">✓ صحيح</span>' : ''}
+                            </div>
+                        </div>`;
+                } else if (q.type === 'matching') {
+                    contentHTML += '<div class="matching-pairs">';
+                    contentHTML += '<div class="matching-column"><h4>العمود الأول</h4>';
+                    if (q.leftColumn) {
+                        q.leftColumn.forEach(item => {
+                            contentHTML += `<div class="matching-item">${escapeHtml(item)}</div>`;
+                        });
+                    }
+                    contentHTML += '</div>';
+                    contentHTML += '<div class="matching-column"><h4>العمود الثاني</h4>';
+                    if (q.rightColumn) {
+                        q.rightColumn.forEach(item => {
+                            contentHTML += `<div class="matching-item">${escapeHtml(item)}</div>`;
+                        });
+                    }
+                    contentHTML += '</div></div>';
+                    if (q.correctPairs) {
+                        contentHTML += '<div style="margin-top:15px; padding:10px; background:rgba(0,191,255,0.1); border-radius:8px;">';
+                        contentHTML += '<strong style="color:#00bfff;">الإجابات الصحيحة:</strong><br>';
+                        q.correctPairs.forEach((pair, idx) => {
+                            contentHTML += `<span style="color:#fff; font-size:0.9rem;">${idx + 1}. ${escapeHtml(q.leftColumn[pair.left])} ⟷ ${escapeHtml(q.rightColumn[pair.right])}</span><br>`;
+                        });
+                        contentHTML += '</div>';
+                    }
+                }
+
+                card.innerHTML = contentHTML;
+                questionList.appendChild(card);
+            });
+        }
+
+        window.openAddQuestionModal = function() {
+            editingQuestionId = null;
+            currentQuestionImage = null;
+            document.getElementById('modalTitle').textContent = 'إضافة سؤال جديد';
+            document.getElementById('questionForm').reset();
+            document.getElementById('questionType').value = 'mcq';
+            document.getElementById('questionImagePreview').style.display = 'none';
+            updateQuestionForm();
+            document.getElementById('questionModal').classList.add('active');
+        };
+
+        window.closeQuestionModal = function() {
+            document.getElementById('questionModal').classList.remove('active');
+        };
+
+        window.updateQuestionForm = function() {
+            const type = document.getElementById('questionType').value;
+            const container = document.getElementById('questionFormContent');
+            container.innerHTML = '';
+
+            if (type === 'mcq' || type === 'multiple') {
+                container.innerHTML = `<div id="choicesContainer"></div><button type="button" class="btn btn-primary" onclick="addChoice()" style="margin-top:10px">+ إضافة اختيار</button>`;
+                addChoice();
+                addChoice();
+            } else if (type === 'truefalse') {
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label>الإجابة الصحيحة</label>
+                        <select id="tfAnswer" style="width:100%; padding:10px; background:rgba(0,0,0,0.5); color:#fff; border:1px solid #444; border-radius:8px;">
+                            <option value="true">صح (True)</option>
+                            <option value="false">خطأ (False)</option>
+                        </select>
+                    </div>`;
+            } else if (type === 'matching') {
+                container.innerHTML = `
+                    <div style="margin-bottom:15px; font-size:0.9rem; color:#aaa;">
+                        ℹ️ قم بإدخال الكلمة وما يطابقها في نفس السطر. النظام سيقوم بخلط الاجابات للطالب تلقائياً.
+                    </div>
+                    <div id="pairsContainer"></div>
+                    <button type="button" class="btn btn-primary" onclick="addPairRow()" style="margin-top:10px; width:100%">+ أضف زوج جديد</button>
+                `;
+                addPairRow();
+                addPairRow();
+            } else if (type === 'essay') {
+                container.innerHTML = `<div class="form-group"><label>ملاحظات التصحيح (اختياري)</label><textarea id="essayNotes"></textarea></div>`;
+            }
+        };
+
+        window.addPairRow = function(leftVal = '', rightVal = '') {
+            const div = document.createElement('div');
+            div.className = 'pair-row';
+            div.innerHTML = `
+                <input type="text" class="pair-input left" placeholder="السؤال (العمود الأيمن)" value="${leftVal}" required>
+                <span class="pair-icon">⟷</span>
+                <input type="text" class="pair-input right" placeholder="الإجابة (العمود الأيسر)" value="${rightVal}" required>
+                <button type="button" class="btn-remove-pair" onclick="this.parentElement.remove()">×</button>
+            `;
+            document.getElementById('pairsContainer').appendChild(div);
+        };
+
+        window.addChoice = function() {
+            const container = document.getElementById('choicesContainer');
+            const index = container.children.length;
+            const type = document.getElementById('questionType').value;
+            const inputType = type === 'mcq' ? 'radio' : 'checkbox';
+            
+            container.innerHTML += `
+                <div style="margin-bottom: 10px;">
+                    <input type="text" placeholder="الاختيار ${index + 1}" id="choice${index}" required style="width: 85%; display: inline-block;">
+                    <input type="${inputType}" name="${type === 'mcq' ? 'correctChoice' : 'correctChoices'}" value="${index}" style="width: auto; margin-right: 10px;">
+                </div>`;
+        };
+
+        window.uploadQuestionImage = function(event) {
+            const file = event.target.files[0];
+            if (!file || file.size > 5 * 1024 * 1024) {
+                showAlert('error', 'حجم الصورة كبير! الحد الأقصى 5MB');
+                event.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                currentQuestionImage = e.target.result;
+                document.getElementById('questionImagePreview').src = e.target.result;
+                document.getElementById('questionImagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        };
+
+        async function handleQuestionSubmit(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('questionType').value;
+            const text = document.getElementById('questionText').value.trim();
+            const timeout = parseInt(document.getElementById('questionTimeout').value) || 15;
+            
+            let qData = {
+                id: editingQuestionId || Date.now(),
+                type: type,
+                text: text,
+                timeout: timeout,
+                image: currentQuestionImage
+            };
+
+            if (type === 'matching') {
+                const rows = document.querySelectorAll('.pair-row');
+                if(rows.length < 2) return Swal.fire('تنبيه', 'يجب إضافة زوجين على الأقل', 'warning');
+
+                let left = [], right = [], pairs = [];
+                
+                rows.forEach((row, index) => {
+                    const l = row.querySelector('.left').value.trim();
+                    const r = row.querySelector('.right').value.trim();
+                    if(l && r) {
+                        left.push(l);
+                        right.push(r);
+                        pairs.push({left: index, right: index}); 
+                    }
+                });
+                
+                qData.leftColumn = left;
+                qData.rightColumn = right;
+                qData.correctPairs = pairs;
+            } else if (type === 'mcq' || type === 'multiple') {
+                const choices = [];
+                const container = document.getElementById('choicesContainer');
+                const inputs = container.querySelectorAll('input[type="text"]'); 
+                inputs.forEach(inp => choices.push(inp.value));
+                qData.choices = choices;
+
+                if(type === 'mcq') {
+                    const checked = container.querySelector('input[type="radio"]:checked');
+                    if(!checked) return Swal.fire('تنبيه', 'حدد الإجابة الصحيحة', 'warning');
+                    qData.correctChoice = parseInt(checked.value);
+                } else {
+                    const checked = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'));
+                    if(checked.length === 0) return Swal.fire('تنبيه', 'حدد إجابة واحدة على الأقل', 'warning');
+                    qData.correctChoices = checked.map(c => parseInt(c.value));
+                }
+            } else if (type === 'truefalse') {
+                qData.correctAnswer = document.getElementById('tfAnswer').value;
+            } else if (type === 'essay') {
+                const notes = document.getElementById('essayNotes');
+                qData.notes = notes ? notes.value : '';
+            }
+
+            try {
+                const { database, ref, set } = window.firebaseDB;
+                await set(ref(database, `questions/${qData.id}`), qData);
+                closeQuestionModal();
+                Swal.fire('تم', 'تم حفظ السؤال بنجاح', 'success');
+            } catch(err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        }
+
+        window.editQuestion = function(id) {
+            const question = DB.questions.find(q => q.id === id);
+            if (!question) return;
+            
+            editingQuestionId = id;
+            currentQuestionImage = question.image || null;
+            
+            document.getElementById('modalTitle').textContent = 'تعديل السؤال';
+            document.getElementById('questionType').value = question.type;
+            document.getElementById('questionText').value = question.text;
+            document.getElementById('questionTimeout').value = question.timeout;
+            
+            const imagePreview = document.getElementById('questionImagePreview');
+            imagePreview.src = question.image || '';
+            imagePreview.style.display = question.image ? 'block' : 'none';
+            
+            updateQuestionForm();
+            
+            setTimeout(() => {
+                if (question.type === 'mcq' || question.type === 'multiple') {
+                    const container = document.getElementById('choicesContainer');
+                    container.innerHTML = '';
+                    question.choices.forEach((choice, i) => {
+                        const inputType = question.type === 'mcq' ? 'radio' : 'checkbox';
+                        const isCorrect = question.type === 'mcq' ? i === question.correctChoice : question.correctChoices.includes(i);
+                        container.innerHTML += `
+                            <div style="margin-bottom: 10px;">
+                                <input type="text" placeholder="الاختيار ${i + 1}" id="choice${i}" value="${escapeHtml(choice)}" required style="width: 85%; display: inline-block;">
+                                <input type="${inputType}" name="${question.type === 'mcq' ? 'correctChoice' : 'correctChoices'}" value="${i}" ${isCorrect ? 'checked' : ''} style="width: auto; margin-right: 10px;">
+                            </div>`;
+                    });
+                } else if (question.type === 'truefalse') {
+                    document.getElementById('tfAnswer').value = question.correctAnswer;
+                } else if (question.type === 'matching') {
+                    const pairsContainer = document.getElementById('pairsContainer');
+                    pairsContainer.innerHTML = '';
+                    if (question.leftColumn && question.rightColumn) {
+                        question.leftColumn.forEach((left, idx) => {
+                            addPairRow(left, question.rightColumn[idx] || '');
+                        });
+                    }
+                } else if (question.type === 'essay') {
+                    if (document.getElementById('essayNotes')) {
+                        document.getElementById('essayNotes').value = question.notes || '';
+                    }
+                }
+            }, 100);
+            
+            document.getElementById('questionModal').classList.add('active');
+        };
+
+        window.deleteQuestion = async function(id) {
+            if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+                await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, `questions/${id}`), null);
+                showAlert('success', 'تم حذف السؤال بنجاح');
+            }
+        };
+
+        function updateExamSettingsUI() {
+            document.getElementById('timerMode').value = DB.examSettings.timer.mode;
+            document.getElementById('totalTime').value = DB.examSettings.timer.totalTime;
+            document.getElementById('questionTime').value = DB.examSettings.timer.questionTime;
+            document.getElementById('antiCheatEnabled').checked = DB.examSettings.antiCheat.enabled;
+            document.getElementById('blockTabSwitch').checked = DB.examSettings.antiCheat.blockTabSwitch;
+            document.getElementById('forceFullscreen').checked = DB.examSettings.antiCheat.forceFullscreen;
+            document.getElementById('cameraEnabled').checked = DB.examSettings.camera.enabled;
+            document.getElementById('captureInterval').value = DB.examSettings.camera.captureInterval;
+        }
+
+        window.saveExamSettings = async function() {
+    const newSettings = {
+        timer: {
+            mode: document.getElementById('timerMode').value,
+            totalTime: parseInt(document.getElementById('totalTime').value),
+            questionTime: parseInt(document.getElementById('questionTime').value)
+        },
+        antiCheat: {
+            enabled: document.getElementById('antiCheatEnabled').checked,
+            blockTabSwitch: document.getElementById('blockTabSwitch').checked,
+            forceFullscreen: document.getElementById('forceFullscreen').checked
+        },
+        camera: {
+            enabled: document.getElementById('cameraEnabled').checked,
+            captureInterval: parseInt(document.getElementById('captureInterval').value)
+        }
+    };
+    await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'examSettings'), newSettings);
+    showAlert('success', 'تم حفظ الإعدادات بنجاح');
+};
+
+function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
+    function gbadge(key) { return `<span class="gbadge g-${key === 'none' ? 'none' : escapeHtml(String(key))}">${escapeHtml(AppCore.groupLabel(key, currentTiers()))}</span>`; }
+    const resultsMap = () => Object.fromEntries((DB.results || []).filter(r => r && r.code).map(r => [r.code, r]));
+    const $$ = (id) => document.getElementById(id);
+
+    function fillGroupFilter(id) {
+        const sel = $$(id); if (!sel) return; const cur = sel.value;
+        sel.innerHTML = '<option value="">كل المجموعات</option>' + currentTiers().slice().sort((x, y) => y.min - x.min).map(t => `<option value="${escapeHtml(t.key)}">${escapeHtml(t.label)}</option>`).join('') + '<option value="none">غير مصنف / يحتاج مراجعة</option>';
+        sel.value = [...sel.options].some(o => o.value === cur) ? cur : '';
+    }
+
+    function displayResults() {
+        fillGroupFilter('resultsGroupFilter');
+        const box = $$('resultsContent'), q = AppCore.normalizeName($$('resultsSearch').value), fg = $$('resultsGroupFilter').value, tiers = currentTiers();
+        const list = (DB.results || []).filter(r => r && r.code).map(r => ({ ...r, g: AppCore.classify(r.score, r.total, tiers), ex: AppCore.exactPct(r.score, r.total) }))
+            .filter(r => (!fg || r.g === fg) && (!q || AppCore.normalizeName(r.name).includes(q) || String(r.code).toLowerCase().includes(q.toLowerCase())))
+            .sort((x, y) => y.ex - x.ex);
+        box.innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الاسم</th><th>الكود</th><th>الدرجة</th><th>%</th><th>المجموعة</th><th>إجراءات</th></tr></thead><tbody>` +
+            (list.length ? list.map((r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.name)}</td><td style="color:#00bfff;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(String(r.score))} / ${escapeHtml(String(r.total))}</td><td><span class="score-badge ${r.ex >= 50 ? 'score-good' : 'score-poor'}">${Math.round(r.ex * 10) / 10}%</span></td><td>${gbadge(r.g)}</td><td><button class="btn btn-primary" data-code="${escapeHtml(r.code)}" onclick="viewStudentAnswers(this.dataset.code)" style="padding:5px 10px;font-size:.8rem">📝 عرض</button></td></tr>`).join('')
+                : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#8a2be2">لا توجد نتائج مطابقة</td></tr>') + '</tbody></table></div>';
+    }
+
+    window.exportResults = function() {
+        if (!DB.results || DB.results.length === 0) { showAlert('error', 'لا توجد نتائج للتصدير'); return; }
+        const tiers = currentTiers(), q = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+        const csv = [['الترتيب', 'الاسم', 'الكود', 'رقم الهاتف', 'النتيجة', 'المجموع', 'النسبة', 'المجموعة'].map(q).join(','),
+            ...[...DB.results].sort((a, b) => AppCore.exactPct(b.score, b.total) - AppCore.exactPct(a.score, a.total))
+                .map((r, i) => [i + 1, r.name, r.code, r.phone || '', r.score, r.total, `${Math.round(AppCore.exactPct(r.score, r.total) * 10) / 10}%`, AppCore.groupLabel(AppCore.classify(r.score, r.total, tiers), tiers)].map(q).join(','))].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `exam_results_${Date.now()}.csv`; link.click();
+        showAlert('success', 'تم تصدير النتائج بنجاح');
+    };
+
+    function displayCodes() {
+        const codesContent = document.getElementById('codesContent');
+        if (!DB.accessCodes) {
+            codesContent.innerHTML = '<p>جاري تحميل الأكواد...</p>';
+            return;
+        }
+        
+        const usedCodes = DB.accessCodes.filter(c => c.used);
+        const availableCodes = DB.accessCodes.filter(c => !c.used);
+        
+        codesContent.innerHTML = `
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                <h3 style="color: #ff3366; margin:0;">الأكواد المستخدمة (${usedCodes.length})</h3>
+                ${usedCodes.length > 0 ? `<button class="btn btn-danger" onclick="resetSelectedCodes()" style="padding: 5px 15px; font-size: 0.9rem;">🗑️ تصفير المحدد</button>` : ''}
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px; margin-bottom:30px;">
+                ${usedCodes.map(c => `
+                    <div style="background:rgba(30,30,40,0.9); padding:12px; border:1px solid #444; border-radius:8px; display:flex; align-items:center; gap:12px;">
+                        <input type="checkbox" class="reset-check" value="${escapeHtml(c.code)}" style="width:18px; height:18px; cursor:pointer;">
+                        <div>
+                            <strong style="color:#00bfff; font-size:1.1rem">${escapeHtml(c.code)}</strong><br>
+                            <small style="color:#aaa;">👤 ${escapeHtml(c.usedBy || 'غير مسجل')}</small>
+                            ${c.usedAt ? `<div style="font-size:0.75rem; color:#666">${new Date(c.usedAt).toLocaleString('ar-EG')}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+                ${usedCodes.length === 0 ? '<p style="color:#aaa">لا توجد أكواد مستخدمة حالياً</p>' : ''}
+            </div>
+
+            <h3 style="color: #00bfff; margin-bottom: 20px; border-top: 1px solid #333; padding-top: 20px;">الأكواد المتاحة (${availableCodes.length})</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
+                ${availableCodes.map(c => `
+                    <div style="background:rgba(0,191,255,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(0,191,255,0.2); color:#fff; font-family:monospace;">
+                        ${c.code}
+                    </div>
+                `).join('')}
+            </div>`;
+    }
+
+    window.exportCodes = function() {
+        const csv = [
+            ['الكود', 'الحالة', 'الاسم'],
+            ...DB.accessCodes.map(item => [item.code, item.used ? 'مستخدم' : 'متاح', item.usedBy || '-'])
+        ].map(row => row.join(',')).join('\n');
+        
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `access_codes_${Date.now()}.csv`;
+        link.click();
+        showAlert('success', 'تم تصدير الأكواد بنجاح');
+    };
+
+    window.addNewCode = async function() {
+        const input = document.getElementById('newCustomCode');
+        const code = input.value.trim().toUpperCase();
+        
+        if (!code) return showAlert('error', 'الرجاء إدخال كود');
+        if (DB.accessCodes.find(c => c.code === code)) return showAlert('error', 'الكود موجود بالفعل');
+        
+        const { database, ref, set } = window.firebaseDB;
+        await set(ref(database, `accessCodes/${code}`), { code, used: false, usedBy: null, usedAt: null });
+        input.value = '';
+        showAlert('success', 'تم إضافة الكود بنجاح');
+    };
+
+    window.resetAllCodes = async function() {
+        if (!confirm('⚠️ هل أنت متأكد من إعادة تعيين جميع الأكواد وحذف جميع النتائج؟')) return;
+        
+        const freshCodes = {};
+        VALID_CODES.forEach(code => {
+            freshCodes[code] = { code, used: false, usedBy: null, usedAt: null };
+        });
+        
+        const { database, ref, set } = window.firebaseDB;
+        await Promise.all([
+            set(ref(database, 'accessCodes'), freshCodes),
+            set(ref(database, 'results'), null),
+            set(ref(database, 'snapshots'), null)
+        ]);
+        
+        showAlert('success', 'تم إعادة تعيين كل شيء بنجاح');
+    };
+
+    window.resetSelectedCodes = async function() {
+        const selected = document.querySelectorAll('.reset-check:checked');
+        
+        if (selected.length === 0) {
+            return Swal.fire('تنبيه', 'من فضلك اختر طالباً واحداً على الأقل لتصفيره', 'info');
+        }
+
+        const confirm = await Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: `سيتم حذف نتائج ${selected.length} طالب وإعادة تفعيل أكوادهم!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، صفرهم',
+            cancelButtonText: 'تراجع',
+            confirmButtonColor: '#d33'
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        const { database, ref, update, remove } = window.firebaseDB;
+        const updates = {};
+        
+        for (const el of selected) {
+            const code = el.value;
+            updates[`accessCodes/${code}/used`] = false;
+            updates[`accessCodes/${code}/usedBy`] = null;
+            updates[`accessCodes/${code}/usedAt`] = null;
+            await remove(ref(database, `results/${code}`));
+            await remove(ref(database, `snapshots/${code}`));
+        }
+
+        await update(ref(database), updates);
+        Swal.fire('تم', 'تم تصفير الأكواد المختارة بنجاح', 'success');
+    };
+
+/* ===== AppCore: classification + appointment booking + exports (shared by both sites) ===== */
+const AppCore = (function () {
+  const NONE = 'none';
+  const DEFAULT_TIERS = [{ key: 'I', label: 'I', min: 80 }, { key: 'B', label: 'B', min: 70 }, { key: 'C', label: 'C', min: 50 }];
+  const DAYS = [
+    { key: 'sat', ar: 'السبت', en: 'Saturday' }, { key: 'sun', ar: 'الأحد', en: 'Sunday' },
+    { key: 'mon', ar: 'الاثنين', en: 'Monday' }, { key: 'tue', ar: 'الثلاثاء', en: 'Tuesday' },
+    { key: 'wed', ar: 'الأربعاء', en: 'Wednesday' }, { key: 'thu', ar: 'الخميس', en: 'Thursday' },
+    { key: 'fri', ar: 'الجمعة', en: 'Friday' }
+  ];
+  const dayInfo = k => DAYS.find(d => d.key === k) || { key: k, ar: k, en: k };
+
+  function toLatinDigits(s) {
+    return String(s == null ? '' : s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+  }
+  function normalizeName(s) {
+    return String(s || '').replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+  function normalizePhone(s) {
+    let d = toLatinDigits(s).replace(/\D/g, '');
+    if (d.startsWith('0020')) d = '0' + d.slice(4);
+    else if (d.startsWith('20') && d.length === 12) d = '0' + d.slice(2);
+    return d;
+  }
+  const isValidPhone = p => /^\d{10,15}$/.test(normalizePhone(p));
+  const normalizeCode = c => String(c || '').trim().toUpperCase();
+
+  // ---- classification (exact integer-safe comparison, never uses the rounded percentage) ----
+  function validateTiers(tiers) {
+    if (!Array.isArray(tiers) || tiers.length < 1) return 'يجب تحديد مجموعة واحدة على الأقل';
+    const keys = new Set(), mins = new Set();
+    for (const t of tiers) {
+      if (!t.key || !String(t.label || '').trim()) return 'اسم المجموعة مطلوب';
+      if (typeof t.min !== 'number' || isNaN(t.min) || t.min <= 0 || t.min > 100) return 'الحد الأدنى يجب أن يكون بين 1 و 100';
+      if (keys.has(t.key)) return 'مفتاح مجموعة مكرر';
+      if (mins.has(t.min)) return 'لا يمكن تكرار نفس الحد الأدنى لمجموعتين (تداخل)';
+      keys.add(t.key); mins.add(t.min);
+    }
+    return null;
+  }
+  function classify(score, total, tiers) {
+    score = Number(score); total = Number(total);
+    if (!(total > 0) || isNaN(score) || score < 0) return NONE;
+    const sorted = (tiers && tiers.length ? tiers : DEFAULT_TIERS).slice().sort((a, b) => b.min - a.min);
+    for (const t of sorted) if (score * 100 + 1e-9 >= t.min * total) return t.key;
+    return NONE;
+  }
+  const exactPct = (score, total) => (Number(total) > 0 ? (Number(score) / Number(total)) * 100 : 0);
+  function groupLabel(key, tiers) {
+    if (key === NONE || !key) return 'غير مصنف / يحتاج مراجعة';
+    const t = (tiers || DEFAULT_TIERS).find(x => x.key === key);
+    return t ? t.label : key;
+  }
+
+  // ---- slots helpers ----
+  const slotSort = (a, b) => (DAYS.findIndex(d => d.key === a.day) - DAYS.findIndex(d => d.key === b.day)) || String(a.time).localeCompare(String(b.time));
+  const countBooked = seats => Object.keys(seats || {}).length;
+  function fmtTimeAr(t) {
+    const [h, m] = String(t).split(':').map(Number); const p = h >= 12 ? 'م' : 'ص'; const hh = h % 12 === 0 ? 12 : h % 12;
+    return `${hh}:${String(m).padStart(2, '0')} ${p}`;
+  }
+  function fileBase(slot) {
+    const [h, m] = String(slot.time).split(':').map(Number); const hh = h % 12 === 0 ? 12 : h % 12;
+    return `${dayInfo(slot.day).en}_${hh}${m ? '_' + String(m).padStart(2, '0') : ''}${h >= 12 ? 'PM' : 'AM'}_Student_List`;
+  }
+  function validateSlot(s) {
+    if (!DAYS.some(d => d.key === s.day)) return 'اليوم غير صحيح';
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(s.time || ''))) return 'الوقت غير صحيح';
+    if (!Number.isInteger(s.capacity) || s.capacity < 1 || s.capacity > 200) return 'السعة يجب أن تكون رقماً صحيحاً بين 1 و 200';
+    return null;
+  }
+
+  // ---- database access (fb = {database, ref, get, set, update, push, runTransaction}) ----
+  const P = (fb, path) => fb.ref(fb.database, path);
+  const read = async (fb, path) => (await fb.get(P(fb, path))).val();
+  async function getSettings(fb) {
+    const s = (await read(fb, 'appointmentSettings')) || {};
+    return { enabled: s.enabled === true, open: s.open === true, institution: s.institution || 'منصة الامتحانات الإلكترونية' };
+  }
+  async function listSlots(fb) {
+    const [a, s] = await Promise.all([read(fb, 'appointments'), read(fb, 'seats')]);
+    return Object.values(a || {}).filter(x => x && x.active !== false).map(x => {
+      const booked = countBooked((s || {})[x.id]);
+      return { ...x, booked, remaining: Math.max(0, x.capacity - booked) };
+    }).sort(slotSort);
+  }
+  async function history(fb, entry) {
+    try { await fb.set(fb.push(P(fb, 'bookingHistory')), { ...entry, at: new Date().toISOString() }); } catch (e) { /* history is best-effort */ }
+  }
+  // Atomically claim one free seat number (1..capacity). Returns seat number or 0 when full.
+  async function claimSeat(fb, slotId, capacity) {
+    const taken = (await read(fb, `seats/${slotId}`)) || {};
+    const free = []; for (let n = 1; n <= capacity; n++) if (!taken[n]) free.push(n);
+    // keep seats compact (lowest numbers first) so capacity can later be reduced; small random window avoids collisions
+    const w = Math.min(free.length, 4), off = w ? Math.floor(Math.random() * w) : 0;
+    const order = free.slice(0, w).map((_, i, a) => a[(i + off) % w]).concat(free.slice(w));
+    for (const n of order) {
+      const r = await fb.runTransaction(P(fb, `seats/${slotId}/${n}`), cur => (cur == null ? n : undefined));
+      if (r.committed) return n;
+    }
+    return 0;
+  }
+  const STUCK_MS = 60000;
+  async function bookSeat(fb, code, slotId, info) {
+    code = normalizeCode(code);
+    const st = await getSettings(fb);
+    if (!st.enabled || !st.open) throw new Error('نظام الحجز مغلق حالياً');
+    const slot = await read(fb, `appointments/${slotId}`);
+    if (!slot || slot.active === false) throw new Error('الموعد غير متاح');
+    const now = Date.now();
+    const rec = { slotId, seat: 0, name: info.name, phone: info.phone, bookedAt: new Date(now).toISOString(), status: 'pending' };
+    const t1 = await fb.runTransaction(P(fb, `studentBookings/${code}`), cur =>
+      (cur == null || (cur.status === 'pending' && now - Date.parse(cur.bookedAt) > STUCK_MS)) ? rec : undefined);
+    if (!t1.committed) throw new Error('لديك حجز مسبق بالفعل، لا يمكن حجز أكثر من موعد');
+    let seat = 0;
+    try { seat = await claimSeat(fb, slotId, slot.capacity); } catch (e) { await fb.set(P(fb, `studentBookings/${code}`), null); throw e; }
+    if (!seat) { await fb.set(P(fb, `studentBookings/${code}`), null); throw new Error('عذراً، اكتمل عدد هذا الموعد'); }
+    try {
+      await fb.update(P(fb), { [`studentBookings/${code}/seat`]: seat, [`studentBookings/${code}/status`]: 'confirmed' });
+    } catch (e) {
+      await fb.set(P(fb, `seats/${slotId}/${seat}`), null); await fb.set(P(fb, `studentBookings/${code}`), null); throw e;
+    }
+    await history(fb, { code, action: 'book', slotId, seat, by: 'student' });
+    return { slotId, seat };
+  }
+  async function cancelBooking(fb, code, by) {
+    code = normalizeCode(code);
+    const b = await read(fb, `studentBookings/${code}`);
+    if (!b) return false;
+    const up = { [`studentBookings/${code}`]: null };
+    if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
+    await fb.update(P(fb), up);
+    await history(fb, { code, action: 'cancel', slotId: b.slotId, seat: b.seat || 0, by: by || 'admin' });
+    return true;
+  }
+  async function moveBooking(fb, code, newSlotId, by) {
+    code = normalizeCode(code);
+    const b = await read(fb, `studentBookings/${code}`);
+    if (!b) throw new Error('لا يوجد حجز لهذا الطالب');
+    if (b.slotId === newSlotId) return b;
+    const slot = await read(fb, `appointments/${newSlotId}`);
+    if (!slot || slot.active === false) throw new Error('الموعد الجديد غير متاح');
+    const seat = await claimSeat(fb, newSlotId, slot.capacity);
+    if (!seat) throw new Error('الموعد الجديد مكتمل');
+    const up = { [`studentBookings/${code}/slotId`]: newSlotId, [`studentBookings/${code}/seat`]: seat, [`studentBookings/${code}/status`]: 'confirmed', [`studentBookings/${code}/movedAt`]: new Date().toISOString() };
+    if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
+    try { await fb.update(P(fb), up); } catch (e) { await fb.set(P(fb, `seats/${newSlotId}/${seat}`), null); throw e; }
+    await history(fb, { code, action: 'move', slotId: newSlotId, from: b.slotId, seat, by: by || 'admin' });
+    return { slotId: newSlotId, seat };
+  }
+  async function canSetCapacity(fb, slotId, cap) {
+    const seats = (await read(fb, `seats/${slotId}`)) || {};
+    const max = Math.max(0, ...Object.keys(seats).map(Number));
+    return max <= cap ? null : `يوجد حجوزات حتى المقعد رقم ${max}، انقل الطلاب أو ألغِ حجوزاتهم أولاً`;
+  }
+  async function deleteSlot(fb, slotId, by) {
+    const all = (await read(fb, 'studentBookings')) || {};
+    const up = { [`appointments/${slotId}`]: null, [`seats/${slotId}`]: null };
+    const codes = Object.keys(all).filter(c => all[c].slotId === slotId);
+    codes.forEach(c => { up[`studentBookings/${c}`] = null; });
+    await fb.update(P(fb), up);
+    for (const c of codes) await history(fb, { code: c, action: 'cancel-slot-deleted', slotId, by: by || 'admin' });
+    return codes.length;
+  }
+
+  // ---- exports ----
+  function slotRows(slot, bookings, results, tiers) {
+    return Object.keys(bookings || {}).filter(c => bookings[c].slotId === slot.id && bookings[c].status === 'confirmed').map(c => {
+      const b = bookings[c], r = (results || {})[c] || {};
+      const g = r.total > 0 ? classify(r.score, r.total, tiers) : NONE;
+      return { code: c, name: b.name || r.name || '', phone: b.phone || '', score: r.score, total: r.total, pct: r.total > 0 ? Math.round(exactPct(r.score, r.total) * 10) / 10 : 0, group: groupLabel(g, tiers), groupKey: g, seat: b.seat };
+    }).sort((a, b) => a.name.localeCompare(b.name, 'ar') || a.code.localeCompare(b.code));
+  }
+  const slotTitle = s => `${dayInfo(s.day).ar} - ${fmtTimeAr(s.time)}`;
+  async function buildExcel(ExcelJS, slot, rows) {
+    const wb = new ExcelJS.Workbook(); wb.creator = 'Exam System';
+    const ws = wb.addWorksheet('Students', { views: [{ state: 'frozen', ySplit: 1, rightToLeft: true }] });
+    ws.columns = [['No.', 6], ['Student Code', 16], ['Full Name', 36], ['Phone Number', 18], ['Score', 12], ['Percentage', 12], ['Group', 18], ['Appointment', 24]].map(([header, width]) => ({ header, width }));
+    rows.forEach((r, i) => ws.addRow([i + 1, r.code, r.name, r.phone, `${r.score ?? ''} / ${r.total ?? ''}`, (r.pct || 0) / 100, r.group, slotTitle(slot)]));
+    ws.getColumn(6).numFmt = '0.0%';
+    const h = ws.getRow(1); h.font = { bold: true, color: { argb: 'FFFFFFFF' } }; h.alignment = { horizontal: 'center', vertical: 'middle' };
+    h.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4B2A9A' } }; });
+    ws.eachRow((row, n) => { if (n > 1) row.alignment = { horizontal: 'center', vertical: 'middle' }; });
+    ws.getColumn(4).numFmt = '@';
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 8 } };
+    return wb.xlsx.writeBuffer();
+  }
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function buildPdfPages(slot, rows, institution, perPage) {
+    perPage = perPage || 25;
+    const total = Math.max(1, Math.ceil(rows.length / perPage)), pages = [];
+    for (let p = 0; p < total; p++) {
+      const chunk = rows.slice(p * perPage, (p + 1) * perPage);
+      pages.push(`<div class="pdf-page" dir="rtl"><div class="pdf-head"><h1>${esc(institution)}</h1><h2>قائمة طلاب موعد: ${esc(slotTitle(slot))}</h2>
+<div class="pdf-meta"><span>عدد المسجلين: ${rows.length}</span><span>السعة القصوى: ${slot.capacity}</span></div></div>
+<table><thead><tr><th>م</th><th>كود الطالب</th><th>الاسم بالكامل</th><th>رقم الهاتف</th><th>الدرجة</th><th>المجموعة</th></tr></thead><tbody>
+${chunk.map((r, i) => `<tr><td>${p * perPage + i + 1}</td><td>${esc(r.code)}</td><td class="nm">${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.score)} / ${esc(r.total)} (${r.pct}%)</td><td>${esc(r.group)}</td></tr>`).join('')}
+${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين في هذا الموعد</td></tr>'}</tbody></table><div class="pdf-foot">صفحة ${p + 1} من ${total}</div></div>`);
+    }
+    return pages;
+  }
+  return { NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
+})();
+
+    // ================= Grouping rules =================
+    let syncing = false;
+    function renderTiersEditor() {
+        const box = $$('tiersEditor'); if (!box) return;
+        box.innerHTML = currentTiers().slice().sort((a, b) => b.min - a.min).map(t => `<div><label>المجموعة (${escapeHtml(t.key)}) - الاسم</label><input class="inp tier-label" data-key="${escapeHtml(t.key)}" value="${escapeHtml(t.label)}" maxlength="20"></div><div><label>الحد الأدنى %</label><input class="inp tier-min" data-key="${escapeHtml(t.key)}" type="number" min="1" max="100" step="0.5" value="${t.min}"></div>`).join('');
+        fillGroupFilter('resultsGroupFilter'); fillGroupFilter('grpGroupFilter');
+    }
+    window.saveTiers = async function () {
+        const tiers = currentTiers().map(t => ({ key: t.key, label: ($$('tiersEditor').querySelector(`.tier-label[data-key="${t.key}"]`).value || '').trim(), min: parseFloat($$('tiersEditor').querySelector(`.tier-min[data-key="${t.key}"]`).value) }));
+        const err = AppCore.validateTiers(tiers);
+        if (err) return showAlert('error', err);
+        await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'groupSettings'), { tiers });
+        DB.tiers = tiers; await reclassifyAll(false); showAlert('success', 'تم حفظ القواعد وإعادة التصنيف');
+    };
+    async function reclassifyAll(notify) {
+        const { database, ref, update } = window.firebaseDB, tiers = currentTiers(), up = {};
+        (DB.results || []).forEach(r => { if (!r || !r.code || !(r.total > 0)) return; const g = AppCore.classify(r.score, r.total, tiers); if (r.group !== g) { up[`results/${r.code}/group`] = g; up[`results/${r.code}/exactPercentage`] = AppCore.exactPct(r.score, r.total); } });
+        if (Object.keys(up).length) await update(ref(database), up);
+        if (notify) showAlert('success', `تمت إعادة التصنيف (${Object.keys(up).length / 2} تعديل)`);
+    }
+    window.reclassifyAll = reclassifyAll;
+    async function syncGroups() {   // keeps the stored group in step with the grade (also heals results saved before this feature existed)
+        if (!currentUser || syncing || !(DB.results || []).length) return;
+        syncing = true; try { await reclassifyAll(false); } catch (e) { console.error(e); } finally { syncing = false; }
+    }
+    window.syncGroups = syncGroups;
+
+    // ================= Appointments =================
+    const slotsList = () => Object.values(DB.appointments || {}).filter(s => s && s.active !== false).map(s => { const booked = AppCore.countBooked((DB.seats || {})[s.id]); return { ...s, booked, remaining: Math.max(0, s.capacity - booked) }; }).sort(AppCore.slotSort);
+    const dayOptions = () => AppCore.DAYS.map(d => `<option value="${d.key}">${d.ar}</option>`).join('');
+    const FB = () => window.firebaseDB;
+    const actor = () => (currentUser && currentUser.username) || 'admin';
+    function refreshAppt() {
+        if (!$$('appointmentsTab').classList.contains('hidden')) displayAppointments();
+        if (!$$('groupsTab').classList.contains('hidden')) displayGroups();
+        if (!$$('resultsTab').classList.contains('hidden')) displayResults();
+    }
+    function syncApptSwitches() {
+        const s = DB.apptSettings || {};
+        $$('apptEnabled').checked = s.enabled === true; $$('apptOpen').checked = s.open === true;
+        if (document.activeElement !== $$('apptInstitution')) $$('apptInstitution').value = s.institution || '';
+    }
+    function bindApptEvents() {
+        $$('apptDay').innerHTML = dayOptions();
+        const setFlag = (k, label) => async (e) => { await FB().set(FB().ref(FB().database, `appointmentSettings/${k}`), e.target.checked); showAlert('success', `${label}: ${e.target.checked ? 'تم التشغيل' : 'تم الإيقاف'}`); };
+        $$('apptEnabled').addEventListener('change', setFlag('enabled', 'نظام المواعيد'));
+        $$('apptOpen').addEventListener('change', setFlag('open', 'الحجز'));
+    }
+    window.saveInstitution = async function () {
+        const v = $$('apptInstitution').value.trim().slice(0, 80);
+        await FB().set(FB().ref(FB().database, 'appointmentSettings/institution'), v || null); showAlert('success', 'تم الحفظ');
+    };
+    window.displayAppointments = function () {
+        const slots = slotsList();
+        $$('apptContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>اليوم</th><th>الوقت</th><th>السعة</th><th>المحجوز</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>` +
+            (slots.length ? slots.map(s => `<tr><td>${AppCore.dayInfo(s.day).ar}</td><td>${AppCore.fmtTimeAr(s.time)}</td><td>${s.capacity}</td><td>${s.booked}</td><td>${s.remaining}</td><td>${s.remaining ? '<span class="gbadge g-I">متاح</span>' : '<span class="gbadge g-none">مكتمل</span>'}</td>
+              <td style="white-space:nowrap"><button class="btn btn-warning mini" onclick="editSlot('${escapeHtml(s.id)}')">✏️</button> <button class="btn btn-danger mini" onclick="deleteSlotUI('${escapeHtml(s.id)}')">🗑</button> <button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></td></tr>`).join('')
+                : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#8a2be2">لا توجد مواعيد بعد</td></tr>') + '</tbody></table></div>';
+    };
+    const dupSlot = (day, time, exceptId) => slotsList().some(x => x.day === day && x.time === time && x.id !== exceptId);
+    window.addSlot = async function () {
+        const s = { day: $$('apptDay').value, time: $$('apptTime').value, capacity: parseInt($$('apptCap').value, 10) };
+        const err = AppCore.validateSlot(s); if (err) return showAlert('error', err);
+        if (dupSlot(s.day, s.time)) return showAlert('error', 'يوجد موعد بنفس اليوم والوقت');
+        const id = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+        await FB().set(FB().ref(FB().database, `appointments/${id}`), { id, ...s, active: true, createdAt: new Date().toISOString() });
+        showAlert('success', 'تمت إضافة الموعد');
+    };
+    window.editSlot = async function (id) {
+        const s = slotsList().find(x => x.id === id); if (!s) return;
+        const r = await Swal.fire({
+            title: 'تعديل الموعد', showCancelButton: true, confirmButtonText: 'حفظ', cancelButtonText: 'إلغاء',
+            html: `<div style="text-align:right"><p class="muted" style="margin-bottom:8px">الطلاب المحجوزون (${s.booked}) يبقون على نفس الموعد بعد التعديل.</p><select id="edDay" class="swal2-input">${dayOptions()}</select><input id="edTime" type="time" class="swal2-input" value="${escapeHtml(s.time)}"><input id="edCap" type="number" min="1" max="200" class="swal2-input" value="${s.capacity}"></div>`,
+            didOpen: () => { document.getElementById('edDay').value = s.day; },
+            preConfirm: async () => {
+                const n = { day: document.getElementById('edDay').value, time: document.getElementById('edTime').value, capacity: parseInt(document.getElementById('edCap').value, 10) };
+                let err = AppCore.validateSlot(n) || (dupSlot(n.day, n.time, id) ? 'يوجد موعد بنفس اليوم والوقت' : null) || await AppCore.canSetCapacity(FB(), id, n.capacity);
+                if (err) { Swal.showValidationMessage(err); return false; } return n;
+            }
+        });
+        if (r.isConfirmed) { await FB().update(FB().ref(FB().database, `appointments/${id}`), r.value); showAlert('success', 'تم التعديل'); }
+    };
+    window.deleteSlotUI = async function (id) {
+        const s = slotsList().find(x => x.id === id); if (!s) return;
+        const r = await Swal.fire({ icon: 'warning', title: 'حذف الموعد؟', text: s.booked ? `سيتم إلغاء ${s.booked} حجز مرتبط بهذا الموعد وسيحتاج الطلاب للحجز من جديد.` : 'لا توجد حجوزات على هذا الموعد.', showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء' });
+        if (!r.isConfirmed) return;
+        const n = await AppCore.deleteSlot(FB(), id, actor()); showAlert('success', `تم الحذف (${n} حجز ملغي)`);
+    };
+
+    // ================= Groups (students by appointment) =================
+    window.displayGroups = function () {
+        fillGroupFilter('grpGroupFilter');
+        const slots = slotsList(), sf = $$('grpSlotFilter'), curSlot = sf.value;
+        sf.innerHTML = '<option value="">كل المواعيد</option>' + slots.map(s => `<option value="${escapeHtml(s.id)}">${AppCore.dayInfo(s.day).ar} - ${AppCore.fmtTimeAr(s.time)}</option>`).join('');
+        sf.value = slots.some(s => s.id === curSlot) ? curSlot : '';
+        const q = AppCore.normalizeName($$('grpSearch').value), fg = $$('grpGroupFilter').value, filtering = !!(q || fg);
+        const tiers = currentTiers(), rmap = resultsMap();
+        const html = slots.filter(s => !sf.value || s.id === sf.value).map(s => {
+            const rows = AppCore.slotRows(s, DB.bookings, rmap, tiers).filter(r => (!fg || r.groupKey === fg) && (!q || AppCore.normalizeName(r.name).includes(q) || r.code.toLowerCase().includes(q.toLowerCase())));
+            if (filtering && !rows.length) return '';
+            return `<div class="slot-card-adm"><header><b>${AppCore.dayInfo(s.day).ar} - ${AppCore.fmtTimeAr(s.time)}</b><span>المحجوز <b>${s.booked}</b> / ${s.capacity} · المتبقي <b>${s.remaining}</b> · ${s.remaining ? '<span class="gbadge g-I">متاح</span>' : '<span class="gbadge g-none">مكتمل</span>'}</span>
+                <span><button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></span></header>
+                <div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الكود</th><th>الاسم</th><th>الهاتف</th><th>الدرجة</th><th>المجموعة</th><th>إجراءات</th></tr></thead><tbody>` +
+                (rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td style="color:#00bfff;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(r.name)}</td><td dir="ltr">${escapeHtml(r.phone)}</td><td>${escapeHtml(String(r.score))} / ${escapeHtml(String(r.total))} (${r.pct}%)</td><td>${gbadge(r.groupKey)}</td>
+                  <td style="white-space:nowrap"><button class="btn btn-warning mini" data-code="${escapeHtml(r.code)}" onclick="moveStudent(this.dataset.code)">🔀 نقل</button> <button class="btn btn-danger mini" data-code="${escapeHtml(r.code)}" onclick="cancelStudent(this.dataset.code)">إلغاء الحجز</button></td></tr>`).join('')
+                    : '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px">لا يوجد طلاب</td></tr>') + '</tbody></table></div></div>';
+        }).join('');
+        $$('groupsContent').innerHTML = html || '<div class="panel muted" style="text-align:center">لا توجد نتائج</div>';
+    };
+    window.moveStudent = async function (code) {
+        const b = (DB.bookings || {})[code]; if (!b) return;
+        const opts = slotsList().filter(s => s.id !== b.slotId && s.remaining > 0);
+        if (!opts.length) return showAlert('error', 'لا توجد مواعيد أخرى بها أماكن شاغرة');
+        const r = await Swal.fire({ title: 'نقل الطالب إلى موعد آخر', input: 'select', inputOptions: Object.fromEntries(opts.map(s => [s.id, `${AppCore.dayInfo(s.day).ar} - ${AppCore.fmtTimeAr(s.time)} (متبقي ${s.remaining})`])), inputPlaceholder: 'اختر الموعد', showCancelButton: true, confirmButtonText: 'نقل', cancelButtonText: 'إلغاء', inputValidator: v => (v ? null : 'اختر موعداً') });
+        if (!r.isConfirmed) return;
+        try { await AppCore.moveBooking(FB(), code, r.value, actor()); showAlert('success', 'تم نقل الطالب'); } catch (e) { showAlert('error', e.message); }
+    };
+    window.cancelStudent = async function (code) {
+        const r = await Swal.fire({ icon: 'warning', title: 'إلغاء حجز الطالب؟', text: 'سيتم تحرير المقعد ليصبح متاحاً من جديد.', showCancelButton: true, confirmButtonText: 'إلغاء الحجز', cancelButtonText: 'رجوع' });
+        if (r.isConfirmed) { await AppCore.cancelBooking(FB(), code, actor()); showAlert('success', 'تم إلغاء الحجز'); }
+    };
+
+    // ================= Excel / PDF export (generated in the browser from live data; no public links) =================
+    const PDF_CSS = `.pdf-page{width:794px;height:1123px;padding:40px 44px;background:#fff;color:#111;font-family:Cairo,Tahoma,Arial,sans-serif;box-sizing:border-box;position:relative;direction:rtl}
+    .pdf-head h1{font-size:22px;text-align:center;margin:0 0 4px;color:#4b2a9a}.pdf-head h2{font-size:17px;text-align:center;margin:0 0 8px}
+    .pdf-meta{display:flex;justify-content:space-between;font-size:13px;margin:8px 0 12px;padding:6px 10px;background:#f1edfb;border-radius:6px}
+    .pdf-page table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}.pdf-page th{background:#4b2a9a;color:#fff;padding:7px 4px;border:1px solid #4b2a9a}
+    .pdf-page td{border:1px solid #cfc8e6;padding:5px 4px;text-align:center;line-height:1.3;word-break:break-word}.pdf-page tr:nth-child(even) td{background:#f8f6fd}
+    .pdf-page th:nth-child(1){width:6%}.pdf-page th:nth-child(2){width:13%}.pdf-page th:nth-child(3){width:28%}.pdf-page th:nth-child(4){width:16%}.pdf-page th:nth-child(5){width:21%}.pdf-page th:nth-child(6){width:16%}
+    .pdf-foot{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:12px;color:#666}`;
+    const rowsFor = (slot) => AppCore.slotRows(slot, DB.bookings, resultsMap(), currentTiers());
+    function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }
+    async function excelBlob(slot) { return new Blob([await AppCore.buildExcel(ExcelJS, slot, rowsFor(slot))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }); }
+    async function pdfBlob(slot) {
+        const pages = AppCore.buildPdfPages(slot, rowsFor(slot), (DB.apptSettings && DB.apptSettings.institution) || 'منصة الامتحانات الإلكترونية', 20);
+        const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-10000px;top:0'; host.innerHTML = `<style>${PDF_CSS}</style>` + pages.join(''); document.body.appendChild(host);
+        try {
+            if (document.fonts && document.fonts.load) { await Promise.all([document.fonts.load('400 14px Cairo'), document.fonts.load('700 14px Cairo')]).catch(() => {}); await document.fonts.ready; }
+            const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true }), els = host.querySelectorAll('.pdf-page');
+            for (let i = 0; i < els.length; i++) {
+                const canvas = await html2canvas(els[i], { scale: 2, backgroundColor: '#ffffff' });
+                if (i > 0) pdf.addPage(); pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, 297);
+            }
+            return pdf.output('blob');
+        } finally { host.remove(); }
+    }
+    const busy = (t) => Swal.fire({ title: t, allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+    window.exportSlot = async function (id, type) {
+        const s = slotsList().find(x => x.id === id); if (!s) return;
+        busy('جاري إنشاء الملف...');
+        try { const base = AppCore.fileBase(s); download(type === 'pdf' ? await pdfBlob(s) : await excelBlob(s), `${base}.${type}`); Swal.close(); showAlert('success', 'تم التصدير'); }
+        catch (e) { console.error(e); Swal.fire('خطأ', 'فشل إنشاء الملف: ' + e.message, 'error'); }
+    };
+    window.exportAllSlots = async function () {
+        const slots = slotsList(); if (!slots.length) return showAlert('error', 'لا توجد مواعيد');
+        busy('جاري إنشاء كل الملفات...');
+        try {
+            const zip = new JSZip();
+            for (const s of slots) { const base = AppCore.fileBase(s); zip.file(`${base}.xlsx`, await (await excelBlob(s)).arrayBuffer()); zip.file(`${base}.pdf`, await (await pdfBlob(s)).arrayBuffer()); }
+            download(new Blob([await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' })], { type: 'application/zip' }), 'All_Appointments_Student_Lists.zip'); Swal.close(); showAlert('success', 'تم التصدير');
+        } catch (e) { console.error(e); Swal.fire('خطأ', 'فشل إنشاء الملفات: ' + e.message, 'error'); }
+    };
+
+    window.viewStudentAnswers = async function(studentCode) {
+        const { database, ref, get, update } = window.firebaseDB;
+        
+        try {
+            const snapshot = await get(ref(database, `results/${studentCode}`));
+            if (!snapshot.exists()) return Swal.fire('خطأ', 'لم يتم العثور على بيانات لهذا الطالب', 'error');
+            
+            const res = snapshot.val();
+            
+            if (!DB.questions || DB.questions.length === 0) {
+                await loadQuestions();
+            }
+
+            let html = `<div style="text-align:right; max-height:400px; overflow-y:auto; direction:rtl;">`;
+            
+            if (res.answers && res.answers.length > 0) {
+                res.answers.forEach((ans, i) => {
+                    const isEssay = ans.type === 'essay';
+                    let statusColor = ans.correct ? '#00ff00' : (isEssay ? '#00bfff' : '#ff3366');
+                    let statusText = ans.correct ? '✅ صح' : (isEssay ? '📝 مقالي' : '❌ خطأ');
+
+                    let qText = ans.questionText;
+                    let originalQ = null;
+                    
+                    if (!qText) {
+                        originalQ = DB.questions.find(q => q.id == ans.questionId);
+                        qText = originalQ ? originalQ.text : `سؤال محذوف (ID: ${ans.questionId})`;
+                    } else {
+                        originalQ = DB.questions.find(q => q.id == ans.questionId);
+                    }
+
+                    let answerDisplay = 'لا توجد إجابة';
+                    
+                    if (ans.selectedChoice !== undefined && originalQ && (originalQ.type === 'mcq')) {
+                        answerDisplay = originalQ.choices[ans.selectedChoice] || ans.selectedChoice;
+                    } else if (ans.type === 'multiple' && originalQ && ans.selectedChoices) {
+                        answerDisplay = ans.selectedChoices.map(idx => originalQ.choices[idx]).join(' ، ');
+                    } else if (ans.essayText) {
+                        answerDisplay = ans.essayText;
+                    } else if (ans.selectedAnswer) {
+                        answerDisplay = ans.selectedAnswer === 'true' ? 'صح' : 'خطأ';
+                    } else if (ans.selectedChoice !== undefined) {
+                        answerDisplay = ans.selectedChoice;
+                    }
+
+                    html += `
+                    <div class="answer-box" style="border-right: 4px solid ${statusColor}; background: rgba(255,255,255,0.05); margin-bottom:10px; padding:10px; border-radius:5px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="color:#aaa; font-size:0.8rem">سؤال ${i+1} (${ans.type})</span>
+                            <span style="color:${statusColor}; font-size:0.8rem">${statusText}</span>
+                        </div>
+                        <p style="font-weight:bold; margin-bottom:8px; color:#fff;">${escapeHtml(String(qText))}</p>
+                        <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
+                            <span style="color:#00bfff">الإجابة:</span> <span style="color:#fff">${escapeHtml(String(answerDisplay))}</span>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html += '<p style="text-align:center">لا توجد إجابات مسجلة.</p>';
+            }
+            
+            html += `</div>
+            <hr style="border-color:#444; margin: 15px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                    <span style="color:#aaa">الدرجة الحالية:</span>
+                    <span style="font-size:1.2rem; font-weight:bold; color:#fff">${res.score} / ${res.total}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <label>تعديل:</label>
+                    <input type="number" id="manualScore" step="0.5" min="0" max="${res.total}" value="${res.score}" class="swal2-input" style="width:80px; margin:0 !important; height:40px;">
+                </div>
+            </div>`;
+
+            Swal.fire({
+                title: `ورقة إجابة: ${res.name}`,
+                html: html,
+                width: '800px',
+                showCancelButton: true,
+                confirmButtonText: '💾 حفظ الدرجة',
+                preConfirm: () => {
+                    const v = parseFloat(document.getElementById('manualScore').value);
+                    if (isNaN(v) || v < 0 || v > res.total) { Swal.showValidationMessage(`الدرجة يجب أن تكون بين 0 و ${res.total}`); return false; }
+                    return v;
+                },
+                cancelButtonText: 'إغلاق'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const newScore = result.value;
+                    const newPercentage = Math.round((newScore / res.total) * 100);
+                    
+                    await update(ref(database, `results/${studentCode}`), {
+                        score: newScore,
+                        percentage: newPercentage,
+                        exactPercentage: AppCore.exactPct(newScore, res.total),
+                        group: AppCore.classify(newScore, res.total, currentTiers()),
+                        lastUpdated: new Date().toISOString()
+                    });
+                    
+                    const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true});
+                    Toast.fire({icon: 'success', title: 'تم تعديل الدرجة بنجاح'});
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire('خطأ', 'حدث خطأ أثناء جلب البيانات: ' + error.message, 'error');
+        }
+    };
+</script>
+</body>
+</html>
