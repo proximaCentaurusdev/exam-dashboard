@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - Admin Dashboard</title>
+    <title>الفجر | لوحة التحكم</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0f;
+            background: #07182e;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
@@ -34,8 +34,8 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse at top left, rgba(138, 43, 226, 0.15), transparent 50%),
-                radial-gradient(ellipse at bottom right, rgba(0, 191, 255, 0.15), transparent 50%);
+                radial-gradient(ellipse at top left, rgba(15,143,122, 0.15), transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(240,178,84, 0.15), transparent 50%);
             animation: backgroundPulse 25s ease-in-out infinite;
             z-index: -2;
         }
@@ -47,7 +47,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(138, 43, 226, 0.08) 0%, transparent 50%);
+            background: radial-gradient(circle, rgba(15,143,122, 0.08) 0%, transparent 50%);
             animation: rotate 30s linear infinite;
             z-index: -1;
         }
@@ -68,11 +68,11 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(10, 10, 20, 0.6);
+            background: rgba(7,24,46, 0.6);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            background: linear-gradient(135deg, #0f8f7a, #f0b254);
             border-radius: 6px;
         }
 
@@ -82,7 +82,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 15, 0.98);
+            background: rgba(6,20,40, 0.98);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -94,8 +94,8 @@
         .loading-spinner {
             width: 80px;
             height: 80px;
-            border: 6px solid rgba(138, 43, 226, 0.3);
-            border-top: 6px solid #8a2be2;
+            border: 6px solid rgba(15,143,122, 0.3);
+            border-top: 6px solid #0f8f7a;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -106,7 +106,7 @@
         }
 
         .loading-text {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.3rem;
             margin-top: 25px;
             font-weight: 600;
@@ -125,13 +125,13 @@
         }
 
         .login-card {
-            background: rgba(15, 15, 25, 0.95);
+            background: rgba(10,31,58, 0.95);
             border-radius: 24px;
             padding: 45px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
             width: 100%;
             max-width: 420px;
-            border: 1px solid rgba(138, 43, 226, 0.4);
+            border: 1px solid rgba(15,143,122, 0.4);
             animation: loginSlideUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
             backdrop-filter: blur(20px);
         }
@@ -147,18 +147,18 @@
         }
 
         .login-header h1 {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 2.3rem;
             margin-bottom: 12px;
             font-weight: 800;
-            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            background: linear-gradient(135deg, #0f8f7a, #f0b254);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .login-header p {
-            color: #8a2be2;
+            color: #0f8f7a;
             font-size: 1.05rem;
             font-weight: 600;
         }
@@ -170,7 +170,7 @@
         .form-group label {
             display: block;
             margin-bottom: 10px;
-            color: #00bfff;
+            color: #f0b254;
             font-weight: 600;
             font-size: 0.95rem;
         }
@@ -180,10 +180,10 @@
         .form-group select {
             width: 100%;
             padding: 14px 18px;
-            border: 2px solid rgba(138, 43, 226, 0.3);
+            border: 2px solid rgba(15,143,122, 0.3);
             border-radius: 12px;
             font-size: 1rem;
-            background: rgba(10, 10, 20, 0.8);
+            background: rgba(7,24,46, 0.8);
             color: #fff;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
@@ -193,8 +193,8 @@
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #00bfff;
-            box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.15);
+            border-color: #f0b254;
+            box-shadow: 0 0 0 4px rgba(240,178,84, 0.15);
             transform: translateY(-2px);
         }
 
@@ -217,29 +217,29 @@
         .btn-login {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             color: white;
             border: none;
             border-radius: 12px;
             font-size: 1.15rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 8px 24px rgba(15,143,122, 0.4);
         }
 
         .btn-login:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(138, 43, 226, 0.6);
+            box-shadow: 0 12px 32px rgba(15,143,122, 0.6);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             color: white;
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 6px 20px rgba(15,143,122, 0.4);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #00bfff, #00d4ff);
+            background: linear-gradient(135deg, #f0b254, #ffc873);
             color: white;
         }
 
@@ -276,12 +276,12 @@
         }
 
         .navbar {
-            background: rgba(15, 15, 25, 0.95);
+            background: rgba(10,31,58, 0.95);
             padding: 18px 35px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 2px solid rgba(15,143,122, 0.3);
             backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
@@ -291,7 +291,7 @@
         .navbar-brand {
             font-size: 1.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            background: linear-gradient(135deg, #0f8f7a, #f0b254);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -313,21 +313,21 @@
         }
 
         .user-info:hover {
-            background: rgba(138, 43, 226, 0.15);
+            background: rgba(15,143,122, 0.15);
         }
 
         .user-avatar {
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
             overflow: hidden;
-            border: 3px solid rgba(0, 191, 255, 0.4);
+            border: 3px solid rgba(240,178,84, 0.4);
         }
 
         .user-avatar img {
@@ -337,14 +337,14 @@
         }
 
         .user-name {
-            color: #00bfff;
+            color: #f0b254;
             font-weight: 700;
             font-size: 1.05rem;
         }
 
         .user-role {
             font-size: 0.88rem;
-            color: #8a2be2;
+            color: #0f8f7a;
             font-weight: 600;
         }
 
@@ -358,16 +358,16 @@
             display: flex;
             gap: 12px;
             margin-bottom: 35px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 2px solid rgba(15,143,122, 0.3);
             flex-wrap: wrap;
             padding-bottom: 2px;
         }
 
         .tab {
             padding: 14px 28px;
-            background: rgba(15, 15, 25, 0.6);
-            color: #00bfff;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            background: rgba(10,31,58, 0.6);
+            color: #f0b254;
+            border: 1px solid rgba(15,143,122, 0.3);
             border-radius: 12px 12px 0 0;
             cursor: pointer;
             font-size: 1.02rem;
@@ -376,12 +376,12 @@
         }
 
         .tab:hover {
-            background: rgba(138, 43, 226, 0.2);
+            background: rgba(15,143,122, 0.2);
             transform: translateY(-3px);
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             color: white;
             border-color: transparent;
         }
@@ -400,13 +400,13 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 18px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 2px solid rgba(15,143,122, 0.3);
             flex-wrap: wrap;
             gap: 15px;
         }
 
         .section-header h2 {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.9rem;
             font-weight: 800;
         }
@@ -419,12 +419,12 @@
         }
 
         .stat-card {
-            background: rgba(15, 15, 25, 0.85);
+            background: rgba(10,31,58, 0.85);
             color: white;
             padding: 30px;
             border-radius: 18px;
-            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
-            border: 1px solid rgba(138, 43, 226, 0.4);
+            box-shadow: 0 12px 40px rgba(15,143,122, 0.4);
+            border: 1px solid rgba(15,143,122, 0.4);
             transition: all 0.4s;
         }
 
@@ -432,16 +432,16 @@
             transform: translateY(-10px) scale(1.03);
         }
 
-        .stat-card:nth-child(1) { border-top: 4px solid #8a2be2; }
-        .stat-card:nth-child(2) { border-top: 4px solid #00bfff; }
-        .stat-card:nth-child(3) { border-top: 4px solid #8a2be2; }
-        .stat-card:nth-child(4) { border-top: 4px solid #00bfff; }
+        .stat-card:nth-child(1) { border-top: 4px solid #0f8f7a; }
+        .stat-card:nth-child(2) { border-top: 4px solid #f0b254; }
+        .stat-card:nth-child(3) { border-top: 4px solid #0f8f7a; }
+        .stat-card:nth-child(4) { border-top: 4px solid #f0b254; }
 
         .stat-value {
             font-size: 2.8rem;
             font-weight: 900;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, #8a2be2, #00bfff);
+            background: linear-gradient(135deg, #0f8f7a, #f0b254);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -452,7 +452,7 @@
         .stat-label {
             font-size: 1.05rem;
             opacity: 0.95;
-            color: #00bfff;
+            color: #f0b254;
             font-weight: 600;
         }
 
@@ -462,17 +462,17 @@
         }
 
         .question-card {
-            background: rgba(15, 15, 25, 0.85);
+            background: rgba(10,31,58, 0.85);
             border-radius: 16px;
             padding: 24px;
-            border-left: 5px solid #8a2be2;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-left: 5px solid #0f8f7a;
+            border: 1px solid rgba(15,143,122, 0.3);
             transition: all 0.4s;
         }
 
         .question-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 15px 40px rgba(15,143,122, 0.4);
         }
 
         .question-header {
@@ -483,7 +483,7 @@
         }
 
         .question-id {
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             color: white;
             padding: 6px 16px;
             border-radius: 25px;
@@ -498,7 +498,7 @@
 
         .question-text {
             font-size: 1.15rem;
-            color: #00bfff;
+            color: #f0b254;
             margin-bottom: 18px;
             font-weight: 600;
             line-height: 1.6;
@@ -512,23 +512,23 @@
 
         .choice-item {
             padding: 12px 18px;
-            background: rgba(10, 10, 20, 0.7);
+            background: rgba(7,24,46, 0.7);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(15,143,122, 0.3);
             transition: all 0.3s;
         }
 
         .choice-item:hover {
-            background: rgba(138, 43, 226, 0.15);
+            background: rgba(15,143,122, 0.15);
         }
 
         .choice-item.correct {
-            background: rgba(0, 191, 255, 0.15);
-            border: 2px solid #00bfff;
+            background: rgba(240,178,84, 0.15);
+            border: 2px solid #f0b254;
         }
 
         .choice-text {
@@ -537,8 +537,8 @@
         }
 
         .correct-badge {
-            background: #00bfff;
-            color: #0a0a0f;
+            background: #f0b254;
+            color: #07182e;
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 0.85rem;
@@ -553,20 +553,20 @@
         }
 
         .matching-column {
-            background: rgba(10, 10, 20, 0.6);
+            background: rgba(7,24,46, 0.6);
             padding: 15px;
             border-radius: 10px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(15,143,122, 0.3);
         }
 
         .matching-column h4 {
-            color: #00bfff;
+            color: #f0b254;
             margin-bottom: 10px;
             font-size: 1rem;
         }
 
         .matching-item {
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(15,143,122, 0.1);
             padding: 8px 12px;
             margin-bottom: 8px;
             border-radius: 6px;
@@ -577,7 +577,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 22px;
-            background: rgba(15, 15, 25, 0.85);
+            background: rgba(10,31,58, 0.85);
             border-radius: 16px;
             overflow: hidden;
         }
@@ -588,14 +588,14 @@
         .codes-table td {
             padding: 16px;
             text-align: right;
-            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 1px solid rgba(15,143,122, 0.3);
         }
 
         .results-table th,
         .codes-table th {
-            background: rgba(138, 43, 226, 0.25);
+            background: rgba(15,143,122, 0.25);
             font-weight: 700;
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.05rem;
         }
 
@@ -613,7 +613,7 @@
         }
 
         .score-good {
-            background: linear-gradient(135deg, #00bfff, #00d4ff);
+            background: linear-gradient(135deg, #f0b254, #ffc873);
             color: white;
         }
 
@@ -623,20 +623,20 @@
         }
 
         .switch-container {
-            background: rgba(15, 15, 25, 0.85);
+            background: rgba(10,31,58, 0.85);
             padding: 20px 25px;
             border-radius: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(15,143,122, 0.3);
             margin-top: 30px;
         }
 
         .switch-container label {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #00bfff;
+            color: #f0b254;
         }
 
         .switch {
@@ -677,7 +677,7 @@
         }
 
         input:checked + .slider {
-            background-color: #00bfff;
+            background-color: #f0b254;
         }
 
         input:checked + .slider:before {
@@ -703,14 +703,14 @@
         }
 
         .modal-content {
-            background: rgba(15, 15, 25, 0.98);
+            background: rgba(10,31,58, 0.98);
             border-radius: 20px;
             padding: 35px;
             max-width: 750px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            border: 1px solid rgba(138, 43, 226, 0.4);
+            border: 1px solid rgba(15,143,122, 0.4);
         }
 
         .modal-header {
@@ -719,11 +719,11 @@
             align-items: center;
             margin-bottom: 28px;
             padding-bottom: 18px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 2px solid rgba(15,143,122, 0.3);
         }
 
         .modal-header h3 {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.6rem;
             font-weight: 800;
         }
@@ -733,7 +733,7 @@
             border: none;
             font-size: 2.2rem;
             cursor: pointer;
-            color: #8a2be2;
+            color: #0f8f7a;
             width: 40px;
             height: 40px;
             display: flex;
@@ -743,8 +743,8 @@
         }
 
         .close-modal:hover {
-            color: #00bfff;
-            background: rgba(138, 43, 226, 0.2);
+            color: #f0b254;
+            background: rgba(15,143,122, 0.2);
         }
 
         .settings-grid {
@@ -753,14 +753,14 @@
         }
 
         .settings-card {
-            background: rgba(10, 10, 20, 0.7);
-            border: 2px solid rgba(138, 43, 226, 0.3);
+            background: rgba(7,24,46, 0.7);
+            border: 2px solid rgba(15,143,122, 0.3);
             border-radius: 16px;
             padding: 25px;
         }
 
         .settings-card h4 {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.3rem;
             margin-bottom: 20px;
             font-weight: 700;
@@ -771,7 +771,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
-            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            border-bottom: 1px solid rgba(15,143,122, 0.2);
         }
 
         .setting-item:last-child {
@@ -804,14 +804,14 @@
         .pair-input {
             flex: 1;
             padding: 10px;
-            background: #0a0a0f !important;
+            background: #07182e !important;
             border: 1px solid #555 !important;
             color: #fff !important;
             border-radius: 6px;
         }
 
         .pair-icon {
-            color: #8a2be2;
+            color: #0f8f7a;
             font-size: 1.2rem;
             font-weight: bold;
         }
@@ -835,11 +835,11 @@
         }
 
         .profile-card {
-            background: rgba(15, 15, 25, 0.85);
+            background: rgba(10,31,58, 0.85);
             border-radius: 20px;
             padding: 40px;
-            border: 1px solid rgba(138, 43, 226, 0.4);
-            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
+            border: 1px solid rgba(15,143,122, 0.4);
+            box-shadow: 0 12px 40px rgba(15,143,122, 0.4);
         }
 
         .profile-avatar-section {
@@ -848,14 +848,14 @@
             align-items: center;
             margin-bottom: 40px;
             padding-bottom: 30px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            border-bottom: 2px solid rgba(15,143,122, 0.3);
         }
 
         .profile-avatar-large {
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #8a2be2 0%, #00bfff 100%);
+            background: linear-gradient(135deg, #0f8f7a 0%, #f0b254 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -863,7 +863,7 @@
             font-weight: 700;
             font-size: 3rem;
             overflow: hidden;
-            border: 5px solid rgba(0, 191, 255, 0.4);
+            border: 5px solid rgba(240,178,84, 0.4);
             margin-bottom: 20px;
             position: relative;
             cursor: pointer;
@@ -872,7 +872,7 @@
 
         .profile-avatar-large:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.6);
+            box-shadow: 0 8px 30px rgba(15,143,122, 0.6);
         }
 
         .profile-avatar-large img {
@@ -913,14 +913,14 @@
         }
 
         .profile-info-item {
-            background: rgba(10, 10, 20, 0.6);
+            background: rgba(7,24,46, 0.6);
             padding: 20px;
             border-radius: 12px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(15,143,122, 0.3);
         }
 
         .profile-info-label {
-            color: #8a2be2;
+            color: #0f8f7a;
             font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 8px;
@@ -928,7 +928,7 @@
         }
 
         .profile-info-value {
-            color: #00bfff;
+            color: #f0b254;
             font-size: 1.2rem;
             font-weight: 700;
             display: block;
@@ -960,8 +960,8 @@
         }
 
         div:where(.swal2-container) div:where(.swal2-popup) {
-            background: #151520 !important;
-            border: 2px solid #8a2be2 !important;
+            background: #0d2440 !important;
+            border: 2px solid #0f8f7a !important;
             border-radius: 15px !important;
             color: #fff !important;
         }
@@ -975,11 +975,11 @@
         }
 
         div:where(.swal2-container) .swal2-title {
-            color: #00bfff !important;
+            color: #f0b254 !important;
         }
 
         select option {
-            background-color: #151520;
+            background-color: #0d2440;
             color: #fff;
         }
 
@@ -995,28 +995,44 @@
 
         /* ===== UI refresh + appointments/groups ===== */
         body { font-family: Cairo, Tahoma, Arial, sans-serif; }
-        :focus-visible { outline: 3px solid #00bfff; outline-offset: 2px; }
+        :focus-visible { outline: 3px solid #f0b254; outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
         .navbar { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(10px); }
         .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
         .tab { white-space: nowrap; padding: 12px 20px; }
-        .results-table tbody tr:hover, .codes-table tbody tr:hover { background: rgba(0,191,255,.07); }
-        .panel { background: rgba(15,15,25,.85); border: 1px solid rgba(138,43,226,.3); border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; }
-        .panel h4 { color: #00bfff; margin-bottom: 14px; }
-        .panel .switch-container { margin-top: 0; margin-bottom: 12px; background: transparent; padding: 10px 0; border: 0; border-bottom: 1px solid rgba(138,43,226,.2); }
+        .results-table tbody tr:hover, .codes-table tbody tr:hover { background: rgba(240,178,84,.07); }
+        .panel { background: rgba(10,31,58,.85); border: 1px solid rgba(15,143,122,.3); border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; }
+        .panel h4 { color: #f0b254; margin-bottom: 14px; }
+        .panel .switch-container { margin-top: 0; margin-bottom: 12px; background: transparent; padding: 10px 0; border: 0; border-bottom: 1px solid rgba(15,143,122,.2); }
         .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
         .field-row > div { display: flex; flex-direction: column; gap: 6px; min-width: 140px; flex: 1; }
-        .field-row label { color: #9fe3ff; font-size: .9rem; }
-        .inp { padding: 10px 12px; border-radius: 8px; background: rgba(10,10,20,.8); color: #fff; border: 2px solid rgba(138,43,226,.3); font-family: inherit; font-size: 1rem; }
+        .field-row label { color: #ffd9a0; font-size: .9rem; }
+        .inp { padding: 10px 12px; border-radius: 8px; background: rgba(7,24,46,.8); color: #fff; border: 2px solid rgba(15,143,122,.3); font-family: inherit; font-size: 1rem; }
         .gbadge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-weight: 700; font-size: .85rem; }
-        .g-I { background: rgba(0,255,127,.15); color: #3dffa0; border: 1px solid #3dffa0; } .g-B { background: rgba(0,191,255,.15); color: #4dd2ff; border: 1px solid #4dd2ff; }
+        .g-I { background: rgba(0,255,127,.15); color: #3dffa0; border: 1px solid #3dffa0; } .g-B { background: rgba(240,178,84,.15); color: #4dd2ff; border: 1px solid #4dd2ff; }
         .g-C { background: rgba(255,193,7,.15); color: #ffd24d; border: 1px solid #ffd24d; } .g-none { background: rgba(255,51,102,.15); color: #ff8899; border: 1px solid #ff3366; }
-        .slot-card-adm { background: rgba(15,15,25,.85); border: 1px solid rgba(138,43,226,.3); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
-        .slot-card-adm > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 20px; background: rgba(138,43,226,.18); }
+        .slot-card-adm { background: rgba(10,31,58,.85); border: 1px solid rgba(15,143,122,.3); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
+        .slot-card-adm > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 20px; background: rgba(15,143,122,.18); }
         .slot-card-adm > header b { font-size: 1.1rem; color: #fff; } .mini { padding: 6px 12px !important; font-size: .85rem !important; width: auto !important; }
         .tbl-wrap { overflow-x: auto; } .muted { color: #9aa; }
         @media (max-width: 700px) { .container { padding: 14px; } .section-header { flex-direction: column; align-items: stretch; gap: 10px; } .panel { padding: 14px; } }
+
+        /* ===== الفجر — unified brand system (navy · emerald · dawn gold · ivory) ===== */
+        :root { --fajr-navy: #07182e; --fajr-navy-2: #0d2440; --fajr-emerald: #0f8f7a; --fajr-gold: #f0b254; --fajr-ivory: #fbf6ea; }
+        body { font-family: Cairo, Tahoma, 'Segoe UI', Arial, sans-serif !important; color: var(--fajr-ivory);
+               background: radial-gradient(1100px 520px at 50% -12%, rgba(240,178,84,.20), transparent 62%), linear-gradient(180deg, #0b2a4a 0%, #07182e 58%) fixed !important; }
+        .fajr-logo { display: inline-flex; align-items: center; gap: 8px; direction: rtl; line-height: 1; }
+        .fajr-logo svg { width: 40px; height: 27px; flex: none; }
+        .fajr-word { font-family: 'Reem Kufi', Cairo, sans-serif; font-weight: 700; font-size: 1.7rem; color: #ffd9a0; background: linear-gradient(90deg, #ffe3b3, #f0b254); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .fajr-logo-lg { display: flex; justify-content: center; margin: 0 auto 4px; } .fajr-logo-lg svg { width: 72px; height: 48px; } .fajr-logo-lg .fajr-word { font-size: 3rem; }
+        .brand-sub { color: rgba(251,246,234,.65); margin-inline-start: 10px; font-size: .8rem; font-weight: 400; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .card, .panel, .slot-card-adm { box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+        .btn-primary, .tab.active { background: linear-gradient(135deg, #0f8f7a 0%, #0b6f5e 100%) !important; color: #fff !important; }
+        input:focus, select:focus, textarea:focus { border-color: var(--fajr-gold) !important; box-shadow: 0 0 0 3px rgba(240,178,84,.25) !important; outline: none; }
+        .pdf-brand { display: flex; justify-content: center; align-items: center; gap: 8px; font-family: 'Reem Kufi', Cairo, sans-serif; font-size: 30px; color: #0b6f5e; font-weight: 700; margin-bottom: 2px; }
     </style>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;family=Reem+Kufi:wght@700&amp;display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
@@ -1027,7 +1043,7 @@
     <div class="login-container hidden" id="loginScreen">
         <div class="login-card">
             <div class="login-header">
-                <h1>لوحة التحكم 🎯</h1>
+                <div class="fajr-logo fajr-logo-lg"><svg viewBox="0 0 48 32" aria-hidden="true"><path d="M6 28a18 18 0 0 1 36 0z" fill="#f0b254"/><path d="M24 2v6M8 9l4 4M40 9l-4 4M1 20l5 1M47 20l-5 1" stroke="#f0b254" stroke-width="2.4" stroke-linecap="round"/><path d="M2 30h44" stroke="#0f8f7a" stroke-width="2.4" stroke-linecap="round"/></svg><span class="fajr-word">الفجر</span></div><h1 style="font-size:1.1rem;margin-top:6px">لوحة التحكم</h1>
                 <p>Admin Dashboard</p>
             </div>
             <form id="loginForm">
@@ -1047,8 +1063,9 @@
 
     <div class="dashboard hidden" id="dashboardScreen">
         <nav class="navbar">
-            <div class="navbar-brand">📊 لوحة التحكم</div>
+            <div class="navbar-brand"><span class="fajr-logo"><svg viewBox="0 0 48 32" aria-hidden="true"><path d="M6 28a18 18 0 0 1 36 0z" fill="#f0b254"/><path d="M24 2v6M8 9l4 4M40 9l-4 4M1 20l5 1M47 20l-5 1" stroke="#f0b254" stroke-width="2.4" stroke-linecap="round"/><path d="M2 30h44" stroke="#0f8f7a" stroke-width="2.4" stroke-linecap="round"/></svg><span class="fajr-word">الفجر</span></span><small class="brand-sub">لوحة التحكم</small></div>
             <div class="navbar-user">
+                <select id="viewSession" class="inp" style="max-width:220px" onchange="setViewSession(this.value)" aria-label="الجلسة المعروضة"></select>
                 <div class="user-info" onclick="switchTab('profile')">
                     <div class="user-avatar" id="userAvatar">
                         <span id="userInitial">A</span>
@@ -1069,8 +1086,10 @@
                 <button class="tab" onclick="switchTab('examSettings')">⚙️ إعدادات الامتحان</button>
                 <button class="tab" onclick="switchTab('results')">🏆 النتائج</button>
                 <button class="tab" onclick="switchTab('codes')">🎫 أكواد الدخول</button>
+                <button class="tab" onclick="switchTab('sessions')">🗂️ الجلسات</button>
                 <button class="tab" onclick="switchTab('appointments')">📅 تحديد المواعيد</button>
                 <button class="tab" onclick="switchTab('groups')">👥 المجموعات</button>
+                <button class="tab" onclick="switchTab('log')">📜 سجل النشاط</button>
                 <button class="tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
             </div>
 
@@ -1095,6 +1114,9 @@
                         <div class="stat-value" id="avgScore">0%</div>
                         <div class="stat-label">متوسط الدرجات</div>
                     </div>
+                    <div class="stat-card"><div class="stat-label">محاولات غير مكتملة</div><div class="stat-value" id="statOpen">0</div></div>
+                    <div class="stat-card"><div class="stat-label">حجوزات مؤكدة</div><div class="stat-value" id="statBookings">0</div></div>
+                    <div class="stat-card"><div class="stat-label">الجلسة النشطة</div><div class="stat-value" id="statSession" style="font-size:1.1rem">—</div></div>
                 </div>
                 <div class="switch-container">
                     <label for="examStatusToggle">حالة الامتحان (مفتوح / مغلق)</label>
@@ -1126,7 +1148,7 @@
                                 <div class="setting-label">نوع المؤقت / Timer Mode</div>
                                 <div class="setting-description">اختر بين مؤقت للامتحان كامل أو مؤقت لكل سؤال</div>
                             </div>
-                            <select id="timerMode" style="padding: 8px 15px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                            <select id="timerMode" style="padding: 8px 15px; border-radius: 8px; background: rgba(7,24,46, 0.8); color: #fff; border: 2px solid rgba(15,143,122, 0.3);">
                                 <option value="perQuestion">مؤقت لكل سؤال</option>
                                 <option value="full">مؤقت للامتحان كامل</option>
                             </select>
@@ -1136,13 +1158,13 @@
                                 <div class="setting-label">الوقت الكلي (ثواني) / Total Time</div>
                                 <div class="setting-description">الوقت الكلي للامتحان</div>
                             </div>
-                            <input type="number" id="totalTime" value="1800" min="60" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                            <input type="number" id="totalTime" value="1800" min="60" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(7,24,46, 0.8); color: #fff; border: 2px solid rgba(15,143,122, 0.3);">
                         </div>
                         <div class="setting-item">
                             <div>
                                 <div class="setting-label">الوقت لكل سؤال (ثواني) / Question Time</div>
                             </div>
-                            <input type="number" id="questionTime" value="15" min="5" max="120" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                            <input type="number" id="questionTime" value="15" min="5" max="120" style="width: 100px; padding: 8px; border-radius: 8px; background: rgba(7,24,46, 0.8); color: #fff; border: 2px solid rgba(15,143,122, 0.3);">
                         </div>
                     </div>
                     <div class="settings-card">
@@ -1190,7 +1212,7 @@
                             <div>
                                 <div class="setting-label">فترة التقاط الصور (ملي ثانية)</div>
                             </div>
-                            <input type="number" id="captureInterval" value="30000" min="10000" step="1000" style="width: 120px; padding: 8px; border-radius: 8px; background: rgba(10, 10, 20, 0.8); color: #fff; border: 2px solid rgba(138, 43, 226, 0.3);">
+                            <input type="number" id="captureInterval" value="30000" min="10000" step="1000" style="width: 120px; padding: 8px; border-radius: 8px; background: rgba(7,24,46, 0.8); color: #fff; border: 2px solid rgba(15,143,122, 0.3);">
                         </div>
                     </div>
                 </div>
@@ -1215,13 +1237,24 @@
                 <div class="section-header">
                     <h2>أكواد الدخول / Access Codes</h2>
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <input type="text" id="newCustomCode" placeholder="اكتب كود..." style="padding: 8px; border-radius: 5px; border: 1px solid #8a2be2; background: #0a0a0f; color: #fff; width: 120px;">
+                        <input type="text" id="newCustomCode" placeholder="اكتب كود..." style="padding: 8px; border-radius: 5px; border: 1px solid #0f8f7a; background: #07182e; color: #fff; width: 120px;">
                         <button class="btn btn-primary" onclick="addNewCode()">➕ إضافة</button>
                         <button class="btn btn-success" onclick="exportCodes()">📥 تصدير</button>
-                        <button class="btn btn-warning" onclick="resetAllCodes()">🔄 تصفير الكل</button>
+                        <button class="btn btn-warning" onclick="resetAllCodes()">🔄 إعادة تفعيل الأكواد</button>
                     </div>
                 </div>
                 <div id="codesContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="sessionsTab">
+                <div class="section-header"><h2>الجلسات / Exam Sessions</h2><button class="btn btn-success mini" onclick="newSession()">➕ جلسة جديدة</button></div>
+                <p class="muted" style="margin-bottom:14px">كل جلسة تحفظ طلابها ونتائجها ومجموعاتها وحجوزاتها بشكل مستقل. إنشاء جلسة جديدة أو إعادة تفعيل الأكواد لا يمس بيانات الجلسات السابقة. الأرشفة تجعل الجلسة للقراءة فقط.</p>
+                <div id="sessionsContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="logTab">
+                <div class="section-header"><h2>سجل النشاط / Activity Log</h2></div>
+                <div id="logContent"></div>
             </div>
 
             <div class="tab-content hidden" id="appointmentsTab">
@@ -1377,6 +1410,7 @@
             accessCodes: [], 
             quizState: { isActive: true },
             appointments: {}, seats: {}, bookings: {}, apptSettings: {}, tiers: null,
+            attemptsAll: [], sessions: {}, activeSessionId: null, viewSessionId: null, audit: [],
             examSettings: {
                 antiCheat: { enabled: false, blockTabSwitch: true, forceFullscreen: true },
                 camera: { enabled: false, captureInterval: 30000 },
@@ -1456,13 +1490,13 @@
         }
 
         async function loadResults() {
-            DB.results = Object.values(await loadFromFirebase('results') || {});
+            DB.attemptsAll = Object.values(await loadFromFirebase('attempts') || {}); DB.results = DB.attemptsAll.filter(a => a && a.status === 'completed');
         }
 
         function setupRealtimeListeners() {
             const { database, ref, onValue } = window.firebaseDB;
-            onValue(ref(database, 'results'), snapshot => {
-                DB.results = snapshot.exists() ? Object.values(snapshot.val()) : [];
+            onValue(ref(database, 'attempts'), snapshot => {
+                DB.attemptsAll = snapshot.exists() ? Object.values(snapshot.val()) : []; recomputeResults();
                 updateStats();
                 if (!document.getElementById('resultsTab').classList.contains('hidden')) displayResults();
                 refreshAppt(); syncGroups();
@@ -1475,7 +1509,10 @@
             onValue(ref(database, 'appointmentSettings'), s => { DB.apptSettings = s.val() || {}; syncApptSwitches(); });
             onValue(ref(database, 'appointments'), s => { DB.appointments = s.val() || {}; refreshAppt(); });
             onValue(ref(database, 'seats'), s => { DB.seats = s.val() || {}; refreshAppt(); });
-            onValue(ref(database, 'studentBookings'), s => { DB.bookings = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'bookings'), s => { DB.bookings = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'sessions'), s => { DB.sessions = s.val() || {}; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
+            onValue(ref(database, 'meta/activeSessionId'), s => { DB.activeSessionId = s.val() || null; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
+            onValue(ref(database, 'auditLog'), s => { DB.audit = s.val() ? Object.values(s.val()) : []; if (!document.getElementById('logTab').classList.contains('hidden')) displayLog(); });
             onValue(ref(database, 'groupSettings'), s => {
                 const v = s.val(); DB.tiers = v && v.tiers ? (Array.isArray(v.tiers) ? v.tiers : Object.values(v.tiers)) : null;
                 renderTiersEditor(); refreshAppt(); syncGroups();
@@ -1504,7 +1541,7 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('loginScreen').classList.add('hidden');
-                setTimeout(syncGroups, 400);
+                setTimeout(afterLogin, 300);
                 document.getElementById('dashboardScreen').classList.remove('hidden');
                 updateUserUI();
                 updateStats(true);
@@ -1593,6 +1630,8 @@
                 'codes': displayCodes,
                 'examSettings': updateExamSettingsUI,
                 'overview': () => updateStats(true),
+                'sessions': displaySessions,
+                'log': displayLog,
                 'appointments': displayAppointments,
                 'groups': displayGroups,
                 'profile': updateUserUI
@@ -1638,7 +1677,7 @@
             
             let avg = 0;
             if (rCount > 0) {
-                const total = results.reduce((sum, r) => sum + (parseInt(r.percentage) || 0), 0);
+                const total = results.reduce((sum, r) => sum + AppCore.exactPct(r.score, r.total), 0);
                 avg = Math.round(total / rCount);
             }
 
@@ -1653,6 +1692,7 @@
                 elC.innerText = cCount;
                 elA.innerText = avg + '%';
             }
+            if (window.updateExtraStats) updateExtraStats();
         };
 
         window.changeProfilePhoto = function() {
@@ -1816,7 +1856,7 @@
             questionList.innerHTML = '';
             
             if (!DB.questions || DB.questions.length === 0) {
-                questionList.innerHTML = '<p style="text-align: center; color: #8a2be2; padding: 50px;">لا توجد أسئلة حالياً</p>';
+                questionList.innerHTML = '<p style="text-align: center; color: #0f8f7a; padding: 50px;">لا توجد أسئلة حالياً</p>';
                 return;
             }
 
@@ -1842,7 +1882,7 @@
                     </div>
                     <div class="question-text">${escapeHtml(q.text)}</div>
                     ${q.image ? `<img src="${q.image}" style="max-width: 200px; border-radius: 12px; margin: 12px 0;">` : ''}
-                    <div style="color: #8a2be2; font-size: 0.95rem; margin-top: 12px;">⏱️ الوقت: ${q.timeout} ثانية</div>
+                    <div style="color: #0f8f7a; font-size: 0.95rem; margin-top: 12px;">⏱️ الوقت: ${q.timeout} ثانية</div>
                 `;
 
                 if (q.type === 'mcq' || q.type === 'multiple') {
@@ -1885,8 +1925,8 @@
                     }
                     contentHTML += '</div></div>';
                     if (q.correctPairs) {
-                        contentHTML += '<div style="margin-top:15px; padding:10px; background:rgba(0,191,255,0.1); border-radius:8px;">';
-                        contentHTML += '<strong style="color:#00bfff;">الإجابات الصحيحة:</strong><br>';
+                        contentHTML += '<div style="margin-top:15px; padding:10px; background:rgba(240,178,84,0.1); border-radius:8px;">';
+                        contentHTML += '<strong style="color:#f0b254;">الإجابات الصحيحة:</strong><br>';
                         q.correctPairs.forEach((pair, idx) => {
                             contentHTML += `<span style="color:#fff; font-size:0.9rem;">${idx + 1}. ${escapeHtml(q.leftColumn[pair.left])} ⟷ ${escapeHtml(q.rightColumn[pair.right])}</span><br>`;
                         });
@@ -2147,7 +2187,7 @@
 
 function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
     function gbadge(key) { return `<span class="gbadge g-${key === 'none' ? 'none' : escapeHtml(String(key))}">${escapeHtml(AppCore.groupLabel(key, currentTiers()))}</span>`; }
-    const resultsMap = () => Object.fromEntries((DB.results || []).filter(r => r && r.code).map(r => [r.code, r]));
+    const resultsMap = () => Object.fromEntries((DB.attemptsAll || []).filter(r => r && r.id).map(r => [r.id, r]));
     const $$ = (id) => document.getElementById(id);
 
     function fillGroupFilter(id) {
@@ -2162,17 +2202,17 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
         const list = (DB.results || []).filter(r => r && r.code).map(r => ({ ...r, g: AppCore.classify(r.score, r.total, tiers), ex: AppCore.exactPct(r.score, r.total) }))
             .filter(r => (!fg || r.g === fg) && (!q || AppCore.normalizeName(r.name).includes(q) || String(r.code).toLowerCase().includes(q.toLowerCase())))
             .sort((x, y) => y.ex - x.ex);
-        box.innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الاسم</th><th>الكود</th><th>الدرجة</th><th>%</th><th>المجموعة</th><th>إجراءات</th></tr></thead><tbody>` +
-            (list.length ? list.map((r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.name)}</td><td style="color:#00bfff;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(String(r.score))} / ${escapeHtml(String(r.total))}</td><td><span class="score-badge ${r.ex >= 50 ? 'score-good' : 'score-poor'}">${Math.round(r.ex * 10) / 10}%</span></td><td>${gbadge(r.g)}</td><td><button class="btn btn-primary" data-code="${escapeHtml(r.code)}" onclick="viewStudentAnswers(this.dataset.code)" style="padding:5px 10px;font-size:.8rem">📝 عرض</button></td></tr>`).join('')
-                : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#8a2be2">لا توجد نتائج مطابقة</td></tr>') + '</tbody></table></div>';
+        box.innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الاسم</th><th>الكود</th><th>الجلسة</th><th>الدرجة</th><th>%</th><th>المجموعة</th><th>إجراءات</th></tr></thead><tbody>` +
+            (list.length ? list.map((r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.name)}</td><td style="color:#f0b254;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(r.sessionName || '')}</td><td>${escapeHtml(String(r.score))} / ${escapeHtml(String(r.total))}</td><td><span class="score-badge ${r.ex >= 50 ? 'score-good' : 'score-poor'}">${Math.round(r.ex * 10) / 10}%</span></td><td>${gbadge(r.g)}</td><td><button class="btn btn-primary" data-id="${escapeHtml(r.id)}" onclick="viewStudentAnswers(this.dataset.id)" style="padding:5px 10px;font-size:.8rem">📝 عرض</button></td></tr>`).join('')
+                : '<tr><td colspan="8" style="text-align:center;padding:40px;color:#0f8f7a">لا توجد نتائج مطابقة</td></tr>') + '</tbody></table></div>';
     }
 
     window.exportResults = function() {
         if (!DB.results || DB.results.length === 0) { showAlert('error', 'لا توجد نتائج للتصدير'); return; }
         const tiers = currentTiers(), q = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-        const csv = [['الترتيب', 'الاسم', 'الكود', 'رقم الهاتف', 'النتيجة', 'المجموع', 'النسبة', 'المجموعة'].map(q).join(','),
+        const csv = [['الترتيب', 'الاسم', 'الكود', 'الجلسة', 'رقم الهاتف', 'النتيجة', 'المجموع', 'النسبة', 'المجموعة'].map(q).join(','),
             ...[...DB.results].sort((a, b) => AppCore.exactPct(b.score, b.total) - AppCore.exactPct(a.score, a.total))
-                .map((r, i) => [i + 1, r.name, r.code, r.phone || '', r.score, r.total, `${Math.round(AppCore.exactPct(r.score, r.total) * 10) / 10}%`, AppCore.groupLabel(AppCore.classify(r.score, r.total, tiers), tiers)].map(q).join(','))].join('\n');
+                .map((r, i) => [i + 1, r.name, r.code, r.sessionName || '', r.phone || '', r.score, r.total, `${Math.round(AppCore.exactPct(r.score, r.total) * 10) / 10}%`, AppCore.groupLabel(AppCore.classify(r.score, r.total, tiers), tiers)].map(q).join(','))].join('\n');
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `exam_results_${Date.now()}.csv`; link.click();
         showAlert('success', 'تم تصدير النتائج بنجاح');
@@ -2191,15 +2231,15 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
         codesContent.innerHTML = `
             <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
                 <h3 style="color: #ff3366; margin:0;">الأكواد المستخدمة (${usedCodes.length})</h3>
-                ${usedCodes.length > 0 ? `<button class="btn btn-danger" onclick="resetSelectedCodes()" style="padding: 5px 15px; font-size: 0.9rem;">🗑️ تصفير المحدد</button>` : ''}
+                ${usedCodes.length > 0 ? `<button class="btn btn-danger" onclick="resetSelectedCodes()" style="padding: 5px 15px; font-size: 0.9rem;">🔄 إعادة تفعيل المحدد</button>` : ''}
             </div>
 
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px; margin-bottom:30px;">
                 ${usedCodes.map(c => `
-                    <div style="background:rgba(30,30,40,0.9); padding:12px; border:1px solid #444; border-radius:8px; display:flex; align-items:center; gap:12px;">
+                    <div style="background:rgba(16,42,72,0.9); padding:12px; border:1px solid #444; border-radius:8px; display:flex; align-items:center; gap:12px;">
                         <input type="checkbox" class="reset-check" value="${escapeHtml(c.code)}" style="width:18px; height:18px; cursor:pointer;">
                         <div>
-                            <strong style="color:#00bfff; font-size:1.1rem">${escapeHtml(c.code)}</strong><br>
+                            <strong style="color:#f0b254; font-size:1.1rem">${escapeHtml(c.code)}</strong><br>
                             <small style="color:#aaa;">👤 ${escapeHtml(c.usedBy || 'غير مسجل')}</small>
                             ${c.usedAt ? `<div style="font-size:0.75rem; color:#666">${new Date(c.usedAt).toLocaleString('ar-EG')}</div>` : ''}
                         </div>
@@ -2208,10 +2248,10 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
                 ${usedCodes.length === 0 ? '<p style="color:#aaa">لا توجد أكواد مستخدمة حالياً</p>' : ''}
             </div>
 
-            <h3 style="color: #00bfff; margin-bottom: 20px; border-top: 1px solid #333; padding-top: 20px;">الأكواد المتاحة (${availableCodes.length})</h3>
+            <h3 style="color: #f0b254; margin-bottom: 20px; border-top: 1px solid #333; padding-top: 20px;">الأكواد المتاحة (${availableCodes.length})</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
                 ${availableCodes.map(c => `
-                    <div style="background:rgba(0,191,255,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(0,191,255,0.2); color:#fff; font-family:monospace;">
+                    <div style="background:rgba(240,178,84,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(240,178,84,0.2); color:#fff; font-family:monospace;">
                         ${c.code}
                     </div>
                 `).join('')}
@@ -2245,57 +2285,21 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
         showAlert('success', 'تم إضافة الكود بنجاح');
     };
 
-    window.resetAllCodes = async function() {
-        if (!confirm('⚠️ هل أنت متأكد من إعادة تعيين جميع الأكواد وحذف جميع النتائج؟')) return;
-        
-        const freshCodes = {};
-        VALID_CODES.forEach(code => {
-            freshCodes[code] = { code, used: false, usedBy: null, usedAt: null };
-        });
-        
-        const { database, ref, set } = window.firebaseDB;
-        await Promise.all([
-            set(ref(database, 'accessCodes'), freshCodes),
-            set(ref(database, 'results'), null),
-            set(ref(database, 'snapshots'), null)
-        ]);
-        
-        showAlert('success', 'تم إعادة تعيين كل شيء بنجاح');
+    window.resetAllCodes = async function () {
+        const used = (DB.accessCodes || []).filter(c => c.used).length;
+        if (!used) return showAlert('error', 'لا توجد أكواد مستخدمة لإعادة تفعيلها');
+        const r = await Swal.fire({ icon: 'warning', title: 'إعادة تفعيل الأكواد المستخدمة', showCancelButton: true, confirmButtonText: 'إعادة التفعيل', cancelButtonText: 'تراجع',
+            html: `<div style="text-align:right;line-height:2">سيتم تحويل <b>${used}</b> كود مستخدم إلى "متاح".<br>✅ <b>لن يتأثر:</b> أسماء الطلاب، النتائج، المجموعات، الحجوزات، السجل التاريخي، وأي كود أضفته يدوياً.<br>⚠️ المحاولات غير المكتملة تُعلَّم "متروكة" ولا تُحذف.</div>` });
+        if (!r.isConfirmed) return;
+        const n = await AppCore.resetCodes(window.firebaseDB, null, actor()); showAlert('success', `تمت إعادة تفعيل ${n} كود (سجلات الطلاب محفوظة)`);
     };
-
-    window.resetSelectedCodes = async function() {
-        const selected = document.querySelectorAll('.reset-check:checked');
-        
-        if (selected.length === 0) {
-            return Swal.fire('تنبيه', 'من فضلك اختر طالباً واحداً على الأقل لتصفيره', 'info');
-        }
-
-        const confirm = await Swal.fire({
-            title: 'هل أنت متأكد؟',
-            text: `سيتم حذف نتائج ${selected.length} طالب وإعادة تفعيل أكوادهم!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'نعم، صفرهم',
-            cancelButtonText: 'تراجع',
-            confirmButtonColor: '#d33'
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        const { database, ref, update, remove } = window.firebaseDB;
-        const updates = {};
-        
-        for (const el of selected) {
-            const code = el.value;
-            updates[`accessCodes/${code}/used`] = false;
-            updates[`accessCodes/${code}/usedBy`] = null;
-            updates[`accessCodes/${code}/usedAt`] = null;
-            await remove(ref(database, `results/${code}`));
-            await remove(ref(database, `snapshots/${code}`));
-        }
-
-        await update(ref(database), updates);
-        Swal.fire('تم', 'تم تصفير الأكواد المختارة بنجاح', 'success');
+    window.resetSelectedCodes = async function () {
+        const codes = [...document.querySelectorAll('.reset-check:checked')].map(e => e.value);
+        if (!codes.length) return Swal.fire('تنبيه', 'اختر كوداً واحداً على الأقل', 'info');
+        const r = await Swal.fire({ icon: 'warning', title: 'إعادة تفعيل الأكواد المحددة', showCancelButton: true, confirmButtonText: 'إعادة التفعيل', cancelButtonText: 'تراجع',
+            html: `<div style="text-align:right;line-height:2">سيتم تحويل <b>${codes.length}</b> كود إلى "متاح".<br>✅ نتائج الطلاب وأسماؤهم وحجوزاتهم تبقى كما هي.</div>` });
+        if (!r.isConfirmed) return;
+        const n = await AppCore.resetCodes(window.firebaseDB, codes, actor()); showAlert('success', `تمت إعادة تفعيل ${n} كود`);
     };
 
 /* ===== AppCore: classification + appointment booking + exports (shared by both sites) ===== */
@@ -2371,22 +2375,113 @@ const AppCore = (function () {
   }
 
   // ---- database access (fb = {database, ref, get, set, update, push, runTransaction}) ----
+  // DATA MODEL v2 (history never depends on temporary exam codes):
+  //   sessions/{sid}            exam sessions (status open|archived); meta/activeSessionId = session accepting exam entries
+  //   students/{studentId}      permanent identity (stable id derived from normalised name+phone)
+  //   attempts/{attemptId}      one record per exam attempt, with full snapshot (name, phone, code, score, total, group, exam settings)
+  //   codeIndex/{code}/{attId}  lookup code -> attempts (codes are reusable, attempts are not)
+  //   accessCodes/{code}        TEMPORARY entry permits only; resetting them touches nothing else
+  //   bookings/{sid__studentId} one booking per student per session;  seats/{slot}/{n}: atomic capacity
+  //   auditLog/*, bookingHistory/*   append-only
   const P = (fb, path) => fb.ref(fb.database, path);
   const read = async (fb, path) => (await fb.get(P(fb, path))).val();
+  const iso = () => new Date().toISOString();
+  const rid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const hash = (s, h) => { for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; return h.toString(36); };
+  function studentId(name, phone) { const s = normalizeName(name) + '|' + normalizePhone(phone); return 'st_' + hash(s, 2166136261) + hash([...s].reverse().join(''), 5381); }
+  const bookingKey = (sessionId, stId) => `${sessionId}__${stId}`;
+  async function audit(fb, by, action, details) { try { await fb.set(fb.push(P(fb, 'auditLog')), { at: iso(), by: by || 'system', action, details: details || {} }); } catch (e) { /* best-effort */ } }
   async function getSettings(fb) {
     const s = (await read(fb, 'appointmentSettings')) || {};
-    return { enabled: s.enabled === true, open: s.open === true, institution: s.institution || 'منصة الامتحانات الإلكترونية' };
+    return { enabled: s.enabled === true, open: s.open === true, institution: s.institution || 'الفجر' };
   }
-  async function listSlots(fb) {
+  async function listSlots(fb, sessionId) {
     const [a, s] = await Promise.all([read(fb, 'appointments'), read(fb, 'seats')]);
-    return Object.values(a || {}).filter(x => x && x.active !== false).map(x => {
+    return Object.values(a || {}).filter(x => x && x.active !== false && (!sessionId || !x.sessionId || x.sessionId === sessionId)).map(x => {
       const booked = countBooked((s || {})[x.id]);
       return { ...x, booked, remaining: Math.max(0, x.capacity - booked) };
     }).sort(slotSort);
   }
-  async function history(fb, entry) {
-    try { await fb.set(fb.push(P(fb, 'bookingHistory')), { ...entry, at: new Date().toISOString() }); } catch (e) { /* history is best-effort */ }
+  async function history(fb, entry) { try { await fb.set(fb.push(P(fb, 'bookingHistory')), { ...entry, at: iso() }); } catch (e) { /* best-effort */ } }
+
+  // ---- sessions ----
+  async function createSession(fb, name, by) {
+    name = String(name || '').trim(); if (!name) throw new Error('اسم الجلسة مطلوب');
+    const id = rid('ss_'); await fb.update(P(fb), { [`sessions/${id}`]: { id, name, status: 'open', createdAt: iso(), createdBy: by || 'admin' }, 'meta/activeSessionId': id });
+    await audit(fb, by, 'session-create', { id, name }); return id;
   }
+  async function archiveSession(fb, id, by) {
+    const s = await read(fb, `sessions/${id}`); if (!s) throw new Error('الجلسة غير موجودة');
+    const up = { [`sessions/${id}/status`]: 'archived', [`sessions/${id}/archivedAt`]: iso() };
+    if ((await read(fb, 'meta/activeSessionId')) === id) up['meta/activeSessionId'] = null;
+    await fb.update(P(fb), up); await audit(fb, by, 'session-archive', { id, name: s.name });
+  }
+  async function reopenSession(fb, id, by) {
+    const s = await read(fb, `sessions/${id}`); if (!s) throw new Error('الجلسة غير موجودة');
+    await fb.update(P(fb), { [`sessions/${id}/status`]: 'open', [`sessions/${id}/archivedAt`]: null }); await audit(fb, by, 'session-reopen', { id, name: s.name });
+  }
+  async function activateSession(fb, id, by) {
+    const s = await read(fb, `sessions/${id}`); if (!s || s.status === 'archived') throw new Error('لا يمكن تفعيل جلسة مؤرشفة');
+    await fb.set(P(fb, 'meta/activeSessionId'), id); await audit(fb, by, 'session-activate', { id, name: s.name });
+  }
+
+  // ---- exam attempts ----
+  async function startAttempt(fb, codeRaw, nameRaw, phoneRaw) {
+    const code = normalizeCode(codeRaw), name = String(nameRaw || '').trim().replace(/\s+/g, ' ');
+    if (!code || !name) throw new Error('الكود والاسم مطلوبان');
+    if (!isValidPhone(phoneRaw)) throw new Error('رقم الهاتف غير صحيح (10 إلى 15 رقماً)');
+    const phone = normalizePhone(phoneRaw);
+    const sid = await read(fb, 'meta/activeSessionId'), session = sid ? await read(fb, `sessions/${sid}`) : null;
+    if (!session || session.status === 'archived') throw new Error('لا توجد جلسة امتحان نشطة حالياً');
+    const cur0 = await read(fb, `accessCodes/${code}`);
+    if (cur0 == null) throw new Error('الكود غير صحيح'); if (cur0.used) throw new Error('هذا الكود مستخدم من قبل');
+    const attemptId = rid('a_');
+    const tx = await fb.runTransaction(P(fb, `accessCodes/${code}`), cur => {   // atomic claim: one student per code at a time
+      if (cur === null) return null; if (cur.used) return undefined;
+      return { ...cur, used: true, usedBy: name, phone, usedAt: iso(), sessionId: sid, attemptId };
+    });
+    if (!tx.committed) throw new Error('هذا الكود مستخدم من قبل'); if (!tx.snapshot.exists()) throw new Error('الكود غير صحيح');
+    const stId = studentId(name, phone);
+    await fb.update(P(fb), { [`attempts/${attemptId}`]: { id: attemptId, sessionId: sid, sessionName: session.name, studentId: stId, code, name, phone, status: 'in_progress', startedAt: iso() }, [`codeIndex/${code}/${attemptId}`]: true });
+    await fb.runTransaction(P(fb, `students/${stId}`), cur => cur || { id: stId, name, phone, createdAt: iso() });
+    return { attemptId, sessionId: sid, studentId: stId, name, phone, code };
+  }
+  async function finishAttempt(fb, attemptId, payload) {
+    const r = await fb.runTransaction(P(fb, `attempts/${attemptId}`), cur => {
+      if (cur === null) return null; if (cur.status === 'completed') return undefined;   // never overwrite a finished attempt
+      return { ...cur, ...payload, status: 'completed', completedAt: iso() };
+    });
+    if (!r.committed) throw new Error('تم تسليم هذه المحاولة من قبل'); if (!r.snapshot.exists()) throw new Error('المحاولة غير موجودة');
+  }
+  // Safe reset: only the temporary entry permit is cleared. Attempts, students, bookings, seats and snapshots are never touched.
+  async function resetCodes(fb, codes, by) {
+    const all = (await read(fb, 'accessCodes')) || {}, list = (codes && codes.length ? codes : Object.keys(all)).filter(c => all[c] && all[c].used);
+    const up = {};
+    for (const c of list) {
+      const cur = all[c];
+      ['used'].forEach(k => { up[`accessCodes/${c}/${k}`] = false; });
+      ['usedBy', 'usedAt', 'phone', 'attemptId', 'sessionId'].forEach(k => { up[`accessCodes/${c}/${k}`] = null; });
+      if (cur.attemptId) { const a = await read(fb, `attempts/${cur.attemptId}`); if (a && a.status === 'in_progress') { up[`attempts/${cur.attemptId}/status`] = 'abandoned'; up[`attempts/${cur.attemptId}/abandonedAt`] = iso(); } }
+    }
+    if (Object.keys(up).length) await fb.update(P(fb), up);
+    await audit(fb, by, 'codes-reset', { count: list.length, scope: codes && codes.length ? 'selected' : 'all', sample: list.slice(0, 20) });
+    return list.length;
+  }
+  // booking-side identity check; the same code may belong to different students in different sessions
+  async function verifyForBooking(fb, codeRaw, name, phoneRaw) {
+    const bad = new Error('البيانات غير صحيحة، تأكد من الكود والاسم ورقم الهاتف'), code = normalizeCode(codeRaw);
+    if (!isValidPhone(phoneRaw)) throw bad;
+    const phone = normalizePhone(phoneRaw), ids = Object.keys((await read(fb, `codeIndex/${code}`)) || {});
+    const atts = (await Promise.all(ids.map(id => read(fb, `attempts/${id}`)))).filter(a => a && a.status === 'completed' && normalizeName(a.name) === normalizeName(name) && (!a.phone || normalizePhone(a.phone) === phone));
+    atts.sort((x, y) => String(y.completedAt || '').localeCompare(String(x.completedAt || '')));
+    const att = atts[0]; if (!att) throw bad;
+    if (!att.phone) { const t = await fb.runTransaction(P(fb, `attempts/${att.id}/phone`), cur => (cur == null ? phone : undefined)); if (!t.committed && normalizePhone(await read(fb, `attempts/${att.id}/phone`)) !== phone) throw bad; att.phone = phone; }
+    const sess = await read(fb, `sessions/${att.sessionId}`);
+    if (!sess || sess.status === 'archived') throw new Error('انتهت فترة الحجز لهذه الجلسة');
+    return att;
+  }
+
+  // ---- bookings ----
   // Atomically claim one free seat number (1..capacity). Returns seat number or 0 when full.
   async function claimSeat(fb, slotId, capacity) {
     const taken = (await read(fb, `seats/${slotId}`)) || {};
@@ -2401,85 +2496,103 @@ const AppCore = (function () {
     return 0;
   }
   const STUCK_MS = 60000;
-  async function bookSeat(fb, code, slotId, info) {
-    code = normalizeCode(code);
+  async function bookSeat(fb, att, slotId) {   // att = completed attempt record
     const st = await getSettings(fb);
     if (!st.enabled || !st.open) throw new Error('نظام الحجز مغلق حالياً');
     const slot = await read(fb, `appointments/${slotId}`);
     if (!slot || slot.active === false) throw new Error('الموعد غير متاح');
-    const now = Date.now();
-    const rec = { slotId, seat: 0, name: info.name, phone: info.phone, bookedAt: new Date(now).toISOString(), status: 'pending' };
-    const t1 = await fb.runTransaction(P(fb, `studentBookings/${code}`), cur =>
+    if (slot.sessionId && slot.sessionId !== att.sessionId) throw new Error('هذا الموعد غير متاح لجلستك');
+    const sess = await read(fb, `sessions/${att.sessionId}`);
+    if (!sess || sess.status === 'archived') throw new Error('انتهت فترة الحجز لهذه الجلسة');
+    const key = bookingKey(att.sessionId, att.studentId), now = Date.now();
+    const rec = { slotId, seat: 0, studentId: att.studentId, sessionId: att.sessionId, attemptId: att.id, code: att.code, name: att.name, phone: att.phone, snap: { score: att.score, total: att.total }, bookedAt: new Date(now).toISOString(), status: 'pending' };
+    const t1 = await fb.runTransaction(P(fb, `bookings/${key}`), cur =>
       (cur == null || (cur.status === 'pending' && now - Date.parse(cur.bookedAt) > STUCK_MS)) ? rec : undefined);
     if (!t1.committed) throw new Error('لديك حجز مسبق بالفعل، لا يمكن حجز أكثر من موعد');
     let seat = 0;
-    try { seat = await claimSeat(fb, slotId, slot.capacity); } catch (e) { await fb.set(P(fb, `studentBookings/${code}`), null); throw e; }
-    if (!seat) { await fb.set(P(fb, `studentBookings/${code}`), null); throw new Error('عذراً، اكتمل عدد هذا الموعد'); }
-    try {
-      await fb.update(P(fb), { [`studentBookings/${code}/seat`]: seat, [`studentBookings/${code}/status`]: 'confirmed' });
-    } catch (e) {
-      await fb.set(P(fb, `seats/${slotId}/${seat}`), null); await fb.set(P(fb, `studentBookings/${code}`), null); throw e;
-    }
-    await history(fb, { code, action: 'book', slotId, seat, by: 'student' });
-    return { slotId, seat };
+    try { seat = await claimSeat(fb, slotId, slot.capacity); } catch (e) { await fb.set(P(fb, `bookings/${key}`), null); throw e; }
+    if (!seat) { await fb.set(P(fb, `bookings/${key}`), null); throw new Error('عذراً، اكتمل عدد هذا الموعد'); }
+    try { await fb.update(P(fb), { [`bookings/${key}/seat`]: seat, [`bookings/${key}/status`]: 'confirmed' }); }
+    catch (e) { await fb.set(P(fb, `seats/${slotId}/${seat}`), null); await fb.set(P(fb, `bookings/${key}`), null); throw e; }
+    await history(fb, { key, action: 'book', slotId, seat, by: 'student' });
+    return { key, slotId, seat };
   }
-  async function cancelBooking(fb, code, by) {
-    code = normalizeCode(code);
-    const b = await read(fb, `studentBookings/${code}`);
-    if (!b) return false;
-    const up = { [`studentBookings/${code}`]: null };
-    if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
+  async function cancelBooking(fb, key, by) {
+    const b = await read(fb, `bookings/${key}`); if (!b) return false;
+    const up = { [`bookings/${key}`]: null }; if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
     await fb.update(P(fb), up);
-    await history(fb, { code, action: 'cancel', slotId: b.slotId, seat: b.seat || 0, by: by || 'admin' });
-    return true;
+    await history(fb, { key, action: 'cancel', slotId: b.slotId, seat: b.seat || 0, by: by || 'admin' });
+    await audit(fb, by, 'booking-cancel', { key, name: b.name, code: b.code, slotId: b.slotId }); return true;
   }
-  async function moveBooking(fb, code, newSlotId, by) {
-    code = normalizeCode(code);
-    const b = await read(fb, `studentBookings/${code}`);
-    if (!b) throw new Error('لا يوجد حجز لهذا الطالب');
+  async function moveBooking(fb, key, newSlotId, by) {
+    const b = await read(fb, `bookings/${key}`); if (!b) throw new Error('لا يوجد حجز لهذا الطالب');
     if (b.slotId === newSlotId) return b;
     const slot = await read(fb, `appointments/${newSlotId}`);
     if (!slot || slot.active === false) throw new Error('الموعد الجديد غير متاح');
-    const seat = await claimSeat(fb, newSlotId, slot.capacity);
-    if (!seat) throw new Error('الموعد الجديد مكتمل');
-    const up = { [`studentBookings/${code}/slotId`]: newSlotId, [`studentBookings/${code}/seat`]: seat, [`studentBookings/${code}/status`]: 'confirmed', [`studentBookings/${code}/movedAt`]: new Date().toISOString() };
+    if (slot.sessionId && slot.sessionId !== b.sessionId) throw new Error('الموعد الجديد يتبع جلسة أخرى');
+    const seat = await claimSeat(fb, newSlotId, slot.capacity); if (!seat) throw new Error('الموعد الجديد مكتمل');
+    const up = { [`bookings/${key}/slotId`]: newSlotId, [`bookings/${key}/seat`]: seat, [`bookings/${key}/status`]: 'confirmed', [`bookings/${key}/movedAt`]: iso() };
     if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
     try { await fb.update(P(fb), up); } catch (e) { await fb.set(P(fb, `seats/${newSlotId}/${seat}`), null); throw e; }
-    await history(fb, { code, action: 'move', slotId: newSlotId, from: b.slotId, seat, by: by || 'admin' });
-    return { slotId: newSlotId, seat };
+    await history(fb, { key, action: 'move', slotId: newSlotId, from: b.slotId, seat, by: by || 'admin' });
+    await audit(fb, by, 'booking-move', { key, name: b.name, from: b.slotId, to: newSlotId }); return { slotId: newSlotId, seat };
   }
   async function canSetCapacity(fb, slotId, cap) {
-    const seats = (await read(fb, `seats/${slotId}`)) || {};
-    const max = Math.max(0, ...Object.keys(seats).map(Number));
+    const seats = (await read(fb, `seats/${slotId}`)) || {}, max = Math.max(0, ...Object.keys(seats).map(Number));
     return max <= cap ? null : `يوجد حجوزات حتى المقعد رقم ${max}، انقل الطلاب أو ألغِ حجوزاتهم أولاً`;
   }
   async function deleteSlot(fb, slotId, by) {
-    const all = (await read(fb, 'studentBookings')) || {};
-    const up = { [`appointments/${slotId}`]: null, [`seats/${slotId}`]: null };
-    const codes = Object.keys(all).filter(c => all[c].slotId === slotId);
-    codes.forEach(c => { up[`studentBookings/${c}`] = null; });
+    const slot = await read(fb, `appointments/${slotId}`);
+    if (slot && slot.sessionId) { const s = await read(fb, `sessions/${slot.sessionId}`); if (s && s.status === 'archived') throw new Error('لا يمكن حذف موعد تابع لجلسة مؤرشفة'); }
+    const all = (await read(fb, 'bookings')) || {}, keys = Object.keys(all).filter(k => all[k].slotId === slotId);
+    const up = { [`appointments/${slotId}`]: null, [`seats/${slotId}`]: null }; keys.forEach(k => { up[`bookings/${k}`] = null; });
     await fb.update(P(fb), up);
-    for (const c of codes) await history(fb, { code: c, action: 'cancel-slot-deleted', slotId, by: by || 'admin' });
-    return codes.length;
+    await audit(fb, by, 'slot-delete', { slotId, day: slot && slot.day, time: slot && slot.time, cancelledBookings: keys.length, students: keys.map(k => all[k].name).slice(0, 30) });
+    return keys.length;
+  }
+
+  // ---- one-time, additive migration from the v1 layout (results/studentBookings keyed by code). Old nodes are kept as a backup. ----
+  async function migrateLegacy(fb, by) {
+    const meta = (await read(fb, 'meta')) || {}; if (meta.migratedV2) return { migrated: false };
+    const [results, bookings, appts, codes] = await Promise.all(['results', 'studentBookings', 'appointments', 'accessCodes'].map(p => read(fb, p)));
+    const up = {}; let sid = meta.activeSessionId || null, sname = 'الجلسة الأولى';
+    if (!sid) { sid = 'ss_first'; up[`sessions/${sid}`] = { id: sid, name: sname, status: 'open', createdAt: iso(), migrated: true }; up['meta/activeSessionId'] = sid; }
+    else { const s = await read(fb, `sessions/${sid}`); sname = (s && s.name) || sname; }
+    const aid = c => 'a_legacy_' + c, n = { attempts: 0, bookings: 0, skipped: 0 };
+    for (const [c, r] of Object.entries(results || {})) {
+      const cd = (codes || {})[c] || {}, name = r.name || cd.usedBy || '', phone = r.phone || cd.phone || '', stId = studentId(name, phone);
+      up[`attempts/${aid(c)}`] = { ...r, id: aid(c), sessionId: sid, sessionName: sname, studentId: stId, code: c, name, phone, status: 'completed', completedAt: r.date || iso(), examSnapshot: { questions: r.total }, legacy: true };
+      up[`codeIndex/${c}/${aid(c)}`] = true; up[`students/${stId}`] = { id: stId, name, phone, createdAt: iso() }; n.attempts++;
+    }
+    for (const [c, b] of Object.entries(bookings || {})) {
+      const r = (results || {})[c] || {}, name = b.name || r.name || '', phone = b.phone || r.phone || '', stId = studentId(name, phone), key = bookingKey(sid, stId);
+      if (up[`bookings/${key}`]) { if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null; n.skipped++; continue; }   // duplicate student: free the extra seat
+      up[`bookings/${key}`] = { ...b, studentId: stId, sessionId: sid, attemptId: aid(c), code: c, name, phone, snap: { score: r.score, total: r.total } }; n.bookings++;
+      if (!up[`students/${stId}`]) up[`students/${stId}`] = { id: stId, name, phone, createdAt: iso() };
+    }
+    Object.values(appts || {}).forEach(s => { if (s && !s.sessionId) up[`appointments/${s.id}/sessionId`] = sid; });
+    up['meta/migratedV2'] = iso();
+    await fb.update(P(fb), up); await audit(fb, by, 'migrate-v2', n); return { migrated: true, ...n };
   }
 
   // ---- exports ----
-  function slotRows(slot, bookings, results, tiers) {
-    return Object.keys(bookings || {}).filter(c => bookings[c].slotId === slot.id && bookings[c].status === 'confirmed').map(c => {
-      const b = bookings[c], r = (results || {})[c] || {};
-      const g = r.total > 0 ? classify(r.score, r.total, tiers) : NONE;
-      return { code: c, name: b.name || r.name || '', phone: b.phone || '', score: r.score, total: r.total, pct: r.total > 0 ? Math.round(exactPct(r.score, r.total) * 10) / 10 : 0, group: groupLabel(g, tiers), groupKey: g, seat: b.seat };
-    }).sort((a, b) => a.name.localeCompare(b.name, 'ar') || a.code.localeCompare(b.code));
+  function slotRows(slot, bookings, attempts, tiers) {
+    return Object.keys(bookings || {}).filter(k => bookings[k].slotId === slot.id && bookings[k].status === 'confirmed').map(k => {
+      const b = bookings[k], a = (attempts || {})[b.attemptId] || {}, sn = b.snap || {};
+      const score = a.score !== undefined ? a.score : sn.score, total = a.total !== undefined ? a.total : sn.total, ok = Number(total) > 0;
+      const g = ok ? classify(score, total, tiers) : NONE;
+      return { key: k, code: b.code || a.code || '', name: b.name || a.name || '', phone: b.phone || a.phone || '', score: ok ? score : '', total: ok ? total : '', scoreText: ok ? `${score} / ${total}` : '—', pct: ok ? Math.round(exactPct(score, total) * 10) / 10 : 0, group: ok ? groupLabel(g, tiers) : '—', groupKey: g, seat: b.seat };
+    }).sort((x, y) => x.name.localeCompare(y.name, 'ar') || x.code.localeCompare(y.code));
   }
   const slotTitle = s => `${dayInfo(s.day).ar} - ${fmtTimeAr(s.time)}`;
   async function buildExcel(ExcelJS, slot, rows) {
-    const wb = new ExcelJS.Workbook(); wb.creator = 'Exam System';
+    const wb = new ExcelJS.Workbook(); wb.creator = 'الفجر';
     const ws = wb.addWorksheet('Students', { views: [{ state: 'frozen', ySplit: 1, rightToLeft: true }] });
     ws.columns = [['No.', 6], ['Student Code', 16], ['Full Name', 36], ['Phone Number', 18], ['Score', 12], ['Percentage', 12], ['Group', 18], ['Appointment', 24]].map(([header, width]) => ({ header, width }));
-    rows.forEach((r, i) => ws.addRow([i + 1, r.code, r.name, r.phone, `${r.score ?? ''} / ${r.total ?? ''}`, (r.pct || 0) / 100, r.group, slotTitle(slot)]));
+    rows.forEach((r, i) => ws.addRow([i + 1, r.code, r.name, r.phone, r.scoreText, (r.pct || 0) / 100, r.group, slotTitle(slot)]));
     ws.getColumn(6).numFmt = '0.0%';
     const h = ws.getRow(1); h.font = { bold: true, color: { argb: 'FFFFFFFF' } }; h.alignment = { horizontal: 'center', vertical: 'middle' };
-    h.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4B2A9A' } }; });
+    h.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B6F5E' } }; });
     ws.eachRow((row, n) => { if (n > 1) row.alignment = { horizontal: 'center', vertical: 'middle' }; });
     ws.getColumn(4).numFmt = '@';
     ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 8 } };
@@ -2491,15 +2604,15 @@ const AppCore = (function () {
     const total = Math.max(1, Math.ceil(rows.length / perPage)), pages = [];
     for (let p = 0; p < total; p++) {
       const chunk = rows.slice(p * perPage, (p + 1) * perPage);
-      pages.push(`<div class="pdf-page" dir="rtl"><div class="pdf-head"><h1>${esc(institution)}</h1><h2>قائمة طلاب موعد: ${esc(slotTitle(slot))}</h2>
+      pages.push(`<div class="pdf-page" dir="rtl"><div class="pdf-head"><div class="pdf-brand"><svg width="34" height="22" viewBox="0 0 48 32"><path d="M6 28a18 18 0 0 1 36 0z" fill="#e8a33d"/><path d="M24 2v6M8 9l4 4M40 9l-4 4M1 20l5 1M47 20l-5 1" stroke="#e8a33d" stroke-width="2.4" stroke-linecap="round"/></svg><span>الفجر</span></div><h1>${esc(institution)}</h1><h2>قائمة طلاب موعد: ${esc(slotTitle(slot))}</h2>
 <div class="pdf-meta"><span>عدد المسجلين: ${rows.length}</span><span>السعة القصوى: ${slot.capacity}</span></div></div>
 <table><thead><tr><th>م</th><th>كود الطالب</th><th>الاسم بالكامل</th><th>رقم الهاتف</th><th>الدرجة</th><th>المجموعة</th></tr></thead><tbody>
-${chunk.map((r, i) => `<tr><td>${p * perPage + i + 1}</td><td>${esc(r.code)}</td><td class="nm">${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.score)} / ${esc(r.total)} (${r.pct}%)</td><td>${esc(r.group)}</td></tr>`).join('')}
+${chunk.map((r, i) => `<tr><td>${p * perPage + i + 1}</td><td>${esc(r.code)}</td><td class="nm">${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.scoreText)}${r.total ? ` (${r.pct}%)` : ''}</td><td>${esc(r.group)}</td></tr>`).join('')}
 ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين في هذا الموعد</td></tr>'}</tbody></table><div class="pdf-foot">صفحة ${p + 1} من ${total}</div></div>`);
     }
     return pages;
   }
-  return { NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
+  return { studentId, bookingKey, audit, createSession, archiveSession, reopenSession, activateSession, startAttempt, finishAttempt, resetCodes, verifyForBooking, migrateLegacy, NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
 })();
 
     // ================= Grouping rules =================
@@ -2513,24 +2626,26 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
         const tiers = currentTiers().map(t => ({ key: t.key, label: ($$('tiersEditor').querySelector(`.tier-label[data-key="${t.key}"]`).value || '').trim(), min: parseFloat($$('tiersEditor').querySelector(`.tier-min[data-key="${t.key}"]`).value) }));
         const err = AppCore.validateTiers(tiers);
         if (err) return showAlert('error', err);
-        await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'groupSettings'), { tiers });
+        await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'groupSettings'), { tiers }); AppCore.audit(FB(), actor(), 'tiers-update', { tiers });
         DB.tiers = tiers; await reclassifyAll(false); showAlert('success', 'تم حفظ القواعد وإعادة التصنيف');
     };
     async function reclassifyAll(notify) {
         const { database, ref, update } = window.firebaseDB, tiers = currentTiers(), up = {};
-        (DB.results || []).forEach(r => { if (!r || !r.code || !(r.total > 0)) return; const g = AppCore.classify(r.score, r.total, tiers); if (r.group !== g) { up[`results/${r.code}/group`] = g; up[`results/${r.code}/exactPercentage`] = AppCore.exactPct(r.score, r.total); } });
+        (DB.attemptsAll || []).forEach(r => { if (!r || !r.id || r.status !== 'completed' || !(r.total > 0)) return; const g = AppCore.classify(r.score, r.total, tiers); if (r.group !== g) { up[`attempts/${r.id}/group`] = g; up[`attempts/${r.id}/exactPercentage`] = AppCore.exactPct(r.score, r.total); } });
         if (Object.keys(up).length) await update(ref(database), up);
         if (notify) showAlert('success', `تمت إعادة التصنيف (${Object.keys(up).length / 2} تعديل)`);
     }
     window.reclassifyAll = reclassifyAll;
     async function syncGroups() {   // keeps the stored group in step with the grade (also heals results saved before this feature existed)
-        if (!currentUser || syncing || !(DB.results || []).length) return;
+        if (!currentUser || syncing || !(DB.attemptsAll || []).length) return;
         syncing = true; try { await reclassifyAll(false); } catch (e) { console.error(e); } finally { syncing = false; }
     }
     window.syncGroups = syncGroups;
 
     // ================= Appointments =================
-    const slotsList = () => Object.values(DB.appointments || {}).filter(s => s && s.active !== false).map(s => { const booked = AppCore.countBooked((DB.seats || {})[s.id]); return { ...s, booked, remaining: Math.max(0, s.capacity - booked) }; }).sort(AppCore.slotSort);
+    const viewAll = () => DB.viewSessionId === 'all';
+    const slotArchived = s => { const x = (DB.sessions || {})[s.sessionId]; return !!(x && x.status === 'archived'); };
+    const slotsList = () => Object.values(DB.appointments || {}).filter(s => s && s.active !== false && (viewAll() || !s.sessionId || s.sessionId === DB.viewSessionId)).map(s => { const booked = AppCore.countBooked((DB.seats || {})[s.id]); return { ...s, booked, remaining: Math.max(0, s.capacity - booked) }; }).sort(AppCore.slotSort);
     const dayOptions = () => AppCore.DAYS.map(d => `<option value="${d.key}">${d.ar}</option>`).join('');
     const FB = () => window.firebaseDB;
     const actor = () => (currentUser && currentUser.username) || 'admin';
@@ -2538,6 +2653,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
         if (!$$('appointmentsTab').classList.contains('hidden')) displayAppointments();
         if (!$$('groupsTab').classList.contains('hidden')) displayGroups();
         if (!$$('resultsTab').classList.contains('hidden')) displayResults();
+        if (!$$('sessionsTab').classList.contains('hidden')) displaySessions();
     }
     function syncApptSwitches() {
         const s = DB.apptSettings || {};
@@ -2546,32 +2662,34 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
     }
     function bindApptEvents() {
         $$('apptDay').innerHTML = dayOptions();
-        const setFlag = (k, label) => async (e) => { await FB().set(FB().ref(FB().database, `appointmentSettings/${k}`), e.target.checked); showAlert('success', `${label}: ${e.target.checked ? 'تم التشغيل' : 'تم الإيقاف'}`); };
+        const setFlag = (k, label) => async (e) => { await FB().set(FB().ref(FB().database, `appointmentSettings/${k}`), e.target.checked); AppCore.audit(FB(), actor(), 'booking-setting', { [k]: e.target.checked }); showAlert('success', `${label}: ${e.target.checked ? 'تم التشغيل' : 'تم الإيقاف'}`); };
         $$('apptEnabled').addEventListener('change', setFlag('enabled', 'نظام المواعيد'));
         $$('apptOpen').addEventListener('change', setFlag('open', 'الحجز'));
     }
     window.saveInstitution = async function () {
         const v = $$('apptInstitution').value.trim().slice(0, 80);
-        await FB().set(FB().ref(FB().database, 'appointmentSettings/institution'), v || null); showAlert('success', 'تم الحفظ');
+        await FB().set(FB().ref(FB().database, 'appointmentSettings/institution'), v || null); AppCore.audit(FB(), actor(), 'institution-update', { v }); showAlert('success', 'تم الحفظ');
     };
     window.displayAppointments = function () {
         const slots = slotsList();
         $$('apptContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>اليوم</th><th>الوقت</th><th>السعة</th><th>المحجوز</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>` +
             (slots.length ? slots.map(s => `<tr><td>${AppCore.dayInfo(s.day).ar}</td><td>${AppCore.fmtTimeAr(s.time)}</td><td>${s.capacity}</td><td>${s.booked}</td><td>${s.remaining}</td><td>${s.remaining ? '<span class="gbadge g-I">متاح</span>' : '<span class="gbadge g-none">مكتمل</span>'}</td>
-              <td style="white-space:nowrap"><button class="btn btn-warning mini" onclick="editSlot('${escapeHtml(s.id)}')">✏️</button> <button class="btn btn-danger mini" onclick="deleteSlotUI('${escapeHtml(s.id)}')">🗑</button> <button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></td></tr>`).join('')
-                : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#8a2be2">لا توجد مواعيد بعد</td></tr>') + '</tbody></table></div>';
+              <td style="white-space:nowrap">${slotArchived(s) ? '<span class="muted">🔒 مؤرشف</span>' : `<button class="btn btn-warning mini" onclick="editSlot('${escapeHtml(s.id)}')">✏️</button> <button class="btn btn-danger mini" onclick="deleteSlotUI('${escapeHtml(s.id)}')">🗑</button>`} <button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></td></tr>`).join('')
+                : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#0f8f7a">لا توجد مواعيد بعد</td></tr>') + '</tbody></table></div>';
     };
     const dupSlot = (day, time, exceptId) => slotsList().some(x => x.day === day && x.time === time && x.id !== exceptId);
     window.addSlot = async function () {
         const s = { day: $$('apptDay').value, time: $$('apptTime').value, capacity: parseInt($$('apptCap').value, 10) };
         const err = AppCore.validateSlot(s); if (err) return showAlert('error', err);
-        if (dupSlot(s.day, s.time)) return showAlert('error', 'يوجد موعد بنفس اليوم والوقت');
+        const sess = (DB.sessions || {})[DB.viewSessionId]; if (!sess || sess.status === 'archived') return showAlert('error', 'اختر جلسة مفتوحة (غير مؤرشفة) من أعلى الصفحة لإضافة موعد إليها');
+        if (dupSlot(s.day, s.time)) return showAlert('error', 'يوجد موعد بنفس اليوم والوقت في هذه الجلسة');
         const id = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-        await FB().set(FB().ref(FB().database, `appointments/${id}`), { id, ...s, active: true, createdAt: new Date().toISOString() });
-        showAlert('success', 'تمت إضافة الموعد');
+        await FB().set(FB().ref(FB().database, `appointments/${id}`), { id, ...s, sessionId: DB.viewSessionId, active: true, createdAt: new Date().toISOString() });
+        AppCore.audit(FB(), actor(), 'slot-add', { id, ...s, sessionId: DB.viewSessionId }); showAlert('success', 'تمت إضافة الموعد');
     };
     window.editSlot = async function (id) {
         const s = slotsList().find(x => x.id === id); if (!s) return;
+        if (slotArchived(s)) return showAlert('error', 'لا يمكن تعديل موعد تابع لجلسة مؤرشفة');
         const r = await Swal.fire({
             title: 'تعديل الموعد', showCancelButton: true, confirmButtonText: 'حفظ', cancelButtonText: 'إلغاء',
             html: `<div style="text-align:right"><p class="muted" style="margin-bottom:8px">الطلاب المحجوزون (${s.booked}) يبقون على نفس الموعد بعد التعديل.</p><select id="edDay" class="swal2-input">${dayOptions()}</select><input id="edTime" type="time" class="swal2-input" value="${escapeHtml(s.time)}"><input id="edCap" type="number" min="1" max="200" class="swal2-input" value="${s.capacity}"></div>`,
@@ -2582,13 +2700,13 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
                 if (err) { Swal.showValidationMessage(err); return false; } return n;
             }
         });
-        if (r.isConfirmed) { await FB().update(FB().ref(FB().database, `appointments/${id}`), r.value); showAlert('success', 'تم التعديل'); }
+        if (r.isConfirmed) { await FB().update(FB().ref(FB().database, `appointments/${id}`), r.value); AppCore.audit(FB(), actor(), 'slot-edit', { id, from: { day: s.day, time: s.time, capacity: s.capacity }, to: r.value }); showAlert('success', 'تم التعديل'); }
     };
     window.deleteSlotUI = async function (id) {
         const s = slotsList().find(x => x.id === id); if (!s) return;
-        const r = await Swal.fire({ icon: 'warning', title: 'حذف الموعد؟', text: s.booked ? `سيتم إلغاء ${s.booked} حجز مرتبط بهذا الموعد وسيحتاج الطلاب للحجز من جديد.` : 'لا توجد حجوزات على هذا الموعد.', showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء' });
+        const r = await Swal.fire({ icon: 'warning', title: 'حذف الموعد؟', text: s.booked ? `سيتم إلغاء ${s.booked} حجز مرتبط بهذا الموعد فقط (نتائج الطلاب وبياناتهم لا تتأثر) وسيحتاجون للحجز من جديد.` : 'لا توجد حجوزات على هذا الموعد.', showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء' });
         if (!r.isConfirmed) return;
-        const n = await AppCore.deleteSlot(FB(), id, actor()); showAlert('success', `تم الحذف (${n} حجز ملغي)`);
+        try { const n = await AppCore.deleteSlot(FB(), id, actor()); showAlert('success', `تم الحذف (${n} حجز ملغي)`); } catch (e) { showAlert('error', e.message); }
     };
 
     // ================= Groups (students by appointment) =================
@@ -2605,14 +2723,15 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             return `<div class="slot-card-adm"><header><b>${AppCore.dayInfo(s.day).ar} - ${AppCore.fmtTimeAr(s.time)}</b><span>المحجوز <b>${s.booked}</b> / ${s.capacity} · المتبقي <b>${s.remaining}</b> · ${s.remaining ? '<span class="gbadge g-I">متاح</span>' : '<span class="gbadge g-none">مكتمل</span>'}</span>
                 <span><button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></span></header>
                 <div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الكود</th><th>الاسم</th><th>الهاتف</th><th>الدرجة</th><th>المجموعة</th><th>إجراءات</th></tr></thead><tbody>` +
-                (rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td style="color:#00bfff;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(r.name)}</td><td dir="ltr">${escapeHtml(r.phone)}</td><td>${escapeHtml(String(r.score))} / ${escapeHtml(String(r.total))} (${r.pct}%)</td><td>${gbadge(r.groupKey)}</td>
-                  <td style="white-space:nowrap"><button class="btn btn-warning mini" data-code="${escapeHtml(r.code)}" onclick="moveStudent(this.dataset.code)">🔀 نقل</button> <button class="btn btn-danger mini" data-code="${escapeHtml(r.code)}" onclick="cancelStudent(this.dataset.code)">إلغاء الحجز</button></td></tr>`).join('')
+                (rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td style="color:#f0b254;font-weight:bold">${escapeHtml(r.code)}</td><td>${escapeHtml(r.name)}</td><td dir="ltr">${escapeHtml(r.phone)}</td><td>${escapeHtml(r.scoreText)}${r.total ? ` (${r.pct}%)` : ''}</td><td>${gbadge(r.groupKey)}</td>
+                  <td style="white-space:nowrap"><button class="btn btn-warning mini" data-key="${escapeHtml(r.key)}" onclick="moveStudent(this.dataset.key)">🔀 نقل</button> <button class="btn btn-danger mini" data-key="${escapeHtml(r.key)}" onclick="cancelStudent(this.dataset.key)">إلغاء الحجز</button></td></tr>`).join('')
                     : '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px">لا يوجد طلاب</td></tr>') + '</tbody></table></div></div>';
         }).join('');
         $$('groupsContent').innerHTML = html || '<div class="panel muted" style="text-align:center">لا توجد نتائج</div>';
     };
     window.moveStudent = async function (code) {
         const b = (DB.bookings || {})[code]; if (!b) return;
+        if ((((DB.sessions || {})[b.sessionId]) || {}).status === 'archived') return showAlert('error', 'جلسة مؤرشفة: للقراءة فقط');
         const opts = slotsList().filter(s => s.id !== b.slotId && s.remaining > 0);
         if (!opts.length) return showAlert('error', 'لا توجد مواعيد أخرى بها أماكن شاغرة');
         const r = await Swal.fire({ title: 'نقل الطالب إلى موعد آخر', input: 'select', inputOptions: Object.fromEntries(opts.map(s => [s.id, `${AppCore.dayInfo(s.day).ar} - ${AppCore.fmtTimeAr(s.time)} (متبقي ${s.remaining})`])), inputPlaceholder: 'اختر الموعد', showCancelButton: true, confirmButtonText: 'نقل', cancelButtonText: 'إلغاء', inputValidator: v => (v ? null : 'اختر موعداً') });
@@ -2620,16 +2739,16 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
         try { await AppCore.moveBooking(FB(), code, r.value, actor()); showAlert('success', 'تم نقل الطالب'); } catch (e) { showAlert('error', e.message); }
     };
     window.cancelStudent = async function (code) {
-        const r = await Swal.fire({ icon: 'warning', title: 'إلغاء حجز الطالب؟', text: 'سيتم تحرير المقعد ليصبح متاحاً من جديد.', showCancelButton: true, confirmButtonText: 'إلغاء الحجز', cancelButtonText: 'رجوع' });
+        const r = await Swal.fire({ icon: 'warning', title: 'إلغاء حجز الطالب؟', text: 'سيتم تحرير المقعد فقط. نتيجة الطالب وبياناته تبقى محفوظة ويمكنه الحجز من جديد.', showCancelButton: true, confirmButtonText: 'إلغاء الحجز', cancelButtonText: 'رجوع' });
         if (r.isConfirmed) { await AppCore.cancelBooking(FB(), code, actor()); showAlert('success', 'تم إلغاء الحجز'); }
     };
 
     // ================= Excel / PDF export (generated in the browser from live data; no public links) =================
     const PDF_CSS = `.pdf-page{width:794px;height:1123px;padding:40px 44px;background:#fff;color:#111;font-family:Cairo,Tahoma,Arial,sans-serif;box-sizing:border-box;position:relative;direction:rtl}
-    .pdf-head h1{font-size:22px;text-align:center;margin:0 0 4px;color:#4b2a9a}.pdf-head h2{font-size:17px;text-align:center;margin:0 0 8px}
-    .pdf-meta{display:flex;justify-content:space-between;font-size:13px;margin:8px 0 12px;padding:6px 10px;background:#f1edfb;border-radius:6px}
-    .pdf-page table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}.pdf-page th{background:#4b2a9a;color:#fff;padding:7px 4px;border:1px solid #4b2a9a}
-    .pdf-page td{border:1px solid #cfc8e6;padding:5px 4px;text-align:center;line-height:1.3;word-break:break-word}.pdf-page tr:nth-child(even) td{background:#f8f6fd}
+    .pdf-brand{display:flex;justify-content:center;align-items:center;gap:8px;font-family:'Reem Kufi',Cairo;font-size:30px;color:#0b6f5e;font-weight:700;margin-bottom:2px}.pdf-head h1{font-size:22px;text-align:center;margin:0 0 4px;color:#0b6f5e}.pdf-head h2{font-size:17px;text-align:center;margin:0 0 8px}
+    .pdf-meta{display:flex;justify-content:space-between;font-size:13px;margin:8px 0 12px;padding:6px 10px;background:#e6f4ef;border-radius:6px}
+    .pdf-page table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}.pdf-page th{background:#0b6f5e;color:#fff;padding:7px 4px;border:1px solid #0b6f5e}
+    .pdf-page td{border:1px solid #c4ddd5;padding:5px 4px;text-align:center;line-height:1.3;word-break:break-word}.pdf-page tr:nth-child(even) td{background:#f4faf8}
     .pdf-page th:nth-child(1){width:6%}.pdf-page th:nth-child(2){width:13%}.pdf-page th:nth-child(3){width:28%}.pdf-page th:nth-child(4){width:16%}.pdf-page th:nth-child(5){width:21%}.pdf-page th:nth-child(6){width:16%}
     .pdf-foot{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:12px;color:#666}`;
     const rowsFor = (slot) => AppCore.slotRows(slot, DB.bookings, resultsMap(), currentTiers());
@@ -2639,7 +2758,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
         const pages = AppCore.buildPdfPages(slot, rowsFor(slot), (DB.apptSettings && DB.apptSettings.institution) || 'منصة الامتحانات الإلكترونية', 20);
         const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-10000px;top:0'; host.innerHTML = `<style>${PDF_CSS}</style>` + pages.join(''); document.body.appendChild(host);
         try {
-            if (document.fonts && document.fonts.load) { await Promise.all([document.fonts.load('400 14px Cairo'), document.fonts.load('700 14px Cairo')]).catch(() => {}); await document.fonts.ready; }
+            if (document.fonts && document.fonts.load) { await Promise.all([document.fonts.load('400 14px Cairo'), document.fonts.load('700 14px Cairo'), document.fonts.load('700 30px "Reem Kufi"')]).catch(() => {}); await document.fonts.ready; }
             const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true }), els = host.querySelectorAll('.pdf-page');
             for (let i = 0; i < els.length; i++) {
                 const canvas = await html2canvas(els[i], { scale: 2, backgroundColor: '#ffffff' });
@@ -2665,11 +2784,70 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
         } catch (e) { console.error(e); Swal.fire('خطأ', 'فشل إنشاء الملفات: ' + e.message, 'error'); }
     };
 
+
+    // ================= Sessions (exam cycles), activity log, accurate counters =================
+    function recomputeResults() { DB.results = (DB.attemptsAll || []).filter(a => a && a.status === 'completed' && (viewAll() || a.sessionId === DB.viewSessionId)); }
+    function ensureView() {
+        const ids = Object.keys(DB.sessions || {});
+        if (DB.viewSessionId !== 'all' && !(DB.viewSessionId in (DB.sessions || {}))) DB.viewSessionId = DB.activeSessionId || ids.sort().pop() || null;
+    }
+    function fillViewSession() {
+        const sel = $$('viewSession'); if (!sel) return;
+        const list = Object.values(DB.sessions || {}).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        sel.innerHTML = list.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.id === DB.activeSessionId ? ' ● نشطة' : ''}${s.status === 'archived' ? ' (مؤرشفة)' : ''}</option>`).join('') + '<option value="all">كل الجلسات</option>';
+        if (DB.viewSessionId) sel.value = DB.viewSessionId;
+    }
+    window.setViewSession = function (id) { DB.viewSessionId = id; recomputeResults(); updateStats(); refreshAppt(); };
+    const fmtDT = (iso) => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }); };
+    function sessionStats(id) {
+        const at = (DB.attemptsAll || []).filter(a => a && a.sessionId === id), b = Object.values(DB.bookings || {}).filter(x => x.sessionId === id && x.status === 'confirmed');
+        return { done: at.filter(a => a.status === 'completed').length, open: at.filter(a => a.status === 'in_progress').length, aband: at.filter(a => a.status === 'abandoned').length, bookings: b.length };
+    }
+    window.displaySessions = function () {
+        const list = Object.values(DB.sessions || {}).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        $$('sessionsContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الجلسة</th><th>الحالة</th><th>أُنشئت</th><th>مكتملة</th><th>غير مكتملة</th><th>الحجوزات</th><th>إجراءات</th></tr></thead><tbody>` +
+            (list.length ? list.map(s => { const st = sessionStats(s.id), act = s.id === DB.activeSessionId, arch = s.status === 'archived', id = escapeHtml(s.id);
+                return `<tr><td><b>${escapeHtml(s.name)}</b></td><td>${arch ? '<span class="gbadge g-none">مؤرشفة</span>' : act ? '<span class="gbadge g-I">نشطة (تستقبل الطلاب)</span>' : '<span class="gbadge g-B">مفتوحة</span>'}</td><td>${fmtDT(s.createdAt)}</td><td>${st.done}</td><td>${st.open + st.aband}</td><td>${st.bookings}</td>
+                <td style="white-space:nowrap">${!arch && !act ? `<button class="btn btn-success mini" onclick="sessionAction('activate','${id}')">تفعيل</button> ` : ''}${!arch ? `<button class="btn btn-warning mini" onclick="sessionAction('archive','${id}')">📦 أرشفة</button>` : `<button class="btn btn-primary mini" onclick="sessionAction('reopen','${id}')">↩ إعادة فتح</button>`} <button class="btn btn-primary mini" onclick="sessionAction('rename','${id}')">✏️</button></td></tr>`; }).join('')
+                : '<tr><td colspan="7" class="muted" style="text-align:center;padding:30px">لا توجد جلسات</td></tr>') + '</tbody></table></div>';
+    };
+    window.newSession = async function () {
+        const r = await Swal.fire({ title: 'جلسة امتحان جديدة', input: 'text', inputPlaceholder: 'مثال: دفعة سبتمبر 2026', showCancelButton: true, confirmButtonText: 'إنشاء', cancelButtonText: 'إلغاء', inputValidator: v => (v && v.trim() ? null : 'اكتب اسم الجلسة'),
+            html: `<div style="text-align:right;line-height:1.9;font-size:.95rem">ستصبح الجلسة الجديدة هي <b>النشطة</b> (تستقبل الطلاب).<br>✅ الجلسات السابقة وطلابها ونتائجها وحجوزاتها تبقى كما هي. الأكواد لا تتغير إلا إذا أعدت تفعيلها بنفسك.</div>` });
+        if (!r.isConfirmed) return;
+        try { const id = await AppCore.createSession(FB(), r.value, actor()); DB.viewSessionId = id; showAlert('success', 'تم إنشاء الجلسة وتفعيلها'); } catch (e) { showAlert('error', e.message); }
+    };
+    window.sessionAction = async function (kind, id) {
+        const s = (DB.sessions || {})[id]; if (!s) return;
+        try {
+            if (kind === 'rename') { const r = await Swal.fire({ title: 'تغيير اسم الجلسة', input: 'text', inputValue: s.name, showCancelButton: true, confirmButtonText: 'حفظ', cancelButtonText: 'إلغاء', inputValidator: v => (v && v.trim() ? null : 'الاسم مطلوب') }); if (!r.isConfirmed) return; await FB().set(FB().ref(FB().database, `sessions/${id}/name`), r.value.trim()); AppCore.audit(FB(), actor(), 'session-rename', { id, from: s.name, to: r.value.trim() }); return; }
+            const txt = { archive: ['أرشفة الجلسة', `ستتحول "${s.name}" إلى <b>للقراءة فقط</b>: لا حجز جديد ولا تعديل مواعيد، وتتوقف عن استقبال الطلاب إن كانت نشطة.<br>✅ كل بيانات الطلاب والنتائج والحجوزات تبقى كاملة ويمكن تصديرها، ويمكنك إعادة فتحها لاحقاً.`], reopen: ['إعادة فتح الجلسة', 'ستعود الجلسة مفتوحة (غير مؤرشفة).'], activate: ['تفعيل الجلسة', `ستستقبل "${s.name}" الطلاب الجدد الآن بدل الجلسة النشطة الحالية (التي تبقى مفتوحة وبياناتها محفوظة).`] }[kind];
+            const r = await Swal.fire({ icon: 'question', title: txt[0], html: `<div style="text-align:right;line-height:1.9">${txt[1]}</div>`, showCancelButton: true, confirmButtonText: 'تأكيد', cancelButtonText: 'تراجع' }); if (!r.isConfirmed) return;
+            await ({ archive: AppCore.archiveSession, reopen: AppCore.reopenSession, activate: AppCore.activateSession })[kind](FB(), id, actor()); showAlert('success', 'تم');
+        } catch (e) { showAlert('error', e.message); }
+    };
+    const ACTION_AR = { 'session-create': 'إنشاء جلسة', 'session-archive': 'أرشفة جلسة', 'session-reopen': 'إعادة فتح جلسة', 'session-activate': 'تفعيل جلسة', 'session-rename': 'تغيير اسم جلسة', 'codes-reset': 'إعادة تفعيل أكواد', 'booking-cancel': 'إلغاء حجز', 'booking-move': 'نقل حجز', 'slot-add': 'إضافة موعد', 'slot-edit': 'تعديل موعد', 'slot-delete': 'حذف موعد', 'tiers-update': 'تعديل قواعد التصنيف', 'booking-setting': 'إعدادات الحجز', 'institution-update': 'تعديل اسم المؤسسة', 'migrate-v2': 'ترحيل البيانات للنظام الجديد' };
+    window.displayLog = function () {
+        const rows = (DB.audit || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 200);
+        $$('logContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>المسؤول</th><th>الإجراء</th><th>التفاصيل</th></tr></thead><tbody>` +
+            (rows.length ? rows.map(x => `<tr><td>${fmtDT(x.at)}</td><td>${escapeHtml(x.by || '')}</td><td>${escapeHtml(ACTION_AR[x.action] || x.action)}</td><td style="max-width:420px;overflow-wrap:anywhere;font-size:.85rem">${escapeHtml(JSON.stringify(x.details || {}))}</td></tr>`).join('') : '<tr><td colspan="4" class="muted" style="text-align:center;padding:30px">لا يوجد نشاط مسجل</td></tr>') + '</tbody></table></div>';
+    };
+    window.updateExtraStats = function () {
+        const view = (DB.attemptsAll || []).filter(a => a && (viewAll() || a.sessionId === DB.viewSessionId));
+        const set = (id, v) => { const e = $$(id); if (e) e.innerText = v; };
+        set('statOpen', view.filter(a => a.status === 'in_progress' || a.status === 'abandoned').length);
+        set('statBookings', Object.values(DB.bookings || {}).filter(b => b.status === 'confirmed' && (viewAll() || b.sessionId === DB.viewSessionId)).length);
+        const s = (DB.sessions || {})[DB.activeSessionId]; set('statSession', s ? s.name : 'لا توجد');
+    };
+    async function afterLogin() {
+        try { const r = await AppCore.migrateLegacy(FB(), actor()); if (r.migrated) showAlert('success', `تم ترحيل البيانات للنظام الجديد (${r.attempts} محاولة، ${r.bookings} حجز) — النسخ القديمة محفوظة`); } catch (e) { console.error('migration', e); }
+        await syncGroups();
+    }
     window.viewStudentAnswers = async function(studentCode) {
         const { database, ref, get, update } = window.firebaseDB;
         
         try {
-            const snapshot = await get(ref(database, `results/${studentCode}`));
+            const snapshot = await get(ref(database, `attempts/${studentCode}`));
             if (!snapshot.exists()) return Swal.fire('خطأ', 'لم يتم العثور على بيانات لهذا الطالب', 'error');
             
             const res = snapshot.val();
@@ -2683,7 +2861,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             if (res.answers && res.answers.length > 0) {
                 res.answers.forEach((ans, i) => {
                     const isEssay = ans.type === 'essay';
-                    let statusColor = ans.correct ? '#00ff00' : (isEssay ? '#00bfff' : '#ff3366');
+                    let statusColor = ans.correct ? '#00ff00' : (isEssay ? '#f0b254' : '#ff3366');
                     let statusText = ans.correct ? '✅ صح' : (isEssay ? '📝 مقالي' : '❌ خطأ');
 
                     let qText = ans.questionText;
@@ -2718,7 +2896,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
                         </div>
                         <p style="font-weight:bold; margin-bottom:8px; color:#fff;">${escapeHtml(String(qText))}</p>
                         <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
-                            <span style="color:#00bfff">الإجابة:</span> <span style="color:#fff">${escapeHtml(String(answerDisplay))}</span>
+                            <span style="color:#f0b254">الإجابة:</span> <span style="color:#fff">${escapeHtml(String(answerDisplay))}</span>
                         </div>
                     </div>`;
                 });
@@ -2756,10 +2934,10 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
                     const newScore = result.value;
                     const newPercentage = Math.round((newScore / res.total) * 100);
                     
-                    await update(ref(database, `results/${studentCode}`), {
+                    await update(ref(database, `attempts/${studentCode}`), {
                         score: newScore,
                         percentage: newPercentage,
-                        exactPercentage: AppCore.exactPct(newScore, res.total),
+                        exactPercentage: AppCore.exactPct(newScore, res.total), manuallyGradedBy: actor(), manuallyGradedAt: new Date().toISOString(), previousScore: res.score,
                         group: AppCore.classify(newScore, res.total, currentTiers()),
                         lastUpdated: new Date().toISOString()
                     });
