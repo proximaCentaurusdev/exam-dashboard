@@ -1087,6 +1087,7 @@
                 <button class="tab" onclick="switchTab('results')">🏆 النتائج</button>
                 <button class="tab" onclick="switchTab('codes')">🎫 أكواد الدخول</button>
                 <button class="tab" onclick="switchTab('sessions')">🗂️ الجلسات</button>
+                <button class="tab" onclick="switchTab('cycles')">🧹 إدارة الدورات وتصفير البيانات</button>
                 <button class="tab" onclick="switchTab('appointments')">📅 تحديد المواعيد</button>
                 <button class="tab" onclick="switchTab('groups')">👥 المجموعات</button>
                 <button class="tab" onclick="switchTab('log')">📜 سجل النشاط</button>
@@ -1241,9 +1242,28 @@
                         <button class="btn btn-primary" onclick="addNewCode()">➕ إضافة</button>
                         <button class="btn btn-success" onclick="exportCodes()">📥 تصدير</button>
                         <button class="btn btn-warning" onclick="resetAllCodes()">🔄 إعادة تفعيل الأكواد</button>
+                        <button class="btn btn-primary" onclick="generateCodesUI()">🎲 توليد أكواد جديدة</button>
                     </div>
                 </div>
                 <div id="codesContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="cyclesTab">
+                <div class="section-header"><h2>إدارة الدورات وتصفير البيانات</h2></div>
+                <p class="muted" style="margin-bottom:14px">كل عملية تعمل على <b>جلسة واحدة محددة</b> فقط، وتُحفظ لها <b>نسخة احتياطية تلقائية</b> قبل التنفيذ ثم تُنفَّذ كتحديث واحد متكامل (إما ينجح كاملاً أو لا يتغير شيء). لا تمس هذه العمليات أبداً: ملفات الطلاب (الاسم/الهاتف)، الجلسات الأخرى، حسابات المشرفين، إعدادات النظام. للمشرف العام فقط.</p>
+                <div class="panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                    <label for="cycSession"><b>الجلسة المستهدفة:</b></label>
+                    <select id="cycSession" class="inp" style="min-width:240px" onchange="displayCycles()"></select>
+                    <div id="cycStats" class="muted" style="line-height:1.9"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:14px 0">
+                    <div class="panel"><h3>أ) تصفير النتائج</h3><p class="muted" style="margin:8px 0">يحذف نتائج الجلسة وتصنيفات المجموعات الناتجة عنها، مع خيارات للحجوزات والأكواد.</p><button class="btn btn-warning" onclick="cycleResetResults()">🧹 تصفير النتائج</button></div>
+                    <div class="panel"><h3>ب) مسح الأكواد</h3><p class="muted" style="margin:8px 0">يحذف أكواد دخول الجلسة فلا تعمل بعدها، ثم يمكنك توليد أكواد جديدة كلياً.</p><button class="btn btn-danger" onclick="cycleDeleteCodes()">🗑 مسح جميع أكواد الامتحانات</button></div>
+                    <div class="panel"><h3>ج) دورة جديدة</h3><p class="muted" style="margin:8px 0">معالج موجَّه: تنظيف اختياري ← أرشفة الجلسة ← جلسة جديدة ← أكواد جديدة.</p><button class="btn btn-success" onclick="cycleNew()">🚀 بدء دورة امتحانات جديدة</button></div>
+                </div>
+                <h3 style="margin:18px 0 8px">النسخ الاحتياطية (استرجاع)</h3>
+                <p class="muted" style="margin-bottom:8px">الاسترجاع إضافي وآمن: لا يستبدل أي سجل موجود، ولا يعيد كوداً يستخدمه طالب الآن، ويتخطى الحجوزات التي أُشغل مقعدها.</p>
+                <div id="cycBackups"></div>
             </div>
 
             <div class="tab-content hidden" id="sessionsTab">
@@ -1512,6 +1532,7 @@
             onValue(ref(database, 'bookings'), s => { DB.bookings = s.val() || {}; refreshAppt(); });
             onValue(ref(database, 'sessions'), s => { DB.sessions = s.val() || {}; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
             onValue(ref(database, 'meta/activeSessionId'), s => { DB.activeSessionId = s.val() || null; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
+            onValue(ref(database, 'backups'), s => { DB.backups = s.val() || {}; if (!document.getElementById('cyclesTab').classList.contains('hidden')) displayCycles(); });
             onValue(ref(database, 'auditLog'), s => { DB.audit = s.val() ? Object.values(s.val()) : []; if (!document.getElementById('logTab').classList.contains('hidden')) displayLog(); });
             onValue(ref(database, 'groupSettings'), s => {
                 const v = s.val(); DB.tiers = v && v.tiers ? (Array.isArray(v.tiers) ? v.tiers : Object.values(v.tiers)) : null;
@@ -1631,6 +1652,7 @@
                 'examSettings': updateExamSettingsUI,
                 'overview': () => updateStats(true),
                 'sessions': displaySessions,
+                'cycles': () => displayCycles(),
                 'log': displayLog,
                 'appointments': displayAppointments,
                 'groups': displayGroups,
@@ -2251,8 +2273,10 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
             <h3 style="color: #f0b254; margin-bottom: 20px; border-top: 1px solid #333; padding-top: 20px;">الأكواد المتاحة (${availableCodes.length})</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
                 ${availableCodes.map(c => `
-                    <div style="background:rgba(240,178,84,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(240,178,84,0.2); color:#fff; font-family:monospace;">
-                        ${c.code}
+                    <div style="background:rgba(240,178,84,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(240,178,84,0.2); color:#fff; font-family:monospace;${c.disabled ? 'opacity:.5;text-decoration:line-through;' : ''}">
+                        ${escapeHtml(c.code)}
+                        ${c.batchSessionId && (DB.sessions || {})[c.batchSessionId] ? `<div style="font-size:.65rem;color:#aaa;font-family:inherit">${escapeHtml((DB.sessions[c.batchSessionId]).name)}</div>` : ''}
+                        <button class="btn mini" style="margin-top:4px" data-code="${escapeHtml(c.code)}" onclick="toggleCode(this.dataset.code, ${c.disabled ? 'false' : 'true'})">${c.disabled ? '✅ تفعيل' : '🚫 تعطيل'}</button>
                     </div>
                 `).join('')}
             </div>`;
@@ -2435,9 +2459,11 @@ const AppCore = (function () {
     if (!session || session.status === 'archived') throw new Error('لا توجد جلسة امتحان نشطة حالياً');
     const cur0 = await read(fb, `accessCodes/${code}`);
     if (cur0 == null) throw new Error('الكود غير صحيح'); if (cur0.used) throw new Error('هذا الكود مستخدم من قبل');
+    if (cur0.disabled) throw new Error('هذا الكود معطّل، تواصل مع المشرف');
+    if (cur0.batchSessionId && cur0.batchSessionId !== sid) throw new Error('هذا الكود غير مخصص لجلسة الامتحان الحالية');
     const attemptId = rid('a_');
     const tx = await fb.runTransaction(P(fb, `accessCodes/${code}`), cur => {   // atomic claim: one student per code at a time
-      if (cur === null) return null; if (cur.used) return undefined;
+      if (cur === null) return null; if (cur.used || cur.disabled) return undefined;
       return { ...cur, used: true, usedBy: name, phone, usedAt: iso(), sessionId: sid, attemptId };
     });
     if (!tx.committed) throw new Error('هذا الكود مستخدم من قبل'); if (!tx.snapshot.exists()) throw new Error('الكود غير صحيح');
@@ -2575,6 +2601,101 @@ const AppCore = (function () {
     await fb.update(P(fb), up); await audit(fb, by, 'migrate-v2', n); return { migrated: true, ...n };
   }
 
+
+  // ---- exam-cycle management: scoped reset / code wipe / new cycle, always with a backup and one atomic update ----
+  const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O/1/I/L confusion
+  function randCode(len, prefix) { const a = new Uint32Array(len); crypto.getRandomValues(a); return prefix + Array.from(a, x => CODE_ALPHABET[x % CODE_ALPHABET.length]).join(''); }
+  async function takenCodes(fb, codesObj) {   // never reuse a code that exists now OR appears anywhere in history
+    const t = new Set(Object.keys(codesObj || (await read(fb, 'accessCodes')) || {})); const idx = (await read(fb, 'codeIndex')) || {}; Object.keys(idx).forEach(k => t.add(k)); return t;
+  }
+  function planCodes(count, len, prefix, taken) {
+    const out = [], max = Math.pow(CODE_ALPHABET.length, len);
+    if (count > max - taken.size) throw new Error('طول الكود قصير لا يكفي لعدد الأكواد المطلوب');
+    while (out.length < count) { const c = randCode(len, prefix); if (!taken.has(c)) { taken.add(c); out.push(c); } }
+    return out;
+  }
+  async function generateCodes(fb, sid, count, len, prefix, by) {
+    count = parseInt(count, 10); len = parseInt(len, 10); prefix = normalizeCode(prefix).replace(/[^A-Z0-9]/g, '');
+    if (!(count >= 1 && count <= 2000)) throw new Error('العدد يجب أن يكون بين 1 و 2000'); if (!(len >= 4 && len <= 12)) throw new Error('طول الكود بين 4 و 12');
+    const s = sid ? await read(fb, `sessions/${sid}`) : null; if (!s || s.status === 'archived') throw new Error('اختر جلسة مفتوحة لربط الأكواد بها');
+    const codes = planCodes(count, len, prefix, await takenCodes(fb)), up = {};
+    codes.forEach(c => { up[`accessCodes/${c}`] = { code: c, used: false, usedBy: null, usedAt: null, batchSessionId: sid, createdAt: iso() }; });
+    await fb.update(P(fb), up); await audit(fb, by, 'codes-generate', { count, sessionId: sid, sample: codes.slice(0, 5) }); return codes;
+  }
+  async function setCodeDisabled(fb, code, disabled, by) {
+    const cur = await read(fb, `accessCodes/${code}`); if (!cur) throw new Error('الكود غير موجود'); if (cur.used && disabled) throw new Error('لا يمكن تعطيل كود مستخدم');
+    await fb.set(P(fb, `accessCodes/${code}/disabled`), disabled ? true : null); await audit(fb, by, disabled ? 'code-disable' : 'code-enable', { code });
+  }
+  async function cycleScope(fb, sid, includeLegacy) {
+    const [att, codes, bk, ap, se, ss] = await Promise.all(['attempts', 'accessCodes', 'bookings', 'appointments', 'seats', 'sessions'].map(p => read(fb, p)));
+    const session = (ss || {})[sid]; if (!session) throw new Error('الجلسة غير موجودة');
+    const attempts = Object.values(att || {}).filter(a => a && a.sessionId === sid), ids = new Set(attempts.map(a => a.id));
+    return { sid, session, attempts, allCodes: codes || {}, seats: se || {},
+      codes: Object.values(codes || {}).filter(c => c && c.code && (c.batchSessionId === sid || c.sessionId === sid || ids.has(c.attemptId) || (includeLegacy && !c.batchSessionId && !c.sessionId))),
+      bookings: Object.entries(bk || {}).filter(([, b]) => b && b.sessionId === sid).map(([key, b]) => ({ ...b, bkey: key })),
+      slots: Object.values(ap || {}).filter(s => s && s.sessionId === sid) };
+  }
+  // o: {results, submissions, bookings, reactivate, deleteCodes, includeLegacy, archive, newName, newCodes, codeLen, codePrefix}
+  function cyclePlan(sc, o, newCodesList) {
+    const up = {}, n = { results: 0, submissions: 0, codesDeleted: 0, codesReactivated: 0, bookings: 0, seats: 0 }, gone = new Set(), del = new Set();
+    const freeCode = c => { up[`accessCodes/${c}/used`] = false; ['usedBy', 'usedAt', 'phone', 'attemptId', 'sessionId'].forEach(k => { up[`accessCodes/${c}/${k}`] = null; }); n.codesReactivated++; };
+    if (o.deleteCodes) sc.codes.forEach(c => { del.add(c.code); up[`accessCodes/${c.code}`] = null; n.codesDeleted++; });
+    sc.attempts.forEach(a => {
+      const done = a.status === 'completed';
+      if ((done && o.results) || (!done && o.submissions)) {
+        up[`attempts/${a.id}`] = null; if (a.code) up[`codeIndex/${a.code}/${a.id}`] = null; gone.add(a.id); done ? n.results++ : n.submissions++;
+        const cur = sc.allCodes[a.code]; if (o.reactivate && cur && cur.attemptId === a.id && !del.has(a.code)) freeCode(a.code);
+      } else if (a.status === 'in_progress' && a.code && del.has(a.code)) { up[`attempts/${a.id}/status`] = 'abandoned'; up[`attempts/${a.id}/abandonedAt`] = iso(); }
+    });
+    if (o.bookings) {
+      const slotSet = new Set(sc.slots.map(s => s.id));
+      sc.slots.forEach(s => { if (sc.seats[s.id]) { up[`seats/${s.id}`] = null; n.seats += Object.keys(sc.seats[s.id]).length; } });
+      sc.bookings.forEach(b => { up[`bookings/${b.bkey}`] = null; n.bookings++; if (b.seat && !slotSet.has(b.slotId)) up[`seats/${b.slotId}/${b.seat}`] = null; });
+    }
+    let nid = null;
+    if (o.archive) { up[`sessions/${sc.sid}/status`] = 'archived'; up[`sessions/${sc.sid}/archivedAt`] = iso(); }
+    if (o.newName) { nid = rid('ss_'); up[`sessions/${nid}`] = { id: nid, name: o.newName, status: 'open', createdAt: iso(), createdBy: o.by || 'admin', previousSessionId: sc.sid }; up['meta/activeSessionId'] = nid; }
+    else if (o.archive && o.activeId === sc.sid) up['meta/activeSessionId'] = null;
+    (newCodesList || []).forEach(c => { up[`accessCodes/${c}`] = { code: c, used: false, usedBy: null, usedAt: null, batchSessionId: nid || sc.sid, createdAt: iso() }; });
+    return { up, n, nid };
+  }
+  const clean = v => JSON.parse(JSON.stringify(v === undefined ? null : v));
+  async function runCycle(fb, sid, o, by, reason) {
+    o = { ...o, by }; o.activeId = await read(fb, 'meta/activeSessionId');
+    const sc = await cycleScope(fb, sid, !!o.includeLegacy);
+    if (sc.session.status === 'archived' && (o.results || o.submissions || o.bookings || o.deleteCodes)) throw new Error('الجلسة مؤرشفة (للقراءة فقط). أعد فتحها أولاً إن كنت تريد تعديلها');
+    const newList = o.newCodes > 0 ? planCodes(o.newCodes, o.codeLen || 6, normalizeCode(o.codePrefix || '').replace(/[^A-Z0-9]/g, ''), await takenCodes(fb, sc.allCodes)) : [];
+    const plan = cyclePlan(sc, o, newList);
+    if (!Object.keys(plan.up).length) return { empty: true, n: plan.n };
+    // 1) backup first (create-only node). If this fails nothing else happens.
+    const gone = a => (a.status === 'completed' ? o.results : o.submissions), bid = rid('bk_');
+    const delCodes = o.deleteCodes ? sc.codes : sc.codes.filter(c => (plan.up[`accessCodes/${c.code}/used`] === false));
+    await fb.set(P(fb, `backups/${bid}`), clean({ id: bid, at: iso(), by, reason, sessionId: sid, sessionName: sc.session.name, sessionStatusBefore: sc.session.status, options: { ...o, activeId: undefined }, counts: plan.n, newSessionId: plan.nid,
+      attempts: Object.fromEntries(sc.attempts.filter(gone).map(a => [a.id, a])), codes: Object.fromEntries(delCodes.map(c => [c.code, c])),
+      bookings: o.bookings ? Object.fromEntries(sc.bookings.map(b => { const { bkey, ...r } = b; return [bkey, r]; })) : {} }));
+    // 2) ONE atomic multi-path update: either every change lands or none does
+    await fb.update(P(fb), plan.up);
+    await audit(fb, by, 'cycle-' + reason, { sessionId: sid, session: sc.session.name, backupId: bid, ...plan.n, newSessionId: plan.nid, newCodes: newList.length });
+    return { backupId: bid, n: plan.n, nid: plan.nid, newCodes: newList.length };
+  }
+  async function previewCycle(fb, sid, o) {
+    const sc = await cycleScope(fb, sid, !!o.includeLegacy); const p = cyclePlan(sc, { ...o, activeId: null }, []);
+    return { ...p.n, session: sc.session, completed: sc.attempts.filter(a => a.status === 'completed').length, open: sc.attempts.filter(a => a.status !== 'completed').length, codesTotal: sc.codes.length, bookingsTotal: sc.bookings.length };
+  }
+  async function restoreBackup(fb, bid, by) {
+    const b = await read(fb, `backups/${bid}`); if (!b) throw new Error('النسخة الاحتياطية غير موجودة');
+    const [cur, codes, bks, ap, se] = await Promise.all(['attempts', 'accessCodes', 'bookings', 'appointments', 'seats'].map(p => read(fb, p)));
+    const up = {}, r = { attempts: 0, codes: 0, bookings: 0, skipped: 0 };
+    Object.entries(b.attempts || {}).forEach(([id, a]) => { if ((cur || {})[id]) { r.skipped++; return; } up[`attempts/${id}`] = a; if (a.code) up[`codeIndex/${a.code}/${id}`] = true; r.attempts++; });
+    Object.entries(b.codes || {}).forEach(([c, v]) => { const now = (codes || {})[c]; if (now && now.used) { r.skipped++; return; } up[`accessCodes/${c}`] = v; r.codes++; });   // never overwrite a code someone is using now
+    Object.entries(b.bookings || {}).forEach(([k, v]) => {
+      const slot = (ap || {})[v.slotId]; if ((bks || {})[k] || !slot || ((se || {})[v.slotId] || {})[v.seat] || (up[`seats/${v.slotId}/${v.seat}`] !== undefined)) { r.skipped++; return; }
+      up[`bookings/${k}`] = v; if (v.seat) up[`seats/${v.slotId}/${v.seat}`] = v.seat; r.bookings++;
+    });
+    if (Object.keys(up).length) await fb.update(P(fb), up);
+    await audit(fb, by, 'cycle-restore', { backupId: bid, ...r }); return r;
+  }
+
   // ---- exports ----
   function slotRows(slot, bookings, attempts, tiers) {
     return Object.keys(bookings || {}).filter(k => bookings[k].slotId === slot.id && bookings[k].status === 'confirmed').map(k => {
@@ -2612,7 +2733,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
     }
     return pages;
   }
-  return { studentId, bookingKey, audit, createSession, archiveSession, reopenSession, activateSession, startAttempt, finishAttempt, resetCodes, verifyForBooking, migrateLegacy, NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
+  return { studentId, bookingKey, audit, createSession, archiveSession, reopenSession, activateSession, startAttempt, finishAttempt, resetCodes, verifyForBooking, migrateLegacy, generateCodes, setCodeDisabled, runCycle, previewCycle, restoreBackup, NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
 })();
 
     // ================= Grouping rules =================
@@ -2785,6 +2906,82 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
     };
 
 
+
+    // ================= Cycle management UI (super admin only) =================
+    const isSuper = () => !!(currentUser && currentUser.role === 'super');
+    const guardSuper = () => { if (isSuper()) return true; showAlert('error', 'هذه العمليات للمشرف العام فقط'); return false; };
+    const cycSid = () => { const v = $$('cycSession').value; return v && v !== 'all' ? v : null; };
+    const li = (ok, t) => `<div>${ok ? '✅' : '⬜'} ${t}</div>`;
+    window.displayCycles = async function () {
+        const sel = $$('cycSession'), cur = sel.value || (DB.viewSessionId !== 'all' ? DB.viewSessionId : DB.activeSessionId);
+        const list = Object.values(DB.sessions || {}).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        sel.innerHTML = list.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.id === DB.activeSessionId ? ' ● نشطة' : ''}${s.status === 'archived' ? ' (مؤرشفة)' : ''}</option>`).join('');
+        if (list.some(s => s.id === cur)) sel.value = cur;
+        const sid = cycSid(), st = sid ? sessionStats(sid) : { done: 0, open: 0, aband: 0, bookings: 0 };
+        const codes = (DB.accessCodes || []).filter(c => c.batchSessionId === sid || c.sessionId === sid);
+        $$('cycStats').innerHTML = sid ? `نتائج مكتملة: <b>${st.done}</b> · محاولات غير مكتملة: <b>${st.open + st.aband}</b> · حجوزات: <b>${st.bookings}</b> · أكواد الجلسة: <b>${codes.length}</b> (مستخدم ${codes.filter(c => c.used).length})` : 'لا توجد جلسات';
+        const bks = Object.values(DB.backups || {}).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 30);
+        $$('cycBackups').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>المسؤول</th><th>العملية</th><th>الجلسة</th><th>المحتوى المحفوظ</th><th></th></tr></thead><tbody>` +
+            (bks.length ? bks.map(b => `<tr><td>${fmtDT(b.at)}</td><td>${escapeHtml(b.by || '')}</td><td>${escapeHtml(({ results: 'تصفير نتائج', codes: 'مسح أكواد', newcycle: 'دورة جديدة' })[b.reason] || b.reason || '')}</td><td>${escapeHtml(b.sessionName || '')}</td><td>${Object.keys(b.attempts || {}).length} نتيجة/محاولة · ${Object.keys(b.codes || {}).length} كود · ${Object.keys(b.bookings || {}).length} حجز</td><td><button class="btn btn-primary mini" data-id="${escapeHtml(b.id)}" onclick="cycleRestore(this.dataset.id)">↩ استرجاع</button></td></tr>`).join('') : '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">لا توجد نسخ احتياطية بعد</td></tr>') + '</tbody></table></div>';
+    };
+    // second screen: exact summary + typed confirmation phrase, then run
+    async function confirmAndRun(title, phrase, summaryHtml, run) {
+        const r = await Swal.fire({ icon: 'warning', title, width: 640, showCancelButton: true, confirmButtonText: 'تنفيذ', cancelButtonText: 'تراجع', confirmButtonColor: '#d33',
+            html: `<div style="text-align:right;line-height:1.9">${summaryHtml}<hr style="margin:10px 0;border-color:#444">💾 تُحفظ نسخة احتياطية تلقائياً قبل التنفيذ ويمكن استرجاعها.<br>اكتب <b>${phrase}</b> للتأكيد:</div>`, input: 'text', inputPlaceholder: phrase,
+            inputValidator: v => (String(v).trim() === phrase ? null : `يجب كتابة: ${phrase}`) });
+        if (!r.isConfirmed) return;
+        busy('جاري التنفيذ...');
+        try { const res = await run(); Swal.close(); if (res.empty) return showAlert('error', 'لا يوجد ما يمكن تنفيذه (لا بيانات مطابقة للخيارات)'); await Swal.fire({ icon: 'success', title: 'تم التنفيذ', html: `<div style="text-align:right;line-height:1.9">${resSummary(res)}<br>🗄 رقم النسخة الاحتياطية: <code>${escapeHtml(res.backupId)}</code></div>` }); displayCycles(); }
+        catch (e) { console.error(e); Swal.fire('فشلت العملية', e.message + '\nلم يتم تطبيق أي تغيير على البيانات (التحديث ذري).', 'error'); }
+    }
+    const resSummary = r => `نتائج محذوفة: ${r.n.results} · محاولات غير مكتملة محذوفة: ${r.n.submissions} · أكواد محذوفة: ${r.n.codesDeleted} · أكواد أُعيد تفعيلها: ${r.n.codesReactivated} · حجوزات ملغاة: ${r.n.bookings}${r.newCodes ? ` · أكواد جديدة: ${r.newCodes}` : ''}`;
+    const chk = (id, label, on, extra) => `<label style="display:block;margin:6px 0;cursor:pointer"><input type="checkbox" id="${id}" ${on ? 'checked' : ''} ${extra || ''}> ${label}</label>`;
+    const val = id => { const e = document.getElementById(id); return e ? e.checked : false; };
+
+    window.cycleResetResults = async function () {
+        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'اختر جلسة');
+        const s = DB.sessions[sid]; if (s.status === 'archived') return showAlert('error', 'الجلسة مؤرشفة. أعد فتحها أولاً من تبويب الجلسات');
+        const r = await Swal.fire({ title: `تصفير نتائج: ${s.name}`, width: 640, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
+            html: `<div style="text-align:right">${chk('cA_res', 'حذف النتائج المكتملة (وتصنيف المجموعات الناتج عنها)', true, 'disabled')}${chk('cA_sub', 'حذف المحاولات غير المكتملة/المتروكة', true)}${chk('cA_re', 'إعادة تفعيل الأكواد التي استُخدمت في هذه النتائج', true)}${chk('cA_bk', 'إلغاء حجوزات المواعيد المرتبطة بالجلسة وتحرير مقاعدها', false)}<p class="muted" style="margin-top:8px">المجموعات تُحسب من النتيجة نفسها، فتختفي مع حذفها. إن أبقيت الحجوزات تبقى بدرجة الطالب وقت الحجز.</p></div>`,
+            preConfirm: () => ({ results: true, submissions: val('cA_sub'), reactivate: val('cA_re'), bookings: val('cA_bk') }) });
+        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o);
+        await confirmAndRun('تأكيد تصفير النتائج', 'تصفير', `سيتم في الجلسة <b>${escapeHtml(s.name)}</b> فقط:${li(1, `حذف <b>${p.results}</b> نتيجة`)}${li(o.submissions, `حذف <b>${p.submissions}</b> محاولة غير مكتملة`)}${li(o.reactivate, 'إعادة تفعيل أكواد هذه النتائج')}${li(o.bookings, `إلغاء <b>${p.bookings}</b> حجز وتحرير ${p.seats} مقعد`)}<br>✅ لا يمس: ملفات الطلاب، الجلسات الأخرى، المشرفين، الإعدادات. لقطات الكاميرا لا تُحذف.`, () => AppCore.runCycle(FB(), sid, o, actor(), 'results'));
+    };
+    window.cycleDeleteCodes = async function () {
+        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'اختر جلسة');
+        const s = DB.sessions[sid]; if (s.status === 'archived') return showAlert('error', 'الجلسة مؤرشفة. أعد فتحها أولاً');
+        const r = await Swal.fire({ title: `مسح أكواد: ${s.name}`, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
+            html: `<div style="text-align:right">${chk('cB_leg', 'تضمين الأكواد القديمة غير المرتبطة بأي جلسة', sid === DB.activeSessionId)}<p class="muted">النتائج والحجوزات والطلاب لا تُحذف. من بدأ الامتحان بكود محذوف يُعلَّم تلقائياً "متروك".</p></div>`, preConfirm: () => ({ deleteCodes: true, includeLegacy: val('cB_leg') }) });
+        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o); if (!p.codesDeleted) return showAlert('error', 'لا توجد أكواد لهذه الجلسة');
+        await confirmAndRun('تأكيد مسح الأكواد', 'مسح الأكواد', `سيتم حذف <b>${p.codesDeleted}</b> كود من الجلسة <b>${escapeHtml(s.name)}</b> ولن يعمل أي منها بعد ذلك.<br>يمكنك توليد أكواد جديدة من تبويب أكواد الدخول.`, () => AppCore.runCycle(FB(), sid, o, actor(), 'codes'));
+    };
+    window.cycleNew = async function () {
+        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'أنشئ جلسة أولاً');
+        const s = DB.sessions[sid], arch = s.status === 'archived';
+        const r = await Swal.fire({ title: 'بدء دورة امتحانات جديدة', width: 680, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
+            html: `<div style="text-align:right"><b>الجلسة السابقة: ${escapeHtml(s.name)}</b>${arch ? '<p class="muted">مؤرشفة بالفعل: لن يُحذف منها شيء.</p>' : chk('cC_arch', 'أرشفة الجلسة السابقة (للقراءة فقط، تبقى كل بياناتها)', true) + chk('cC_res', 'حذف نتائجها (وتصنيفاتها)', false) + chk('cC_sub', 'حذف محاولاتها غير المكتملة', false) + chk('cC_bk', 'إلغاء حجوزاتها وتحرير المقاعد', false) + chk('cC_codes', 'حذف أكواد الجلسة السابقة', true) + chk('cC_re', 'إعادة تفعيل أكواد النتائج المحذوفة', false)}<hr style="border-color:#444;margin:10px 0"><b>الجلسة الجديدة</b><input id="cC_name" class="swal2-input" placeholder="اسم الجلسة، مثال: دفعة 2027 - الامتحان الأول"><label>عدد الأكواد الجديدة (0 = بدون)</label><input id="cC_n" type="number" min="0" max="2000" value="0" class="swal2-input"><label>بادئة الكود (اختياري)</label><input id="cC_p" maxlength="4" class="swal2-input" placeholder="مثال: FJ"></div>`,
+            preConfirm: () => { const name = document.getElementById('cC_name').value.trim(); if (!name) { Swal.showValidationMessage('اسم الجلسة الجديدة مطلوب'); return false; }
+                const n = parseInt(document.getElementById('cC_n').value, 10) || 0; if (n < 0 || n > 2000) { Swal.showValidationMessage('عدد الأكواد بين 0 و 2000'); return false; }
+                return { newName: name, newCodes: n, codeLen: 6, codePrefix: document.getElementById('cC_p').value, archive: !arch && val('cC_arch'), results: !arch && val('cC_res'), submissions: !arch && val('cC_sub'), bookings: !arch && val('cC_bk'), deleteCodes: !arch && val('cC_codes'), reactivate: !arch && val('cC_re'), includeLegacy: !arch && val('cC_codes') && sid === DB.activeSessionId }; } });
+        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o);
+        await confirmAndRun('تأكيد بدء دورة جديدة', 'دورة جديدة', `<b>ما سيحدث بالترتيب:</b>${li(o.results, `حذف <b>${p.results}</b> نتيجة من "${escapeHtml(s.name)}"`)}${li(o.submissions, `حذف <b>${p.submissions}</b> محاولة غير مكتملة`)}${li(o.bookings, `إلغاء <b>${p.bookings}</b> حجز`)}${li(o.deleteCodes, `حذف <b>${p.codesDeleted}</b> كود قديم`)}${li(o.reactivate, 'إعادة تفعيل أكواد النتائج المحذوفة')}${li(o.archive, 'أرشفة الجلسة السابقة')}${li(1, `إنشاء وتفعيل الجلسة <b>${escapeHtml(o.newName)}</b>`)}${li(o.newCodes > 0, `توليد <b>${o.newCodes}</b> كود جديد`)}<br>الكل في تحديث واحد متكامل.`,
+            () => AppCore.runCycle(FB(), sid, o, actor(), 'newcycle').then(res => { if (res.nid) DB.viewSessionId = res.nid; return res; }));
+    };
+    window.cycleRestore = async function (bid) {
+        if (!guardSuper()) return;
+        const r = await Swal.fire({ icon: 'question', title: 'استرجاع النسخة الاحتياطية؟', text: 'سيُعاد ما حُذف فقط دون استبدال أي سجل موجود حالياً.', showCancelButton: true, confirmButtonText: 'استرجاع', cancelButtonText: 'تراجع' }); if (!r.isConfirmed) return;
+        try { const x = await AppCore.restoreBackup(FB(), bid, actor()); Swal.fire('تم الاسترجاع', `نتائج/محاولات: ${x.attempts} · أكواد: ${x.codes} · حجوزات: ${x.bookings} · متخطّى (موجود/مشغول): ${x.skipped}`, 'success'); }
+        catch (e) { Swal.fire('خطأ', e.message, 'error'); }
+    };
+    window.generateCodesUI = async function () {
+        if (!guardSuper()) return; const sid = DB.viewSessionId && DB.viewSessionId !== 'all' ? DB.viewSessionId : DB.activeSessionId; const s = (DB.sessions || {})[sid];
+        if (!s || s.status === 'archived') return showAlert('error', 'اختر جلسة مفتوحة من أعلى الصفحة');
+        const r = await Swal.fire({ title: `توليد أكواد لـ ${s.name}`, showCancelButton: true, confirmButtonText: 'توليد', cancelButtonText: 'إلغاء', html: `<input id="gN" type="number" min="1" max="2000" value="50" class="swal2-input" placeholder="العدد"><input id="gL" type="number" min="4" max="12" value="6" class="swal2-input" placeholder="الطول"><input id="gP" maxlength="4" class="swal2-input" placeholder="بادئة (اختياري)">`, preConfirm: () => [document.getElementById('gN').value, document.getElementById('gL').value, document.getElementById('gP').value] });
+        if (!r.isConfirmed) return;
+        try { const c = await AppCore.generateCodes(FB(), sid, r.value[0], r.value[1], r.value[2], actor()); showAlert('success', `تم توليد ${c.length} كود (فريدة وغير مكررة)`); } catch (e) { showAlert('error', e.message); }
+    };
+    window.toggleCode = async function (code, disable) { try { await AppCore.setCodeDisabled(FB(), code, disable, actor()); } catch (e) { showAlert('error', e.message); } };
+
     // ================= Sessions (exam cycles), activity log, accurate counters =================
     function recomputeResults() { DB.results = (DB.attemptsAll || []).filter(a => a && a.status === 'completed' && (viewAll() || a.sessionId === DB.viewSessionId)); }
     function ensureView() {
@@ -2826,7 +3023,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             await ({ archive: AppCore.archiveSession, reopen: AppCore.reopenSession, activate: AppCore.activateSession })[kind](FB(), id, actor()); showAlert('success', 'تم');
         } catch (e) { showAlert('error', e.message); }
     };
-    const ACTION_AR = { 'session-create': 'إنشاء جلسة', 'session-archive': 'أرشفة جلسة', 'session-reopen': 'إعادة فتح جلسة', 'session-activate': 'تفعيل جلسة', 'session-rename': 'تغيير اسم جلسة', 'codes-reset': 'إعادة تفعيل أكواد', 'booking-cancel': 'إلغاء حجز', 'booking-move': 'نقل حجز', 'slot-add': 'إضافة موعد', 'slot-edit': 'تعديل موعد', 'slot-delete': 'حذف موعد', 'tiers-update': 'تعديل قواعد التصنيف', 'booking-setting': 'إعدادات الحجز', 'institution-update': 'تعديل اسم المؤسسة', 'migrate-v2': 'ترحيل البيانات للنظام الجديد' };
+    const ACTION_AR = { 'cycle-results': 'تصفير نتائج', 'cycle-codes': 'مسح أكواد', 'cycle-newcycle': 'بدء دورة جديدة', 'cycle-restore': 'استرجاع نسخة احتياطية', 'codes-generate': 'توليد أكواد', 'code-disable': 'تعطيل كود', 'code-enable': 'تفعيل كود',  'session-create': 'إنشاء جلسة', 'session-archive': 'أرشفة جلسة', 'session-reopen': 'إعادة فتح جلسة', 'session-activate': 'تفعيل جلسة', 'session-rename': 'تغيير اسم جلسة', 'codes-reset': 'إعادة تفعيل أكواد', 'booking-cancel': 'إلغاء حجز', 'booking-move': 'نقل حجز', 'slot-add': 'إضافة موعد', 'slot-edit': 'تعديل موعد', 'slot-delete': 'حذف موعد', 'tiers-update': 'تعديل قواعد التصنيف', 'booking-setting': 'إعدادات الحجز', 'institution-update': 'تعديل اسم المؤسسة', 'migrate-v2': 'ترحيل البيانات للنظام الجديد' };
     window.displayLog = function () {
         const rows = (DB.audit || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 200);
         $$('logContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>المسؤول</th><th>الإجراء</th><th>التفاصيل</th></tr></thead><tbody>` +
