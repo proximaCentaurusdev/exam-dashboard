@@ -1031,6 +1031,18 @@
         .btn-primary, .tab.active { background: linear-gradient(135deg, #0f8f7a 0%, #0b6f5e 100%) !important; color: #fff !important; }
         input:focus, select:focus, textarea:focus { border-color: var(--fajr-gold) !important; box-shadow: 0 0 0 3px rgba(240,178,84,.25) !important; outline: none; }
         .pdf-brand { display: flex; justify-content: center; align-items: center; gap: 8px; font-family: 'Reem Kufi', Cairo, sans-serif; font-size: 30px; color: #0b6f5e; font-weight: 700; margin-bottom: 2px; }
+
+        /* ===== v3 ===== */
+        .daychip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(15,143,122,.5); background: rgba(15,143,122,.12); cursor: pointer; } .daychip.off { opacity: .55; border-style: dashed; } .daychip small { color: #ffd9a0; font-size: .75rem; }
+        .rep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; } .rep-grid .btn { width: 100%; }
+        .hrow { display: flex; align-items: center; gap: 10px; margin: 6px 0; } .hrow label { width: 90px; flex: none; font-size: .85rem; } .hbar { flex: 1; background: rgba(255,255,255,.07); border-radius: 8px; height: 22px; position: relative; overflow: hidden; }
+        .hbar i { display: block; height: 100%; background: #f0b254; border-radius: 8px; } .hbar i.ok { background: linear-gradient(90deg, #0f8f7a, #5ff0cf); } .hbar i.no { background: linear-gradient(90deg, #c93b5b, #ff8aa3); } .hbar span { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 10px; font-size: .8rem; font-weight: 700; }
+        .calgrid { display: grid; gap: 10px; margin-top: 12px; overflow-x: auto; } .calgrid.week { grid-template-columns: repeat(7, minmax(120px, 1fr)); } .calgrid.day { grid-template-columns: 1fr; }
+        .calcol h5 { margin: 0 0 8px; display: flex; justify-content: space-between; } .calcol h5 small { color: #9aa; font-weight: 400; }
+        .calslot { padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(15,143,122,.5); background: rgba(15,143,122,.12); font-size: .85rem; display: grid; gap: 4px; } .calslot.g-none { border-color: #c93b5b; background: rgba(201,59,91,.12); } .calslot.g-B { border-color: #f0b254; background: rgba(240,178,84,.1); }
+        .mbar { height: 5px; background: rgba(255,255,255,.12); border-radius: 4px; } .mbar i { display: block; height: 100%; background: #f0b254; border-radius: 4px; }
+        .notif { padding: 10px 14px; border-radius: 10px; margin-bottom: 8px; background: rgba(255,255,255,.04); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; } .notif.unread { border-right: 4px solid #f0b254; background: rgba(240,178,84,.08); } .notif small { margin-inline-start: auto; color: #9aa; }
+        .panel.review { border-color: #f0b254; } .reviewrow { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     </style>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;family=Reem+Kufi:wght@700&amp;display=swap" rel="stylesheet">
 </head>
@@ -1086,10 +1098,14 @@
                 <button class="tab" onclick="switchTab('examSettings')">⚙️ إعدادات الامتحان</button>
                 <button class="tab" onclick="switchTab('results')">🏆 النتائج</button>
                 <button class="tab" onclick="switchTab('codes')">🎫 أكواد الدخول</button>
+                <button class="tab" onclick="switchTab('students')">👤 الطلاب</button>
+                <button class="tab" onclick="switchTab('analytics')">📈 التحليلات</button>
                 <button class="tab" onclick="switchTab('sessions')">🗂️ الجلسات</button>
-                <button class="tab" onclick="switchTab('cycles')">🧹 إدارة الدورات وتصفير البيانات</button>
+            <button class="tab" onclick="switchTab('cycles');renderCycles()">🧹 إدارة الدورات</button>
                 <button class="tab" onclick="switchTab('appointments')">📅 تحديد المواعيد</button>
                 <button class="tab" onclick="switchTab('groups')">👥 المجموعات</button>
+                <button class="tab" id="notifTabBtn" onclick="switchTab('notif')">🔔 الإشعارات</button>
+                <button class="tab" onclick="switchTab('reports')">📄 التقارير</button>
                 <button class="tab" onclick="switchTab('log')">📜 سجل النشاط</button>
                 <button class="tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
             </div>
@@ -1118,6 +1134,14 @@
                     <div class="stat-card"><div class="stat-label">محاولات غير مكتملة</div><div class="stat-value" id="statOpen">0</div></div>
                     <div class="stat-card"><div class="stat-label">حجوزات مؤكدة</div><div class="stat-value" id="statBookings">0</div></div>
                     <div class="stat-card"><div class="stat-label">الجلسة النشطة</div><div class="stat-value" id="statSession" style="font-size:1.1rem">—</div></div>
+                    <div class="stat-card"><div class="stat-label">إجمالي الطلاب</div><div class="stat-value" id="statStudents">0</div></div>
+                    <div class="stat-card"><div class="stat-label">مؤهلون للحجز</div><div class="stat-value" id="statEligible">0</div></div>
+                    <div class="stat-card"><div class="stat-label">غير مؤهلين</div><div class="stat-value" id="statIneligible">0</div></div>
+                    <div class="stat-card"><div class="stat-label">قيد التصحيح</div><div class="stat-value" id="statPending">0</div></div>
+                    <div class="stat-card"><div class="stat-label">مقاعد متاحة</div><div class="stat-value" id="statSeats">0</div></div>
+                    <div class="stat-card"><div class="stat-label">مواعيد مكتملة</div><div class="stat-value" id="statFull">0</div></div>
+                    <div class="stat-card"><div class="stat-label">مواعيد قادمة</div><div class="stat-value" id="statUpcoming">0</div></div>
+                    <div class="stat-card"><div class="stat-label">نسبة الحضور</div><div class="stat-value" id="statAttendance">—</div></div>
                 </div>
                 <div class="switch-container">
                     <label for="examStatusToggle">حالة الامتحان (مفتوح / مغلق)</label>
@@ -1230,7 +1254,7 @@
                     <h2>نتائج المتسابقين / Participant Results</h2>
                     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-warning mini" onclick="reclassifyAll(true)">🔄 إعادة التصنيف</button><button class="btn btn-success" onclick="exportResults()">📥 تصدير Excel</button></div>
                 </div>
-                <div class="field-row" style="margin-bottom:14px"><div><label for="resultsSearch">بحث بالاسم أو الكود</label><input class="inp" id="resultsSearch" oninput="displayResults()" placeholder="ابحث..."></div><div><label for="resultsGroupFilter">المجموعة</label><select class="inp" id="resultsGroupFilter" onchange="displayResults()"></select></div></div>
+                <div class="field-row" style="margin-bottom:14px"><div><label for="resultsSearch">بحث بالاسم أو الكود</label><input class="inp" id="resultsSearch" oninput="displayResults()" placeholder="ابحث..."></div><div><label for="resultsGroupFilter">المجموعة</label><select class="inp" id="resultsGroupFilter" onchange="displayResults()"></select></div><div><label for="resultsEligFilter">الأهلية</label><select class="inp" id="resultsEligFilter" onchange="displayResults()"><option value="">الكل</option><option value="eligible">مؤهل</option><option value="ineligible">غير مؤهل</option><option value="pending">قيد التصحيح</option></select></div></div>
                 <div id="resultsContent"></div>
             </div>
 
@@ -1242,34 +1266,64 @@
                         <button class="btn btn-primary" onclick="addNewCode()">➕ إضافة</button>
                         <button class="btn btn-success" onclick="exportCodes()">📥 تصدير</button>
                         <button class="btn btn-warning" onclick="resetAllCodes()">🔄 إعادة تفعيل الأكواد</button>
-                        <button class="btn btn-primary" onclick="generateCodesUI()">🎲 توليد أكواد جديدة</button>
                     </div>
                 </div>
                 <div id="codesContent"></div>
             </div>
 
-            <div class="tab-content hidden" id="cyclesTab">
-                <div class="section-header"><h2>إدارة الدورات وتصفير البيانات</h2></div>
-                <p class="muted" style="margin-bottom:14px">كل عملية تعمل على <b>جلسة واحدة محددة</b> فقط، وتُحفظ لها <b>نسخة احتياطية تلقائية</b> قبل التنفيذ ثم تُنفَّذ كتحديث واحد متكامل (إما ينجح كاملاً أو لا يتغير شيء). لا تمس هذه العمليات أبداً: ملفات الطلاب (الاسم/الهاتف)، الجلسات الأخرى، حسابات المشرفين، إعدادات النظام. للمشرف العام فقط.</p>
-                <div class="panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-                    <label for="cycSession"><b>الجلسة المستهدفة:</b></label>
-                    <select id="cycSession" class="inp" style="min-width:240px" onchange="displayCycles()"></select>
-                    <div id="cycStats" class="muted" style="line-height:1.9"></div>
+            <div class="tab-content hidden" id="studentsTab">
+                <div class="section-header"><h2>مركز الطلاب / Students</h2>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn btn-primary mini" style="cursor:pointer">⬆️ استيراد (Excel / CSV)<input type="file" accept=".xlsx,.csv" style="display:none" onchange="importStudentsFile(this)"></label><button class="btn btn-success mini" onclick="exportStudents()">📥 تصدير</button><button class="btn btn-warning mini" onclick="findDuplicates()">🔍 كشف التكرار</button></div></div>
+                <p class="muted" style="margin-bottom:10px">ملف الاستيراد: عمود الاسم ثم عمود الهاتف. الطالب هوية ثابتة مستقلة عن أكواد الامتحان.</p>
+                <div class="panel"><div class="field-row"><div><label for="stSearch">بحث (اسم / هاتف / كود)</label><input class="inp" id="stSearch" oninput="displayStudents()"></div><div><label for="stFilter">تصفية</label><select class="inp" id="stFilter" onchange="displayStudents()"><option value="">الكل</option><option value="eligible">مؤهل للحجز</option><option value="ineligible">غير مؤهل</option><option value="pending">قيد التصحيح</option><option value="none">بدون نتيجة</option><option value="booked">لديه حجز</option><option value="unbooked">مؤهل ولم يحجز</option></select></div></div></div>
+                <div id="studentsContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="analyticsTab">
+                <div class="section-header"><h2>تحليلات الامتحان / Analytics</h2></div>
+                <p class="muted" style="margin-bottom:10px">الأرقام للجلسة المعروضة أعلى الصفحة (أو كل الجلسات).</p>
+                <div class="stats-grid" id="anaSummary" style="margin-bottom:18px"></div>
+                <div class="panel" id="anaGroups"></div><div class="panel" id="anaHist"></div><div class="panel" id="anaQuestions"></div><div class="panel" id="anaCompare"></div>
+            </div>
+
+            <div class="tab-content hidden" id="notifTab">
+                <div class="section-header"><h2>الإشعارات والإعلانات</h2><button class="btn btn-primary mini" onclick="markNotifsRead()">تعليم الكل كمقروء</button></div>
+                <div class="panel"><h4>📢 إعلان للطلاب (يظهر في الصفحة الرئيسية)</h4><textarea class="inp" id="annText" rows="2" maxlength="300" style="width:100%" placeholder="مثال: الحجز مفتوح حتى نهاية الأسبوع"></textarea><div class="field-row" style="margin-top:8px"><label><input type="checkbox" id="annActive"> نشر الإعلان</label><button class="btn btn-primary mini" onclick="saveAnnouncement()">حفظ</button></div><p class="muted">الإشعارات داخل اللوحة فقط؛ لا يوجد إرسال بريد أو رسائل SMS لأن البنية الحالية لا تدعمه.</p></div>
+                <div id="notifContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="reportsTab">
+                <div class="section-header"><h2>مركز التقارير / Reports</h2></div>
+                <p class="muted" style="margin-bottom:12px">تُنشأ الملفات من البيانات الحالية للجلسة المعروضة. قوائم المواعيد بصيغة PDF متاحة من تبويب المواعيد.</p>
+                <div class="rep-grid">
+                    <button class="btn btn-primary" onclick="rep.session()">📊 نتائج الجلسة</button>
+                    <button class="btn btn-primary" onclick="rep.groups()">👥 تقرير المجموعات (ورقة لكل مجموعة)</button>
+                    <button class="btn btn-primary" onclick="rep.students()">👤 تقرير الطلاب</button>
+                    <button class="btn btn-primary" onclick="rep.appointments()">📅 تقرير المواعيد والحجوزات</button>
+                    <button class="btn btn-primary" onclick="rep.attendance()">✅ تقرير الحضور</button>
+                    <button class="btn btn-primary" onclick="rep.performance()">📈 تقرير الأداء العام ومقارنة الجلسات</button>
+                    <button class="btn btn-warning" onclick="exportAllSlots()">📦 كل قوائم المواعيد (Excel + PDF)</button>
+                    <button class="btn btn-success" onclick="healthCheck()">🩺 فحص سلامة البيانات</button>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:14px 0">
-                    <div class="panel"><h3>أ) تصفير النتائج</h3><p class="muted" style="margin:8px 0">يحذف نتائج الجلسة وتصنيفات المجموعات الناتجة عنها، مع خيارات للحجوزات والأكواد.</p><button class="btn btn-warning" onclick="cycleResetResults()">🧹 تصفير النتائج</button></div>
-                    <div class="panel"><h3>ب) مسح الأكواد</h3><p class="muted" style="margin:8px 0">يحذف أكواد دخول الجلسة فلا تعمل بعدها، ثم يمكنك توليد أكواد جديدة كلياً.</p><button class="btn btn-danger" onclick="cycleDeleteCodes()">🗑 مسح جميع أكواد الامتحانات</button></div>
-                    <div class="panel"><h3>ج) دورة جديدة</h3><p class="muted" style="margin:8px 0">معالج موجَّه: تنظيف اختياري ← أرشفة الجلسة ← جلسة جديدة ← أكواد جديدة.</p><button class="btn btn-success" onclick="cycleNew()">🚀 بدء دورة امتحانات جديدة</button></div>
-                </div>
-                <h3 style="margin:18px 0 8px">النسخ الاحتياطية (استرجاع)</h3>
-                <p class="muted" style="margin-bottom:8px">الاسترجاع إضافي وآمن: لا يستبدل أي سجل موجود، ولا يعيد كوداً يستخدمه طالب الآن، ويتخطى الحجوزات التي أُشغل مقعدها.</p>
-                <div id="cycBackups"></div>
             </div>
 
             <div class="tab-content hidden" id="sessionsTab">
                 <div class="section-header"><h2>الجلسات / Exam Sessions</h2><button class="btn btn-success mini" onclick="newSession()">➕ جلسة جديدة</button></div>
                 <p class="muted" style="margin-bottom:14px">كل جلسة تحفظ طلابها ونتائجها ومجموعاتها وحجوزاتها بشكل مستقل. إنشاء جلسة جديدة أو إعادة تفعيل الأكواد لا يمس بيانات الجلسات السابقة. الأرشفة تجعل الجلسة للقراءة فقط.</p>
                 <div id="sessionsContent"></div>
+            </div>
+
+            <div class="tab-content hidden" id="cyclesTab">
+                <div class="section-header"><h2>إدارة الدورات وتصفير البيانات</h2></div>
+                <p class="muted" style="margin-bottom:12px">كل عملية تعمل على الجلسة المحددة فقط، وتعرض ملخصاً بما سيحدث، وتطلب كتابة «تأكيد»، وتأخذ نسخة احتياطية قابلة للاسترجاع، وتُسجَّل في سجل النشاط. ملفات الطلاب لا تُحذف أبداً.</p>
+                <label style="display:block;margin-bottom:14px">الجلسة: <select id="cycSession" class="swal2-select" style="margin:0 8px;min-width:260px"></select></label>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:24px">
+                    <div class="stat-card" style="padding:18px;text-align:right"><h3 style="margin:0 0 8px">تصفير النتائج</h3><p class="muted" style="min-height:64px">يحذف نتائج ومحاولات الجلسة المحددة (وبذلك مجموعاتها)، ويمكن اختيار إلغاء الحجوزات وإعادة تفعيل الأكواد.</p><button class="btn btn-danger" onclick="cycResults()">تصفير النتائج</button></div>
+                    <div class="stat-card" style="padding:18px;text-align:right"><h3 style="margin:0 0 8px">مسح جميع أكواد الامتحانات</h3><p class="muted" style="min-height:64px">يحذف أكواد الجلسة فلا يمكن استخدامها للدخول. النتائج والطلاب والحجوزات لا تتأثر.</p><button class="btn btn-danger" onclick="cycCodes()">مسح جميع أكواد الامتحانات</button></div>
+                    <div class="stat-card" style="padding:18px;text-align:right"><h3 style="margin:0 0 8px">بدء دورة امتحانات جديدة</h3><p class="muted" style="min-height:64px">معالج موجَّه: تنظيف اختياري، أرشفة الجلسة الحالية، إنشاء جلسة جديدة، وتوليد أكواد جديدة.</p><button class="btn btn-success" onclick="cycNew()">بدء دورة امتحانات جديدة</button></div>
+                </div>
+                <div class="section-header"><h2>النسخ الاحتياطية</h2></div>
+                <div id="cycBackups"></div>
             </div>
 
             <div class="tab-content hidden" id="logTab">
@@ -1296,6 +1350,13 @@
                         <button class="btn btn-primary mini" onclick="addSlot()">➕ إضافة</button>
                     </div>
                 </div>
+                <div class="panel" id="schedPanel"><h4>⚙️ أيام الحجز وفترته</h4>
+                    <p class="muted">أيام الأسبوع المتاحة للحجز. إخفاء يوم لا يحذف الحجوزات الموجودة عليه.</p><div id="dayToggles" class="field-row"></div>
+                    <div class="field-row" style="margin-top:12px"><div><label for="apptOpensAt">بداية الحجز</label><input class="inp" type="datetime-local" id="apptOpensAt"></div><div><label for="apptClosesAt">نهاية الحجز</label><input class="inp" type="datetime-local" id="apptClosesAt"></div><button class="btn btn-primary mini" onclick="saveWindow()">حفظ فترة الحجز</button></div></div>
+                <div class="panel"><h4>🗓️ إنشاء مواعيد متعددة دفعة واحدة</h4>
+                    <div class="field-row"><div style="flex:3"><label>الأيام</label><div id="genDays" class="field-row"></div></div><div><label for="genTimes">الأوقات (مفصولة بفاصلة)</label><input class="inp" id="genTimes" value="10:00, 12:00" dir="ltr"></div><div><label for="genCap">السعة</label><input class="inp" type="number" id="genCap" value="30" min="1" max="200"></div><div><label for="genFrom">من تاريخ (اختياري)</label><input class="inp" type="date" id="genFrom"></div><div><label for="genTo">إلى تاريخ</label><input class="inp" type="date" id="genTo"></div><button class="btn btn-primary mini" onclick="genSlots()">➕ إنشاء</button></div>
+                    <p class="muted">بدون تواريخ: مواعيد أسبوعية متكررة. مع التواريخ: موعد لكل يوم مطابق ضمن الفترة، ويختفي تلقائياً بعد انتهاء وقته.</p></div>
+                <div class="panel"><h4>📆 التقويم</h4><div class="field-row"><button class="btn btn-primary mini" onclick="calMode('week')">أسبوعي</button><button class="btn btn-primary mini" onclick="calMode('day')">يومي</button><button class="btn btn-primary mini" onclick="calNav(-1)">◀</button><button class="btn btn-primary mini" onclick="calNav('today')">اليوم</button><button class="btn btn-primary mini" onclick="calNav(1)">▶</button><input class="inp" type="date" id="apptCalDate" onchange="calPick(this.value)"></div><div id="apptCalendar"></div></div>
                 <div id="apptContent"></div>
             </div>
 
@@ -1430,7 +1491,7 @@
             accessCodes: [], 
             quizState: { isActive: true },
             appointments: {}, seats: {}, bookings: {}, apptSettings: {}, tiers: null,
-            attemptsAll: [], sessions: {}, activeSessionId: null, viewSessionId: null, audit: [],
+            attemptsAll: [], sessions: {}, activeSessionId: null, viewSessionId: null, audit: [], students: {}, notifs: [], announce: null,
             examSettings: {
                 antiCheat: { enabled: false, blockTabSwitch: true, forceFullscreen: true },
                 camera: { enabled: false, captureInterval: 30000 },
@@ -1478,7 +1539,10 @@
             const data = await loadFromFirebase('accessCodes');
             if (data) {
                 DB.accessCodes = Object.values(data);
+            } else if (await loadFromFirebase('meta/codesInitialized')) {
+                DB.accessCodes = [];   // codes were deliberately deleted: never re-seed defaults
             } else {
+                await window.firebaseDB.set(window.firebaseDB.ref(window.firebaseDB.database, 'meta/codesInitialized'), true);
                 const codesObj = {};
                 VALID_CODES.forEach(code => {
                     codesObj[code] = { code: code, used: false, usedBy: null, usedAt: null };
@@ -1530,9 +1594,11 @@
             onValue(ref(database, 'appointments'), s => { DB.appointments = s.val() || {}; refreshAppt(); });
             onValue(ref(database, 'seats'), s => { DB.seats = s.val() || {}; refreshAppt(); });
             onValue(ref(database, 'bookings'), s => { DB.bookings = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'students'), s => { DB.students = s.val() || {}; refreshAppt(); });
+            onValue(ref(database, 'notifications'), s => { const v = s.val() || {}; DB.notifs = Object.entries(v).map(([id, n]) => ({ id, ...n })); refreshAppt(); });
+            onValue(ref(database, 'announcements/current'), s => { DB.announce = s.val(); if (!document.getElementById('notifTab').classList.contains('hidden')) displayNotifs(); });
             onValue(ref(database, 'sessions'), s => { DB.sessions = s.val() || {}; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
             onValue(ref(database, 'meta/activeSessionId'), s => { DB.activeSessionId = s.val() || null; ensureView(); fillViewSession(); recomputeResults(); refreshAppt(); updateStats(); });
-            onValue(ref(database, 'backups'), s => { DB.backups = s.val() || {}; if (!document.getElementById('cyclesTab').classList.contains('hidden')) displayCycles(); });
             onValue(ref(database, 'auditLog'), s => { DB.audit = s.val() ? Object.values(s.val()) : []; if (!document.getElementById('logTab').classList.contains('hidden')) displayLog(); });
             onValue(ref(database, 'groupSettings'), s => {
                 const v = s.val(); DB.tiers = v && v.tiers ? (Array.isArray(v.tiers) ? v.tiers : Object.values(v.tiers)) : null;
@@ -1651,8 +1717,11 @@
                 'codes': displayCodes,
                 'examSettings': updateExamSettingsUI,
                 'overview': () => updateStats(true),
+                'students': displayStudents,
+                'analytics': displayAnalytics,
+                'notif': displayNotifs,
+                'reports': function () {},
                 'sessions': displaySessions,
-                'cycles': () => displayCycles(),
                 'log': displayLog,
                 'appointments': displayAppointments,
                 'groups': displayGroups,
@@ -2273,10 +2342,8 @@ function currentTiers() { return DB.tiers || AppCore.DEFAULT_TIERS; }
             <h3 style="color: #f0b254; margin-bottom: 20px; border-top: 1px solid #333; padding-top: 20px;">الأكواد المتاحة (${availableCodes.length})</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
                 ${availableCodes.map(c => `
-                    <div style="background:rgba(240,178,84,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(240,178,84,0.2); color:#fff; font-family:monospace;${c.disabled ? 'opacity:.5;text-decoration:line-through;' : ''}">
-                        ${escapeHtml(c.code)}
-                        ${c.batchSessionId && (DB.sessions || {})[c.batchSessionId] ? `<div style="font-size:.65rem;color:#aaa;font-family:inherit">${escapeHtml((DB.sessions[c.batchSessionId]).name)}</div>` : ''}
-                        <button class="btn mini" style="margin-top:4px" data-code="${escapeHtml(c.code)}" onclick="toggleCode(this.dataset.code, ${c.disabled ? 'false' : 'true'})">${c.disabled ? '✅ تفعيل' : '🚫 تعطيل'}</button>
+                    <div style="background:rgba(240,178,84,0.1); padding:8px; border-radius:6px; text-align:center; border:1px solid rgba(240,178,84,0.2); color:#fff; font-family:monospace;">
+                        ${c.code}
                     </div>
                 `).join('')}
             </div>`;
@@ -2380,8 +2447,50 @@ const AppCore = (function () {
     return t ? t.label : key;
   }
 
+  // ---- eligibility: booking depends on a completed, finally-graded result that falls inside a group ----
+  const needsManualGrading = a => Array.isArray(a && a.answers) && a.answers.some(x => x && x.type === 'essay') && !a.manuallyGradedAt;
+  function eligibilityOf(a, tiers) {
+    if (!a || a.status !== 'completed') return 'incomplete';
+    if (!(Number(a.total) > 0) || a.score === undefined || a.score === null || isNaN(Number(a.score))) return 'incomplete';
+    if (needsManualGrading(a)) return 'pending';
+    return classify(a.score, a.total, tiers) === NONE ? 'ineligible' : 'eligible';
+  }
+  const ELIG_AR = { eligible: 'مؤهل لحجز موعد', ineligible: 'غير مؤهل لحجز موعد', pending: 'قيد التصحيح', incomplete: 'غير مكتمل' };
+  const ELIG_REASON = { ineligible: 'لم تصل نسبتك إلى الحد الأدنى للتصنيف، لذلك لا يمكنك حجز موعد حالياً.', pending: 'نتيجتك مبدئية لوجود أسئلة مقالية قيد التصحيح. سيُفتح الحجز بعد اعتماد النتيجة.', incomplete: 'لا توجد نتيجة مكتملة صالحة للحجز.' };
+  // pure: what must be written so stored group/eligibility follow the grade, and which bookings now need an admin decision (never deleted automatically)
+  function eligibilityUpdates(attempts, bookings, tiers) {
+    const up = {}, n = { attempts: 0, flagged: 0, cleared: 0 }, byId = {};
+    (Array.isArray(attempts) ? attempts : Object.values(attempts || {})).forEach(a => {
+      if (!a || !a.id) return; byId[a.id] = a; if (a.status !== 'completed' || !(Number(a.total) > 0)) return;
+      const g = classify(a.score, a.total, tiers), el = eligibilityOf(a, tiers), ex = exactPct(a.score, a.total);
+      if (a.group !== g || a.eligibility !== el || a.exactPercentage !== ex) { up[`attempts/${a.id}/group`] = g; up[`attempts/${a.id}/eligibility`] = el; up[`attempts/${a.id}/exactPercentage`] = ex; n.attempts++; }
+    });
+    Object.entries(bookings || {}).forEach(([k, b]) => {
+      if (!b || b.status !== 'confirmed') return; const a = byId[b.attemptId]; if (!a) return;
+      const el = eligibilityOf(a, tiers), bad = el !== 'eligible';
+      if (bad && !b.needsReview && b.reviewKeptReason !== el) { up[`bookings/${k}/needsReview`] = true; up[`bookings/${k}/reviewReason`] = el; n.flagged++; }   // an admin "keep" decision is respected until the situation changes
+      else if (!bad && (b.needsReview || b.reviewKeptReason)) { up[`bookings/${k}/needsReview`] = null; up[`bookings/${k}/reviewReason`] = null; up[`bookings/${k}/reviewKeptReason`] = null; n.cleared++; }
+    });
+    return { up, ...n };
+  }
   // ---- slots helpers ----
-  const slotSort = (a, b) => (DAYS.findIndex(d => d.key === a.day) - DAYS.findIndex(d => d.key === b.day)) || String(a.time).localeCompare(String(b.time));
+  const WEEK = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  function listDates(from, to, days) {
+    const out = [], end = Date.parse(to + 'T00:00:00Z');
+    for (let t = Date.parse(from + 'T00:00:00Z'); t <= end && out.length < 400; t += 86400000) { const d = new Date(t), key = WEEK[d.getUTCDay()]; if (days.includes(key)) out.push({ date: d.toISOString().slice(0, 10), day: key }); }
+    return out;
+  }
+  function windowState(st, now) {
+    const a = st.opensAt ? Date.parse(st.opensAt) : NaN, b = st.closesAt ? Date.parse(st.closesAt) : NaN;
+    if (!isNaN(a) && now < a) return 'لم يبدأ الحجز بعد'; if (!isNaN(b) && now > b) return 'انتهى موعد الحجز'; return null;
+  }
+  function slotAvailability(slot, st, now) {
+    if (!slot || slot.active === false || slot.enabled === false) return { ok: false, reason: 'الموعد غير متاح' };
+    if (st.days && st.days[slot.day] === false) return { ok: false, reason: 'هذا اليوم غير متاح للحجز حالياً' };
+    if (slot.date) { const t = Date.parse(`${slot.date}T${slot.time}:00`); if (!isNaN(t) && t <= now) return { ok: false, reason: 'انتهى وقت هذا الموعد' }; }
+    return { ok: true };
+  }
+  const slotSort = (a, b) => String(a.date || '').localeCompare(String(b.date || '')) || (DAYS.findIndex(d => d.key === a.day) - DAYS.findIndex(d => d.key === b.day)) || String(a.time).localeCompare(String(b.time));
   const countBooked = seats => Object.keys(seats || {}).length;
   function fmtTimeAr(t) {
     const [h, m] = String(t).split(':').map(Number); const p = h >= 12 ? 'م' : 'ص'; const hh = h % 12 === 0 ? 12 : h % 12;
@@ -2389,7 +2498,7 @@ const AppCore = (function () {
   }
   function fileBase(slot) {
     const [h, m] = String(slot.time).split(':').map(Number); const hh = h % 12 === 0 ? 12 : h % 12;
-    return `${dayInfo(slot.day).en}_${hh}${m ? '_' + String(m).padStart(2, '0') : ''}${h >= 12 ? 'PM' : 'AM'}_Student_List`;
+    return `${dayInfo(slot.day).en}${slot.date ? '_' + slot.date : ''}_${hh}${m ? '_' + String(m).padStart(2, '0') : ''}${h >= 12 ? 'PM' : 'AM'}_Student_List`;
   }
   function validateSlot(s) {
     if (!DAYS.some(d => d.key === s.day)) return 'اليوم غير صحيح';
@@ -2417,11 +2526,11 @@ const AppCore = (function () {
   async function audit(fb, by, action, details) { try { await fb.set(fb.push(P(fb, 'auditLog')), { at: iso(), by: by || 'system', action, details: details || {} }); } catch (e) { /* best-effort */ } }
   async function getSettings(fb) {
     const s = (await read(fb, 'appointmentSettings')) || {};
-    return { enabled: s.enabled === true, open: s.open === true, institution: s.institution || 'الفجر' };
+    return { enabled: s.enabled === true, open: s.open === true, institution: s.institution || 'الفجر', days: s.days || {}, opensAt: s.opensAt || '', closesAt: s.closesAt || '' };
   }
-  async function listSlots(fb, sessionId) {
-    const [a, s] = await Promise.all([read(fb, 'appointments'), read(fb, 'seats')]);
-    return Object.values(a || {}).filter(x => x && x.active !== false && (!sessionId || !x.sessionId || x.sessionId === sessionId)).map(x => {
+  async function listSlots(fb, sessionId, forStudent) {
+    const [a, s, st] = await Promise.all([read(fb, 'appointments'), read(fb, 'seats'), forStudent ? getSettings(fb) : null]), now = Date.now();
+    return Object.values(a || {}).filter(x => x && x.active !== false && (!sessionId || !x.sessionId || x.sessionId === sessionId) && (!forStudent || slotAvailability(x, st, now).ok)).map(x => {
       const booked = countBooked((s || {})[x.id]);
       return { ...x, booked, remaining: Math.max(0, x.capacity - booked) };
     }).sort(slotSort);
@@ -2458,15 +2567,13 @@ const AppCore = (function () {
     const sid = await read(fb, 'meta/activeSessionId'), session = sid ? await read(fb, `sessions/${sid}`) : null;
     if (!session || session.status === 'archived') throw new Error('لا توجد جلسة امتحان نشطة حالياً');
     const cur0 = await read(fb, `accessCodes/${code}`);
-    if (cur0 == null) throw new Error('الكود غير صحيح'); if (cur0.used) throw new Error('هذا الكود مستخدم من قبل');
-    if (cur0.disabled) throw new Error('هذا الكود معطّل، تواصل مع المشرف');
-    if (cur0.batchSessionId && cur0.batchSessionId !== sid) throw new Error('هذا الكود غير مخصص لجلسة الامتحان الحالية');
+    if (cur0 == null) throw new Error('الكود غير صحيح أو تم إلغاؤه. تأكد منه أو تواصل مع الإدارة'); if (cur0.used) throw new Error('هذا الكود مستخدم من قبل');
     const attemptId = rid('a_');
     const tx = await fb.runTransaction(P(fb, `accessCodes/${code}`), cur => {   // atomic claim: one student per code at a time
-      if (cur === null) return null; if (cur.used || cur.disabled) return undefined;
+      if (cur === null) return null; if (cur.used) return undefined;
       return { ...cur, used: true, usedBy: name, phone, usedAt: iso(), sessionId: sid, attemptId };
     });
-    if (!tx.committed) throw new Error('هذا الكود مستخدم من قبل'); if (!tx.snapshot.exists()) throw new Error('الكود غير صحيح');
+    if (!tx.committed) throw new Error('هذا الكود مستخدم من قبل'); if (!tx.snapshot.exists()) throw new Error('الكود غير صحيح أو تم إلغاؤه. تأكد منه أو تواصل مع الإدارة');
     const stId = studentId(name, phone);
     await fb.update(P(fb), { [`attempts/${attemptId}`]: { id: attemptId, sessionId: sid, sessionName: session.name, studentId: stId, code, name, phone, status: 'in_progress', startedAt: iso() }, [`codeIndex/${code}/${attemptId}`]: true });
     await fb.runTransaction(P(fb, `students/${stId}`), cur => cur || { id: stId, name, phone, createdAt: iso() });
@@ -2478,7 +2585,10 @@ const AppCore = (function () {
       return { ...cur, ...payload, status: 'completed', completedAt: iso() };
     });
     if (!r.committed) throw new Error('تم تسليم هذه المحاولة من قبل'); if (!r.snapshot.exists()) throw new Error('المحاولة غير موجودة');
+    const v = r.snapshot.val() || {}; await notify(fb, { type: 'exam-submitted', title: 'تسليم امتحان', body: `${v.name || ''} — ${v.score}/${v.total}${v.eligibility ? ' — ' + (ELIG_AR[v.eligibility] || '') : ''}` });
   }
+  async function getTiers(fb) { const gs = await read(fb, 'groupSettings'); return gs && gs.tiers ? (Array.isArray(gs.tiers) ? gs.tiers : Object.values(gs.tiers)) : DEFAULT_TIERS; }
+  async function notify(fb, n) { try { await fb.set(fb.push(P(fb, 'notifications')), { at: iso(), read: false, ...n }); } catch (e) { /* best-effort */ } }
   // Safe reset: only the temporary entry permit is cleared. Attempts, students, bookings, seats and snapshots are never touched.
   async function resetCodes(fb, codes, by) {
     const all = (await read(fb, 'accessCodes')) || {}, list = (codes && codes.length ? codes : Object.keys(all)).filter(c => all[c] && all[c].used);
@@ -2522,11 +2632,15 @@ const AppCore = (function () {
     return 0;
   }
   const STUCK_MS = 60000;
-  async function bookSeat(fb, att, slotId) {   // att = completed attempt record
-    const st = await getSettings(fb);
+  async function bookSeat(fb, att0, slotId) {   // att0 only identifies the attempt; every fact is re-read from the database
+    const now0 = Date.now(), st = await getSettings(fb);
     if (!st.enabled || !st.open) throw new Error('نظام الحجز مغلق حالياً');
+    const w = windowState(st, now0); if (w) throw new Error(w);
+    const att = att0 && att0.id ? await read(fb, `attempts/${att0.id}`) : null;
+    if (!att || att.id !== att0.id || att.studentId !== att0.studentId) throw new Error('بيانات الطالب غير صالحة');
+    const el = eligibilityOf(att, await getTiers(fb)); if (el !== 'eligible') throw new Error(ELIG_REASON[el] || ELIG_REASON.incomplete);
     const slot = await read(fb, `appointments/${slotId}`);
-    if (!slot || slot.active === false) throw new Error('الموعد غير متاح');
+    const av = slotAvailability(slot, st, now0); if (!av.ok) throw new Error(av.reason);
     if (slot.sessionId && slot.sessionId !== att.sessionId) throw new Error('هذا الموعد غير متاح لجلستك');
     const sess = await read(fb, `sessions/${att.sessionId}`);
     if (!sess || sess.status === 'archived') throw new Error('انتهت فترة الحجز لهذه الجلسة');
@@ -2541,6 +2655,7 @@ const AppCore = (function () {
     try { await fb.update(P(fb), { [`bookings/${key}/seat`]: seat, [`bookings/${key}/status`]: 'confirmed' }); }
     catch (e) { await fb.set(P(fb, `seats/${slotId}/${seat}`), null); await fb.set(P(fb, `bookings/${key}`), null); throw e; }
     await history(fb, { key, action: 'book', slotId, seat, by: 'student' });
+    await notify(fb, { type: 'booking-created', title: 'حجز جديد', body: `${att.name} حجز ${slotTitle(slot)}`, key });
     return { key, slotId, seat };
   }
   async function cancelBooking(fb, key, by) {
@@ -2548,7 +2663,8 @@ const AppCore = (function () {
     const up = { [`bookings/${key}`]: null }; if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
     await fb.update(P(fb), up);
     await history(fb, { key, action: 'cancel', slotId: b.slotId, seat: b.seat || 0, by: by || 'admin' });
-    await audit(fb, by, 'booking-cancel', { key, name: b.name, code: b.code, slotId: b.slotId }); return true;
+    await audit(fb, by, 'booking-cancel', { key, name: b.name, code: b.code, slotId: b.slotId });
+    await notify(fb, { type: 'booking-cancelled', title: 'إلغاء حجز', body: `تم إلغاء حجز ${b.name}`, key }); return true;
   }
   async function moveBooking(fb, key, newSlotId, by) {
     const b = await read(fb, `bookings/${key}`); if (!b) throw new Error('لا يوجد حجز لهذا الطالب');
@@ -2561,7 +2677,8 @@ const AppCore = (function () {
     if (b.seat) up[`seats/${b.slotId}/${b.seat}`] = null;
     try { await fb.update(P(fb), up); } catch (e) { await fb.set(P(fb, `seats/${newSlotId}/${seat}`), null); throw e; }
     await history(fb, { key, action: 'move', slotId: newSlotId, from: b.slotId, seat, by: by || 'admin' });
-    await audit(fb, by, 'booking-move', { key, name: b.name, from: b.slotId, to: newSlotId }); return { slotId: newSlotId, seat };
+    await audit(fb, by, 'booking-move', { key, name: b.name, from: b.slotId, to: newSlotId });
+    await notify(fb, { type: 'booking-moved', title: 'نقل حجز', body: `تم نقل حجز ${b.name} إلى ${slotTitle(slot)}`, key }); return { slotId: newSlotId, seat };
   }
   async function canSetCapacity(fb, slotId, cap) {
     const seats = (await read(fb, `seats/${slotId}`)) || {}, max = Math.max(0, ...Object.keys(seats).map(Number));
@@ -2575,6 +2692,57 @@ const AppCore = (function () {
     await fb.update(P(fb), up);
     await audit(fb, by, 'slot-delete', { slotId, day: slot && slot.day, time: slot && slot.time, cancelledBookings: keys.length, students: keys.map(k => all[k].name).slice(0, 30) });
     return keys.length;
+  }
+
+  async function generateSlots(fb, sessionId, o, by) {
+    const days = (o.days || []).filter(d => DAYS.some(x => x.key === d)), times = [...new Set((o.times || []).map(t => String(t).trim()).filter(Boolean))], capacity = Number.isFinite(o.capacity) ? o.capacity : 30;
+    if (!days.length) throw new Error('اختر يوماً واحداً على الأقل'); if (!times.length) throw new Error('أضف وقتاً واحداً على الأقل');
+    for (const t of times) { const e = validateSlot({ day: days[0], time: t, capacity }); if (e) throw new Error(e + (e.includes('الوقت') ? ` (${t})` : '')); }
+    const sess = await read(fb, `sessions/${sessionId}`); if (!sess || sess.status === 'archived') throw new Error('اختر جلسة مفتوحة');
+    const dated = o.from && o.to; if ((o.from || o.to) && !dated) throw new Error('حدّد تاريخ البداية والنهاية معاً'); if (dated && o.to < o.from) throw new Error('تاريخ النهاية قبل البداية');
+    const combos = dated ? listDates(o.from, o.to, days).flatMap(d => times.map(t => ({ day: d.day, date: d.date, time: t }))) : days.flatMap(day => times.map(t => ({ day, date: '', time: t })));
+    if (combos.length > 400) throw new Error('عدد المواعيد كبير جداً (الحد 400 في المرة)');
+    const have = Object.values((await read(fb, 'appointments')) || {}).filter(s => s && s.active !== false && s.sessionId === sessionId), keyOf = s => `${s.day}|${s.time}|${s.date || ''}`, seen = new Set(have.map(keyOf)), up = {}; let created = 0, skipped = 0;
+    for (const c of combos) { if (seen.has(keyOf(c))) { skipped++; continue; } seen.add(keyOf(c)); const id = rid('s'); up[`appointments/${id}`] = { id, day: c.day, time: c.time, ...(c.date ? { date: c.date } : {}), capacity, sessionId, active: true, enabled: true, createdAt: iso() }; created++; }
+    if (created) await fb.update(P(fb), up); await audit(fb, by, 'slots-generate', { sessionId, created, skipped, days, times, capacity, from: o.from || '', to: o.to || '' });
+    return { created, skipped };
+  }
+  async function bookingsOnDay(fb, day, sessionId) {
+    const [a, b] = await Promise.all([read(fb, 'appointments'), read(fb, 'bookings')]);
+    return Object.values(b || {}).filter(x => x.status === 'confirmed' && (!sessionId || x.sessionId === sessionId) && ((a || {})[x.slotId] || {}).day === day).length;
+  }
+  async function setDayEnabled(fb, day, enabled, by) { await fb.set(P(fb, `appointmentSettings/days/${day}`), enabled ? true : false); await audit(fb, by, 'day-toggle', { day, enabled }); }
+  async function setSlotEnabled(fb, id, enabled, by) { await fb.set(P(fb, `appointments/${id}/enabled`), !!enabled); await audit(fb, by, 'slot-toggle', { id, enabled: !!enabled }); }
+  async function setAttendance(fb, key, status, by) {
+    if (![null, 'present', 'absent'].includes(status)) throw new Error('حالة حضور غير صحيحة');
+    const b = await read(fb, `bookings/${key}`); if (!b || b.status !== 'confirmed') throw new Error('لا يوجد حجز مؤكد');
+    await fb.update(P(fb), { [`bookings/${key}/attendance`]: status, [`bookings/${key}/attendanceAt`]: status ? iso() : null, [`bookings/${key}/attendanceBy`]: status ? (by || 'admin') : null });
+    await history(fb, { key, action: 'attendance:' + (status || 'cleared'), slotId: b.slotId, by: by || 'admin' });
+  }
+  // ---- analytics (pure) ----
+  function analyze(attempts, tiers) {
+    const done = (attempts || []).filter(a => a && a.status === 'completed' && Number(a.total) > 0), pcts = done.map(a => exactPct(a.score, a.total));
+    const groups = {}; (tiers || DEFAULT_TIERS).forEach(t => { groups[t.key] = 0; }); groups[NONE] = 0; const el = { eligible: 0, ineligible: 0, pending: 0 }, hist = Array(10).fill(0), q = {};
+    done.forEach((a, i) => {
+      const g = classify(a.score, a.total, tiers); groups[g] = (groups[g] || 0) + 1; el[eligibilityOf(a, tiers)]++; hist[Math.min(9, Math.floor(pcts[i] / 10))]++;
+      (a.answers || []).forEach(x => { if (!x || x.type === 'essay' || x.questionId === undefined) return; const o = q[x.questionId] || (q[x.questionId] = { id: x.questionId, text: x.questionText || '', total: 0, correct: 0 }); o.total++; if (x.correct) o.correct++; if (!o.text && x.questionText) o.text = x.questionText; });
+    });
+    const n = done.length, passed = done.filter(a => classify(a.score, a.total, tiers) !== NONE).length;
+    return { n, avg: n ? pcts.reduce((s, x) => s + x, 0) / n : 0, max: n ? Math.max(...pcts) : 0, min: n ? Math.min(...pcts) : 0, passRate: n ? passed / n * 100 : 0, groups, ...el, hist, questions: Object.values(q).map(o => ({ ...o, rate: o.total ? o.correct / o.total * 100 : 0 })).sort((a, b) => a.rate - b.rate) };
+  }
+  // generic multi-sheet Excel (RTL, frozen header, filters)
+  async function buildTableExcel(ExcelJS, sheets) {
+    const wb = new ExcelJS.Workbook(); wb.creator = 'الفجر';
+    sheets.forEach((sh, i) => {
+      const ws = wb.addWorksheet(String(sh.name || 'Sheet' + (i + 1)).replace(/[\\/?*[\]:]/g, ' ').slice(0, 31), { views: [{ state: 'frozen', ySplit: 1, rightToLeft: true }] });
+      ws.columns = sh.headers.map((h, j) => ({ header: h, width: (sh.widths || [])[j] || Math.max(12, String(h).length + 4) }));
+      sh.rows.forEach(r => ws.addRow(r.map(v => (v === undefined || v === null ? '' : v))));
+      const h = ws.getRow(1); h.font = { bold: true, color: { argb: 'FFFFFFFF' } }; h.alignment = { horizontal: 'center', vertical: 'middle' };
+      h.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B6F5E' } }; });
+      ws.eachRow((row, n) => { if (n > 1) row.alignment = { horizontal: 'center', vertical: 'middle' }; });
+      if (sh.headers.length && sh.rows.length) ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: sh.headers.length } };
+    });
+    return wb.xlsx.writeBuffer();
   }
 
   // ---- one-time, additive migration from the v1 layout (results/studentBookings keyed by code). Old nodes are kept as a backup. ----
@@ -2601,122 +2769,28 @@ const AppCore = (function () {
     await fb.update(P(fb), up); await audit(fb, by, 'migrate-v2', n); return { migrated: true, ...n };
   }
 
-
-  // ---- exam-cycle management: scoped reset / code wipe / new cycle, always with a backup and one atomic update ----
-  const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O/1/I/L confusion
-  function randCode(len, prefix) { const a = new Uint32Array(len); crypto.getRandomValues(a); return prefix + Array.from(a, x => CODE_ALPHABET[x % CODE_ALPHABET.length]).join(''); }
-  async function takenCodes(fb, codesObj) {   // never reuse a code that exists now OR appears anywhere in history
-    const t = new Set(Object.keys(codesObj || (await read(fb, 'accessCodes')) || {})); const idx = (await read(fb, 'codeIndex')) || {}; Object.keys(idx).forEach(k => t.add(k)); return t;
-  }
-  function planCodes(count, len, prefix, taken) {
-    const out = [], max = Math.pow(CODE_ALPHABET.length, len);
-    if (count > max - taken.size) throw new Error('طول الكود قصير لا يكفي لعدد الأكواد المطلوب');
-    while (out.length < count) { const c = randCode(len, prefix); if (!taken.has(c)) { taken.add(c); out.push(c); } }
-    return out;
-  }
-  async function generateCodes(fb, sid, count, len, prefix, by) {
-    count = parseInt(count, 10); len = parseInt(len, 10); prefix = normalizeCode(prefix).replace(/[^A-Z0-9]/g, '');
-    if (!(count >= 1 && count <= 2000)) throw new Error('العدد يجب أن يكون بين 1 و 2000'); if (!(len >= 4 && len <= 12)) throw new Error('طول الكود بين 4 و 12');
-    const s = sid ? await read(fb, `sessions/${sid}`) : null; if (!s || s.status === 'archived') throw new Error('اختر جلسة مفتوحة لربط الأكواد بها');
-    const codes = planCodes(count, len, prefix, await takenCodes(fb)), up = {};
-    codes.forEach(c => { up[`accessCodes/${c}`] = { code: c, used: false, usedBy: null, usedAt: null, batchSessionId: sid, createdAt: iso() }; });
-    await fb.update(P(fb), up); await audit(fb, by, 'codes-generate', { count, sessionId: sid, sample: codes.slice(0, 5) }); return codes;
-  }
-  async function setCodeDisabled(fb, code, disabled, by) {
-    const cur = await read(fb, `accessCodes/${code}`); if (!cur) throw new Error('الكود غير موجود'); if (cur.used && disabled) throw new Error('لا يمكن تعطيل كود مستخدم');
-    await fb.set(P(fb, `accessCodes/${code}/disabled`), disabled ? true : null); await audit(fb, by, disabled ? 'code-disable' : 'code-enable', { code });
-  }
-  async function cycleScope(fb, sid, includeLegacy) {
-    const [att, codes, bk, ap, se, ss] = await Promise.all(['attempts', 'accessCodes', 'bookings', 'appointments', 'seats', 'sessions'].map(p => read(fb, p)));
-    const session = (ss || {})[sid]; if (!session) throw new Error('الجلسة غير موجودة');
-    const attempts = Object.values(att || {}).filter(a => a && a.sessionId === sid), ids = new Set(attempts.map(a => a.id));
-    return { sid, session, attempts, allCodes: codes || {}, seats: se || {},
-      codes: Object.values(codes || {}).filter(c => c && c.code && (c.batchSessionId === sid || c.sessionId === sid || ids.has(c.attemptId) || (includeLegacy && !c.batchSessionId && !c.sessionId))),
-      bookings: Object.entries(bk || {}).filter(([, b]) => b && b.sessionId === sid).map(([key, b]) => ({ ...b, bkey: key })),
-      slots: Object.values(ap || {}).filter(s => s && s.sessionId === sid) };
-  }
-  // o: {results, submissions, bookings, reactivate, deleteCodes, includeLegacy, archive, newName, newCodes, codeLen, codePrefix}
-  function cyclePlan(sc, o, newCodesList) {
-    const up = {}, n = { results: 0, submissions: 0, codesDeleted: 0, codesReactivated: 0, bookings: 0, seats: 0 }, gone = new Set(), del = new Set();
-    const freeCode = c => { up[`accessCodes/${c}/used`] = false; ['usedBy', 'usedAt', 'phone', 'attemptId', 'sessionId'].forEach(k => { up[`accessCodes/${c}/${k}`] = null; }); n.codesReactivated++; };
-    if (o.deleteCodes) sc.codes.forEach(c => { del.add(c.code); up[`accessCodes/${c.code}`] = null; n.codesDeleted++; });
-    sc.attempts.forEach(a => {
-      const done = a.status === 'completed';
-      if ((done && o.results) || (!done && o.submissions)) {
-        up[`attempts/${a.id}`] = null; if (a.code) up[`codeIndex/${a.code}/${a.id}`] = null; gone.add(a.id); done ? n.results++ : n.submissions++;
-        const cur = sc.allCodes[a.code]; if (o.reactivate && cur && cur.attemptId === a.id && !del.has(a.code)) freeCode(a.code);
-      } else if (a.status === 'in_progress' && a.code && del.has(a.code)) { up[`attempts/${a.id}/status`] = 'abandoned'; up[`attempts/${a.id}/abandonedAt`] = iso(); }
-    });
-    if (o.bookings) {
-      const slotSet = new Set(sc.slots.map(s => s.id));
-      sc.slots.forEach(s => { if (sc.seats[s.id]) { up[`seats/${s.id}`] = null; n.seats += Object.keys(sc.seats[s.id]).length; } });
-      sc.bookings.forEach(b => { up[`bookings/${b.bkey}`] = null; n.bookings++; if (b.seat && !slotSet.has(b.slotId)) up[`seats/${b.slotId}/${b.seat}`] = null; });
-    }
-    let nid = null;
-    if (o.archive) { up[`sessions/${sc.sid}/status`] = 'archived'; up[`sessions/${sc.sid}/archivedAt`] = iso(); }
-    if (o.newName) { nid = rid('ss_'); up[`sessions/${nid}`] = { id: nid, name: o.newName, status: 'open', createdAt: iso(), createdBy: o.by || 'admin', previousSessionId: sc.sid }; up['meta/activeSessionId'] = nid; }
-    else if (o.archive && o.activeId === sc.sid) up['meta/activeSessionId'] = null;
-    (newCodesList || []).forEach(c => { up[`accessCodes/${c}`] = { code: c, used: false, usedBy: null, usedAt: null, batchSessionId: nid || sc.sid, createdAt: iso() }; });
-    return { up, n, nid };
-  }
-  const clean = v => JSON.parse(JSON.stringify(v === undefined ? null : v));
-  async function runCycle(fb, sid, o, by, reason) {
-    o = { ...o, by }; o.activeId = await read(fb, 'meta/activeSessionId');
-    const sc = await cycleScope(fb, sid, !!o.includeLegacy);
-    if (sc.session.status === 'archived' && (o.results || o.submissions || o.bookings || o.deleteCodes)) throw new Error('الجلسة مؤرشفة (للقراءة فقط). أعد فتحها أولاً إن كنت تريد تعديلها');
-    const newList = o.newCodes > 0 ? planCodes(o.newCodes, o.codeLen || 6, normalizeCode(o.codePrefix || '').replace(/[^A-Z0-9]/g, ''), await takenCodes(fb, sc.allCodes)) : [];
-    const plan = cyclePlan(sc, o, newList);
-    if (!Object.keys(plan.up).length) return { empty: true, n: plan.n };
-    // 1) backup first (create-only node). If this fails nothing else happens.
-    const gone = a => (a.status === 'completed' ? o.results : o.submissions), bid = rid('bk_');
-    const delCodes = o.deleteCodes ? sc.codes : sc.codes.filter(c => (plan.up[`accessCodes/${c.code}/used`] === false));
-    await fb.set(P(fb, `backups/${bid}`), clean({ id: bid, at: iso(), by, reason, sessionId: sid, sessionName: sc.session.name, sessionStatusBefore: sc.session.status, options: { ...o, activeId: undefined }, counts: plan.n, newSessionId: plan.nid,
-      attempts: Object.fromEntries(sc.attempts.filter(gone).map(a => [a.id, a])), codes: Object.fromEntries(delCodes.map(c => [c.code, c])),
-      bookings: o.bookings ? Object.fromEntries(sc.bookings.map(b => { const { bkey, ...r } = b; return [bkey, r]; })) : {} }));
-    // 2) ONE atomic multi-path update: either every change lands or none does
-    await fb.update(P(fb), plan.up);
-    await audit(fb, by, 'cycle-' + reason, { sessionId: sid, session: sc.session.name, backupId: bid, ...plan.n, newSessionId: plan.nid, newCodes: newList.length });
-    return { backupId: bid, n: plan.n, nid: plan.nid, newCodes: newList.length };
-  }
-  async function previewCycle(fb, sid, o) {
-    const sc = await cycleScope(fb, sid, !!o.includeLegacy); const p = cyclePlan(sc, { ...o, activeId: null }, []);
-    return { ...p.n, session: sc.session, completed: sc.attempts.filter(a => a.status === 'completed').length, open: sc.attempts.filter(a => a.status !== 'completed').length, codesTotal: sc.codes.length, bookingsTotal: sc.bookings.length };
-  }
-  async function restoreBackup(fb, bid, by) {
-    const b = await read(fb, `backups/${bid}`); if (!b) throw new Error('النسخة الاحتياطية غير موجودة');
-    const [cur, codes, bks, ap, se] = await Promise.all(['attempts', 'accessCodes', 'bookings', 'appointments', 'seats'].map(p => read(fb, p)));
-    const up = {}, r = { attempts: 0, codes: 0, bookings: 0, skipped: 0 };
-    Object.entries(b.attempts || {}).forEach(([id, a]) => { if ((cur || {})[id]) { r.skipped++; return; } up[`attempts/${id}`] = a; if (a.code) up[`codeIndex/${a.code}/${id}`] = true; r.attempts++; });
-    Object.entries(b.codes || {}).forEach(([c, v]) => { const now = (codes || {})[c]; if (now && now.used) { r.skipped++; return; } up[`accessCodes/${c}`] = v; r.codes++; });   // never overwrite a code someone is using now
-    Object.entries(b.bookings || {}).forEach(([k, v]) => {
-      const slot = (ap || {})[v.slotId]; if ((bks || {})[k] || !slot || ((se || {})[v.slotId] || {})[v.seat] || (up[`seats/${v.slotId}/${v.seat}`] !== undefined)) { r.skipped++; return; }
-      up[`bookings/${k}`] = v; if (v.seat) up[`seats/${v.slotId}/${v.seat}`] = v.seat; r.bookings++;
-    });
-    if (Object.keys(up).length) await fb.update(P(fb), up);
-    await audit(fb, by, 'cycle-restore', { backupId: bid, ...r }); return r;
-  }
-
   // ---- exports ----
   function slotRows(slot, bookings, attempts, tiers) {
     return Object.keys(bookings || {}).filter(k => bookings[k].slotId === slot.id && bookings[k].status === 'confirmed').map(k => {
       const b = bookings[k], a = (attempts || {})[b.attemptId] || {}, sn = b.snap || {};
       const score = a.score !== undefined ? a.score : sn.score, total = a.total !== undefined ? a.total : sn.total, ok = Number(total) > 0;
       const g = ok ? classify(score, total, tiers) : NONE;
-      return { key: k, code: b.code || a.code || '', name: b.name || a.name || '', phone: b.phone || a.phone || '', score: ok ? score : '', total: ok ? total : '', scoreText: ok ? `${score} / ${total}` : '—', pct: ok ? Math.round(exactPct(score, total) * 10) / 10 : 0, group: ok ? groupLabel(g, tiers) : '—', groupKey: g, seat: b.seat };
+      return { key: k, code: b.code || a.code || '', name: b.name || a.name || '', phone: b.phone || a.phone || '', score: ok ? score : '', total: ok ? total : '', attendance: b.attendance || '', needsReview: !!b.needsReview, scoreText: ok ? `${score} / ${total}` : '—', pct: ok ? Math.round(exactPct(score, total) * 10) / 10 : 0, group: ok ? groupLabel(g, tiers) : '—', groupKey: g, seat: b.seat };
     }).sort((x, y) => x.name.localeCompare(y.name, 'ar') || x.code.localeCompare(y.code));
   }
-  const slotTitle = s => `${dayInfo(s.day).ar} - ${fmtTimeAr(s.time)}`;
+  const ATT_AR = { present: 'حاضر', absent: 'غائب' };
+  const slotTitle = s => `${dayInfo(s.day).ar}${s.date ? ' ' + s.date : ''} - ${fmtTimeAr(s.time)}`;
   async function buildExcel(ExcelJS, slot, rows) {
     const wb = new ExcelJS.Workbook(); wb.creator = 'الفجر';
     const ws = wb.addWorksheet('Students', { views: [{ state: 'frozen', ySplit: 1, rightToLeft: true }] });
-    ws.columns = [['No.', 6], ['Student Code', 16], ['Full Name', 36], ['Phone Number', 18], ['Score', 12], ['Percentage', 12], ['Group', 18], ['Appointment', 24]].map(([header, width]) => ({ header, width }));
-    rows.forEach((r, i) => ws.addRow([i + 1, r.code, r.name, r.phone, r.scoreText, (r.pct || 0) / 100, r.group, slotTitle(slot)]));
+    ws.columns = [['No.', 6], ['Student Code', 16], ['Full Name', 36], ['Phone Number', 18], ['Score', 12], ['Percentage', 12], ['Group', 18], ['Appointment', 24], ['Attendance', 14]].map(([header, width]) => ({ header, width }));
+    rows.forEach((r, i) => ws.addRow([i + 1, r.code, r.name, r.phone, r.scoreText, (r.pct || 0) / 100, r.group, slotTitle(slot), ATT_AR[r.attendance] || '']));
     ws.getColumn(6).numFmt = '0.0%';
     const h = ws.getRow(1); h.font = { bold: true, color: { argb: 'FFFFFFFF' } }; h.alignment = { horizontal: 'center', vertical: 'middle' };
     h.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B6F5E' } }; });
     ws.eachRow((row, n) => { if (n > 1) row.alignment = { horizontal: 'center', vertical: 'middle' }; });
     ws.getColumn(4).numFmt = '@';
-    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 8 } };
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 9 } };
     return wb.xlsx.writeBuffer();
   }
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2727,13 +2801,13 @@ const AppCore = (function () {
       const chunk = rows.slice(p * perPage, (p + 1) * perPage);
       pages.push(`<div class="pdf-page" dir="rtl"><div class="pdf-head"><div class="pdf-brand"><svg width="34" height="22" viewBox="0 0 48 32"><path d="M6 28a18 18 0 0 1 36 0z" fill="#e8a33d"/><path d="M24 2v6M8 9l4 4M40 9l-4 4M1 20l5 1M47 20l-5 1" stroke="#e8a33d" stroke-width="2.4" stroke-linecap="round"/></svg><span>الفجر</span></div><h1>${esc(institution)}</h1><h2>قائمة طلاب موعد: ${esc(slotTitle(slot))}</h2>
 <div class="pdf-meta"><span>عدد المسجلين: ${rows.length}</span><span>السعة القصوى: ${slot.capacity}</span></div></div>
-<table><thead><tr><th>م</th><th>كود الطالب</th><th>الاسم بالكامل</th><th>رقم الهاتف</th><th>الدرجة</th><th>المجموعة</th></tr></thead><tbody>
-${chunk.map((r, i) => `<tr><td>${p * perPage + i + 1}</td><td>${esc(r.code)}</td><td class="nm">${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.scoreText)}${r.total ? ` (${r.pct}%)` : ''}</td><td>${esc(r.group)}</td></tr>`).join('')}
-${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين في هذا الموعد</td></tr>'}</tbody></table><div class="pdf-foot">صفحة ${p + 1} من ${total}</div></div>`);
+<table><thead><tr><th>م</th><th>كود الطالب</th><th>الاسم بالكامل</th><th>رقم الهاتف</th><th>الدرجة</th><th>المجموعة</th><th>الحضور</th></tr></thead><tbody>
+${chunk.map((r, i) => `<tr><td>${p * perPage + i + 1}</td><td>${esc(r.code)}</td><td class="nm">${esc(r.name)}</td><td dir="ltr">${esc(r.phone)}</td><td>${esc(r.scoreText)}${r.total ? ` (${r.pct}%)` : ''}</td><td>${esc(r.group)}</td><td>${esc(ATT_AR[r.attendance] || '')}</td></tr>`).join('')}
+${rows.length ? '' : '<tr><td colspan="7">لا يوجد طلاب مسجلين في هذا الموعد</td></tr>'}</tbody></table><div class="pdf-foot">صفحة ${p + 1} من ${total}</div></div>`);
     }
     return pages;
   }
-  return { studentId, bookingKey, audit, createSession, archiveSession, reopenSession, activateSession, startAttempt, finishAttempt, resetCodes, verifyForBooking, migrateLegacy, generateCodes, setCodeDisabled, runCycle, previewCycle, restoreBackup, NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
+  return { eligibilityOf, needsManualGrading, eligibilityUpdates, ELIG_AR, ELIG_REASON, slotAvailability, windowState, listDates, generateSlots, bookingsOnDay, setDayEnabled, setSlotEnabled, setAttendance, analyze, buildTableExcel, getTiers, notify, ATT_AR, studentId, bookingKey, audit, createSession, archiveSession, reopenSession, activateSession, startAttempt, finishAttempt, resetCodes, verifyForBooking, migrateLegacy, NONE, DEFAULT_TIERS, DAYS, dayInfo, normalizeName, normalizePhone, isValidPhone, normalizeCode, validateTiers, classify, exactPct, groupLabel, slotSort, countBooked, fmtTimeAr, fileBase, validateSlot, getSettings, listSlots, claimSeat, bookSeat, cancelBooking, moveBooking, canSetCapacity, deleteSlot, slotRows, slotTitle, buildExcel, buildPdfPages, esc };
 })();
 
     // ================= Grouping rules =================
@@ -2798,7 +2872,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
               <td style="white-space:nowrap">${slotArchived(s) ? '<span class="muted">🔒 مؤرشف</span>' : `<button class="btn btn-warning mini" onclick="editSlot('${escapeHtml(s.id)}')">✏️</button> <button class="btn btn-danger mini" onclick="deleteSlotUI('${escapeHtml(s.id)}')">🗑</button>`} <button class="btn btn-success mini" onclick="exportSlot('${escapeHtml(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${escapeHtml(s.id)}','pdf')">PDF</button></td></tr>`).join('')
                 : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#0f8f7a">لا توجد مواعيد بعد</td></tr>') + '</tbody></table></div>';
     };
-    const dupSlot = (day, time, exceptId) => slotsList().some(x => x.day === day && x.time === time && x.id !== exceptId);
+    const dupSlot = (day, time, exceptId, date) => slotsList().some(x => x.day === day && x.time === time && (x.date || '') === (date || '') && x.id !== exceptId);
     window.addSlot = async function () {
         const s = { day: $$('apptDay').value, time: $$('apptTime').value, capacity: parseInt($$('apptCap').value, 10) };
         const err = AppCore.validateSlot(s); if (err) return showAlert('error', err);
@@ -2817,7 +2891,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             didOpen: () => { document.getElementById('edDay').value = s.day; },
             preConfirm: async () => {
                 const n = { day: document.getElementById('edDay').value, time: document.getElementById('edTime').value, capacity: parseInt(document.getElementById('edCap').value, 10) };
-                let err = AppCore.validateSlot(n) || (dupSlot(n.day, n.time, id) ? 'يوجد موعد بنفس اليوم والوقت' : null) || await AppCore.canSetCapacity(FB(), id, n.capacity);
+                let err = AppCore.validateSlot(n) || (dupSlot(n.day, n.time, id, s.date) ? 'يوجد موعد بنفس اليوم والوقت' : null) || (s.date && AppCore.listDates(s.date, s.date, [n.day]).length === 0 ? 'اليوم لا يطابق تاريخ الموعد' : null) || await AppCore.canSetCapacity(FB(), id, n.capacity);
                 if (err) { Swal.showValidationMessage(err); return false; } return n;
             }
         });
@@ -2906,82 +2980,6 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
     };
 
 
-
-    // ================= Cycle management UI (super admin only) =================
-    const isSuper = () => !!(currentUser && currentUser.role === 'super');
-    const guardSuper = () => { if (isSuper()) return true; showAlert('error', 'هذه العمليات للمشرف العام فقط'); return false; };
-    const cycSid = () => { const v = $$('cycSession').value; return v && v !== 'all' ? v : null; };
-    const li = (ok, t) => `<div>${ok ? '✅' : '⬜'} ${t}</div>`;
-    window.displayCycles = async function () {
-        const sel = $$('cycSession'), cur = sel.value || (DB.viewSessionId !== 'all' ? DB.viewSessionId : DB.activeSessionId);
-        const list = Object.values(DB.sessions || {}).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-        sel.innerHTML = list.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.id === DB.activeSessionId ? ' ● نشطة' : ''}${s.status === 'archived' ? ' (مؤرشفة)' : ''}</option>`).join('');
-        if (list.some(s => s.id === cur)) sel.value = cur;
-        const sid = cycSid(), st = sid ? sessionStats(sid) : { done: 0, open: 0, aband: 0, bookings: 0 };
-        const codes = (DB.accessCodes || []).filter(c => c.batchSessionId === sid || c.sessionId === sid);
-        $$('cycStats').innerHTML = sid ? `نتائج مكتملة: <b>${st.done}</b> · محاولات غير مكتملة: <b>${st.open + st.aband}</b> · حجوزات: <b>${st.bookings}</b> · أكواد الجلسة: <b>${codes.length}</b> (مستخدم ${codes.filter(c => c.used).length})` : 'لا توجد جلسات';
-        const bks = Object.values(DB.backups || {}).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 30);
-        $$('cycBackups').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>المسؤول</th><th>العملية</th><th>الجلسة</th><th>المحتوى المحفوظ</th><th></th></tr></thead><tbody>` +
-            (bks.length ? bks.map(b => `<tr><td>${fmtDT(b.at)}</td><td>${escapeHtml(b.by || '')}</td><td>${escapeHtml(({ results: 'تصفير نتائج', codes: 'مسح أكواد', newcycle: 'دورة جديدة' })[b.reason] || b.reason || '')}</td><td>${escapeHtml(b.sessionName || '')}</td><td>${Object.keys(b.attempts || {}).length} نتيجة/محاولة · ${Object.keys(b.codes || {}).length} كود · ${Object.keys(b.bookings || {}).length} حجز</td><td><button class="btn btn-primary mini" data-id="${escapeHtml(b.id)}" onclick="cycleRestore(this.dataset.id)">↩ استرجاع</button></td></tr>`).join('') : '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">لا توجد نسخ احتياطية بعد</td></tr>') + '</tbody></table></div>';
-    };
-    // second screen: exact summary + typed confirmation phrase, then run
-    async function confirmAndRun(title, phrase, summaryHtml, run) {
-        const r = await Swal.fire({ icon: 'warning', title, width: 640, showCancelButton: true, confirmButtonText: 'تنفيذ', cancelButtonText: 'تراجع', confirmButtonColor: '#d33',
-            html: `<div style="text-align:right;line-height:1.9">${summaryHtml}<hr style="margin:10px 0;border-color:#444">💾 تُحفظ نسخة احتياطية تلقائياً قبل التنفيذ ويمكن استرجاعها.<br>اكتب <b>${phrase}</b> للتأكيد:</div>`, input: 'text', inputPlaceholder: phrase,
-            inputValidator: v => (String(v).trim() === phrase ? null : `يجب كتابة: ${phrase}`) });
-        if (!r.isConfirmed) return;
-        busy('جاري التنفيذ...');
-        try { const res = await run(); Swal.close(); if (res.empty) return showAlert('error', 'لا يوجد ما يمكن تنفيذه (لا بيانات مطابقة للخيارات)'); await Swal.fire({ icon: 'success', title: 'تم التنفيذ', html: `<div style="text-align:right;line-height:1.9">${resSummary(res)}<br>🗄 رقم النسخة الاحتياطية: <code>${escapeHtml(res.backupId)}</code></div>` }); displayCycles(); }
-        catch (e) { console.error(e); Swal.fire('فشلت العملية', e.message + '\nلم يتم تطبيق أي تغيير على البيانات (التحديث ذري).', 'error'); }
-    }
-    const resSummary = r => `نتائج محذوفة: ${r.n.results} · محاولات غير مكتملة محذوفة: ${r.n.submissions} · أكواد محذوفة: ${r.n.codesDeleted} · أكواد أُعيد تفعيلها: ${r.n.codesReactivated} · حجوزات ملغاة: ${r.n.bookings}${r.newCodes ? ` · أكواد جديدة: ${r.newCodes}` : ''}`;
-    const chk = (id, label, on, extra) => `<label style="display:block;margin:6px 0;cursor:pointer"><input type="checkbox" id="${id}" ${on ? 'checked' : ''} ${extra || ''}> ${label}</label>`;
-    const val = id => { const e = document.getElementById(id); return e ? e.checked : false; };
-
-    window.cycleResetResults = async function () {
-        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'اختر جلسة');
-        const s = DB.sessions[sid]; if (s.status === 'archived') return showAlert('error', 'الجلسة مؤرشفة. أعد فتحها أولاً من تبويب الجلسات');
-        const r = await Swal.fire({ title: `تصفير نتائج: ${s.name}`, width: 640, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
-            html: `<div style="text-align:right">${chk('cA_res', 'حذف النتائج المكتملة (وتصنيف المجموعات الناتج عنها)', true, 'disabled')}${chk('cA_sub', 'حذف المحاولات غير المكتملة/المتروكة', true)}${chk('cA_re', 'إعادة تفعيل الأكواد التي استُخدمت في هذه النتائج', true)}${chk('cA_bk', 'إلغاء حجوزات المواعيد المرتبطة بالجلسة وتحرير مقاعدها', false)}<p class="muted" style="margin-top:8px">المجموعات تُحسب من النتيجة نفسها، فتختفي مع حذفها. إن أبقيت الحجوزات تبقى بدرجة الطالب وقت الحجز.</p></div>`,
-            preConfirm: () => ({ results: true, submissions: val('cA_sub'), reactivate: val('cA_re'), bookings: val('cA_bk') }) });
-        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o);
-        await confirmAndRun('تأكيد تصفير النتائج', 'تصفير', `سيتم في الجلسة <b>${escapeHtml(s.name)}</b> فقط:${li(1, `حذف <b>${p.results}</b> نتيجة`)}${li(o.submissions, `حذف <b>${p.submissions}</b> محاولة غير مكتملة`)}${li(o.reactivate, 'إعادة تفعيل أكواد هذه النتائج')}${li(o.bookings, `إلغاء <b>${p.bookings}</b> حجز وتحرير ${p.seats} مقعد`)}<br>✅ لا يمس: ملفات الطلاب، الجلسات الأخرى، المشرفين، الإعدادات. لقطات الكاميرا لا تُحذف.`, () => AppCore.runCycle(FB(), sid, o, actor(), 'results'));
-    };
-    window.cycleDeleteCodes = async function () {
-        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'اختر جلسة');
-        const s = DB.sessions[sid]; if (s.status === 'archived') return showAlert('error', 'الجلسة مؤرشفة. أعد فتحها أولاً');
-        const r = await Swal.fire({ title: `مسح أكواد: ${s.name}`, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
-            html: `<div style="text-align:right">${chk('cB_leg', 'تضمين الأكواد القديمة غير المرتبطة بأي جلسة', sid === DB.activeSessionId)}<p class="muted">النتائج والحجوزات والطلاب لا تُحذف. من بدأ الامتحان بكود محذوف يُعلَّم تلقائياً "متروك".</p></div>`, preConfirm: () => ({ deleteCodes: true, includeLegacy: val('cB_leg') }) });
-        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o); if (!p.codesDeleted) return showAlert('error', 'لا توجد أكواد لهذه الجلسة');
-        await confirmAndRun('تأكيد مسح الأكواد', 'مسح الأكواد', `سيتم حذف <b>${p.codesDeleted}</b> كود من الجلسة <b>${escapeHtml(s.name)}</b> ولن يعمل أي منها بعد ذلك.<br>يمكنك توليد أكواد جديدة من تبويب أكواد الدخول.`, () => AppCore.runCycle(FB(), sid, o, actor(), 'codes'));
-    };
-    window.cycleNew = async function () {
-        if (!guardSuper()) return; const sid = cycSid(); if (!sid) return showAlert('error', 'أنشئ جلسة أولاً');
-        const s = DB.sessions[sid], arch = s.status === 'archived';
-        const r = await Swal.fire({ title: 'بدء دورة امتحانات جديدة', width: 680, showCancelButton: true, confirmButtonText: 'التالي', cancelButtonText: 'إلغاء',
-            html: `<div style="text-align:right"><b>الجلسة السابقة: ${escapeHtml(s.name)}</b>${arch ? '<p class="muted">مؤرشفة بالفعل: لن يُحذف منها شيء.</p>' : chk('cC_arch', 'أرشفة الجلسة السابقة (للقراءة فقط، تبقى كل بياناتها)', true) + chk('cC_res', 'حذف نتائجها (وتصنيفاتها)', false) + chk('cC_sub', 'حذف محاولاتها غير المكتملة', false) + chk('cC_bk', 'إلغاء حجوزاتها وتحرير المقاعد', false) + chk('cC_codes', 'حذف أكواد الجلسة السابقة', true) + chk('cC_re', 'إعادة تفعيل أكواد النتائج المحذوفة', false)}<hr style="border-color:#444;margin:10px 0"><b>الجلسة الجديدة</b><input id="cC_name" class="swal2-input" placeholder="اسم الجلسة، مثال: دفعة 2027 - الامتحان الأول"><label>عدد الأكواد الجديدة (0 = بدون)</label><input id="cC_n" type="number" min="0" max="2000" value="0" class="swal2-input"><label>بادئة الكود (اختياري)</label><input id="cC_p" maxlength="4" class="swal2-input" placeholder="مثال: FJ"></div>`,
-            preConfirm: () => { const name = document.getElementById('cC_name').value.trim(); if (!name) { Swal.showValidationMessage('اسم الجلسة الجديدة مطلوب'); return false; }
-                const n = parseInt(document.getElementById('cC_n').value, 10) || 0; if (n < 0 || n > 2000) { Swal.showValidationMessage('عدد الأكواد بين 0 و 2000'); return false; }
-                return { newName: name, newCodes: n, codeLen: 6, codePrefix: document.getElementById('cC_p').value, archive: !arch && val('cC_arch'), results: !arch && val('cC_res'), submissions: !arch && val('cC_sub'), bookings: !arch && val('cC_bk'), deleteCodes: !arch && val('cC_codes'), reactivate: !arch && val('cC_re'), includeLegacy: !arch && val('cC_codes') && sid === DB.activeSessionId }; } });
-        if (!r.isConfirmed) return; const o = r.value, p = await AppCore.previewCycle(FB(), sid, o);
-        await confirmAndRun('تأكيد بدء دورة جديدة', 'دورة جديدة', `<b>ما سيحدث بالترتيب:</b>${li(o.results, `حذف <b>${p.results}</b> نتيجة من "${escapeHtml(s.name)}"`)}${li(o.submissions, `حذف <b>${p.submissions}</b> محاولة غير مكتملة`)}${li(o.bookings, `إلغاء <b>${p.bookings}</b> حجز`)}${li(o.deleteCodes, `حذف <b>${p.codesDeleted}</b> كود قديم`)}${li(o.reactivate, 'إعادة تفعيل أكواد النتائج المحذوفة')}${li(o.archive, 'أرشفة الجلسة السابقة')}${li(1, `إنشاء وتفعيل الجلسة <b>${escapeHtml(o.newName)}</b>`)}${li(o.newCodes > 0, `توليد <b>${o.newCodes}</b> كود جديد`)}<br>الكل في تحديث واحد متكامل.`,
-            () => AppCore.runCycle(FB(), sid, o, actor(), 'newcycle').then(res => { if (res.nid) DB.viewSessionId = res.nid; return res; }));
-    };
-    window.cycleRestore = async function (bid) {
-        if (!guardSuper()) return;
-        const r = await Swal.fire({ icon: 'question', title: 'استرجاع النسخة الاحتياطية؟', text: 'سيُعاد ما حُذف فقط دون استبدال أي سجل موجود حالياً.', showCancelButton: true, confirmButtonText: 'استرجاع', cancelButtonText: 'تراجع' }); if (!r.isConfirmed) return;
-        try { const x = await AppCore.restoreBackup(FB(), bid, actor()); Swal.fire('تم الاسترجاع', `نتائج/محاولات: ${x.attempts} · أكواد: ${x.codes} · حجوزات: ${x.bookings} · متخطّى (موجود/مشغول): ${x.skipped}`, 'success'); }
-        catch (e) { Swal.fire('خطأ', e.message, 'error'); }
-    };
-    window.generateCodesUI = async function () {
-        if (!guardSuper()) return; const sid = DB.viewSessionId && DB.viewSessionId !== 'all' ? DB.viewSessionId : DB.activeSessionId; const s = (DB.sessions || {})[sid];
-        if (!s || s.status === 'archived') return showAlert('error', 'اختر جلسة مفتوحة من أعلى الصفحة');
-        const r = await Swal.fire({ title: `توليد أكواد لـ ${s.name}`, showCancelButton: true, confirmButtonText: 'توليد', cancelButtonText: 'إلغاء', html: `<input id="gN" type="number" min="1" max="2000" value="50" class="swal2-input" placeholder="العدد"><input id="gL" type="number" min="4" max="12" value="6" class="swal2-input" placeholder="الطول"><input id="gP" maxlength="4" class="swal2-input" placeholder="بادئة (اختياري)">`, preConfirm: () => [document.getElementById('gN').value, document.getElementById('gL').value, document.getElementById('gP').value] });
-        if (!r.isConfirmed) return;
-        try { const c = await AppCore.generateCodes(FB(), sid, r.value[0], r.value[1], r.value[2], actor()); showAlert('success', `تم توليد ${c.length} كود (فريدة وغير مكررة)`); } catch (e) { showAlert('error', e.message); }
-    };
-    window.toggleCode = async function (code, disable) { try { await AppCore.setCodeDisabled(FB(), code, disable, actor()); } catch (e) { showAlert('error', e.message); } };
-
     // ================= Sessions (exam cycles), activity log, accurate counters =================
     function recomputeResults() { DB.results = (DB.attemptsAll || []).filter(a => a && a.status === 'completed' && (viewAll() || a.sessionId === DB.viewSessionId)); }
     function ensureView() {
@@ -3023,7 +3021,7 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             await ({ archive: AppCore.archiveSession, reopen: AppCore.reopenSession, activate: AppCore.activateSession })[kind](FB(), id, actor()); showAlert('success', 'تم');
         } catch (e) { showAlert('error', e.message); }
     };
-    const ACTION_AR = { 'cycle-results': 'تصفير نتائج', 'cycle-codes': 'مسح أكواد', 'cycle-newcycle': 'بدء دورة جديدة', 'cycle-restore': 'استرجاع نسخة احتياطية', 'codes-generate': 'توليد أكواد', 'code-disable': 'تعطيل كود', 'code-enable': 'تفعيل كود',  'session-create': 'إنشاء جلسة', 'session-archive': 'أرشفة جلسة', 'session-reopen': 'إعادة فتح جلسة', 'session-activate': 'تفعيل جلسة', 'session-rename': 'تغيير اسم جلسة', 'codes-reset': 'إعادة تفعيل أكواد', 'booking-cancel': 'إلغاء حجز', 'booking-move': 'نقل حجز', 'slot-add': 'إضافة موعد', 'slot-edit': 'تعديل موعد', 'slot-delete': 'حذف موعد', 'tiers-update': 'تعديل قواعد التصنيف', 'booking-setting': 'إعدادات الحجز', 'institution-update': 'تعديل اسم المؤسسة', 'migrate-v2': 'ترحيل البيانات للنظام الجديد' };
+    const ACTION_AR = { 'session-create': 'إنشاء جلسة', 'session-archive': 'أرشفة جلسة', 'session-reopen': 'إعادة فتح جلسة', 'session-activate': 'تفعيل جلسة', 'session-rename': 'تغيير اسم جلسة', 'codes-reset': 'إعادة تفعيل أكواد', 'booking-cancel': 'إلغاء حجز', 'booking-move': 'نقل حجز', 'slot-add': 'إضافة موعد', 'slot-edit': 'تعديل موعد', 'slot-delete': 'حذف موعد', 'tiers-update': 'تعديل قواعد التصنيف', 'booking-setting': 'إعدادات الحجز', 'institution-update': 'تعديل اسم المؤسسة', 'migrate-v2': 'ترحيل البيانات للنظام الجديد' };
     window.displayLog = function () {
         const rows = (DB.audit || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 200);
         $$('logContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>المسؤول</th><th>الإجراء</th><th>التفاصيل</th></tr></thead><tbody>` +
@@ -3149,6 +3147,442 @@ ${rows.length ? '' : '<tr><td colspan="6">لا يوجد طلاب مسجلين ف
             Swal.fire('خطأ', 'حدث خطأ أثناء جلب البيانات: ' + error.message, 'error');
         }
     };
+
+/* ===== Cycle: session-scoped reset / backup / restore / new-cycle (الفجر) ===== */
+window.Cycle = (function () {
+  const fb = () => window.firebaseDB, P = p => (p ? fb().ref(fb().database, p) : fb().ref(fb().database));
+  const rd = async p => (await fb().get(P(p))).val();
+  const iso = () => new Date().toISOString();
+  const clean = o => JSON.parse(JSON.stringify(o === undefined ? null : o));
+  async function audit(by, action, details) { try { await fb().set(fb().push(P('auditLog')), { at: iso(), by: by || 'admin', action, details: details || {} }); } catch (e) {} }
+
+  // Build the exact list of records an operation would touch. Never reads or selects other sessions.
+  async function plan(sid, o) {
+    if (!sid) throw new Error('اختر الجلسة أولاً');
+    const [att, bk, codes] = await Promise.all([rd('attempts'), rd('bookings'), rd('accessCodes')]);
+    const pl = { attempts: {}, bookings: {}, seats: {}, codes: {}, reactivate: {}, orphanBookings: 0 };
+    for (const a of Object.values(att || {})) {
+      if (!a || a.sessionId !== sid) continue;
+      const done = a.status === 'completed';
+      if ((done && o.results) || (!done && o.submissions)) pl.attempts[a.id] = a;
+    }
+    for (const [k, b] of Object.entries(bk || {})) {
+      if (!b || b.sessionId !== sid) continue;
+      if (o.bookings) { pl.bookings[k] = b; if (b.seat) pl.seats[`${b.slotId}/${b.seat}`] = b.seat; }
+      else if (o.results) pl.orphanBookings++;
+    }
+    for (const [c, r] of Object.entries(codes || {})) {
+      if (!r) continue;
+      if (o.deleteCodes && ((r.used && r.sessionId === sid) || (o.includeUnused && !r.used))) pl.codes[c] = r;
+      else if (o.reactivate && r.used && r.sessionId === sid) pl.reactivate[c] = r;
+    }
+    return pl;
+  }
+  const counts = pl => ({ attempts: Object.keys(pl.attempts).length, bookings: Object.keys(pl.bookings).length, codesDeleted: Object.keys(pl.codes).length, codesReactivated: Object.keys(pl.reactivate).length, orphanBookings: pl.orphanBookings });
+  const isEmpty = c => !(c.attempts || c.bookings || c.codesDeleted || c.codesReactivated);
+
+  function downloadJSON(name, obj) {
+    if (typeof document === 'undefined') return;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 1)], { type: 'application/json' }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  }
+  // Backup is written to the database FIRST; if that fails nothing is deleted.
+  async function backup(sid, pl, label, by) {
+    const id = 'bk_' + Date.now().toString(36);
+    const rec = clean({ id, sessionId: sid, label, at: iso(), by, counts: counts(pl),
+      data: { attempts: pl.attempts, bookings: pl.bookings, seats: Object.keys(pl.seats).map(p => ({ p, v: pl.seats[p] })), codes: { ...pl.codes, ...pl.reactivate } } });
+    await fb().set(P('meta/backups/' + id), rec);
+    downloadJSON(`alfajr-backup-${id}.json`, rec);
+    return id;
+  }
+
+  async function run(sid, o, by, label) {
+    const pl = await plan(sid, o), c = counts(pl);
+    if (isEmpty(c)) return { backupId: null, ...c, nothing: true };      // repeated resets are harmless no-ops
+    const backupId = await backup(sid, pl, label || 'reset', by);
+    const up = {};
+    for (const a of Object.values(pl.attempts)) { up[`attempts/${a.id}`] = null; if (a.code) up[`codeIndex/${a.code}/${a.id}`] = null; }
+    for (const k of Object.keys(pl.bookings)) up[`bookings/${k}`] = null;
+    for (const p of Object.keys(pl.seats)) up[`seats/${p}`] = null;
+    for (const code of Object.keys(pl.codes)) up[`accessCodes/${code}`] = null;
+    for (const code of Object.keys(pl.reactivate)) {
+      up[`accessCodes/${code}/used`] = false;
+      ['usedBy', 'usedAt', 'phone', 'attemptId', 'sessionId'].forEach(k => { up[`accessCodes/${code}/${k}`] = null; });
+    }
+    if (o.deleteCodes) up['meta/codesInitialized'] = true;   // stops the dashboard from re-seeding default codes
+    await fb().update(P(''), up);                              // one atomic multi-path write
+    await audit(by, 'cycle-reset', { sessionId: sid, scope: o, ...c, backupId });
+    return { backupId, ...c };
+  }
+
+  async function generate(n, by, sid) {
+    n = Math.floor(Number(n)); if (!(n >= 1 && n <= 2000)) throw new Error('عدد الأكواد بين 1 و 2000');
+    const taken = new Set([...Object.keys((await rd('accessCodes')) || {}), ...Object.keys((await rd('codeIndex')) || {})]);
+    const ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = [], up = {};
+    while (out.length < n) {
+      const r = new Uint32Array(8); (globalThis.crypto || window.crypto).getRandomValues(r);
+      const c = Array.from(r, x => ABC[x % ABC.length]).join('');
+      if (taken.has(c)) continue; taken.add(c); out.push(c);
+      up[`accessCodes/${c}`] = { code: c, used: false, createdAt: iso(), createdBy: by || 'admin', batchSession: sid || null };
+    }
+    up['meta/codesInitialized'] = true;
+    await fb().update(P(''), up); await audit(by, 'codes-generate', { count: n, sessionId: sid || null });
+    return out;
+  }
+
+  async function restore(id, by) {
+    const b = await rd('meta/backups/' + id); if (!b) throw new Error('النسخة الاحتياطية غير موجودة');
+    const d = b.data || {}, up = {}, skipped = [];
+    const seatsNow = (await rd('seats')) || {}, slots = (await rd('appointments')) || {};
+    const seatMap = {}; (d.seats || []).forEach(s => { seatMap[s.p] = s.v; });
+    for (const a of Object.values(d.attempts || {})) { up[`attempts/${a.id}`] = a; if (a.code) up[`codeIndex/${a.code}/${a.id}`] = true; }
+    for (const [k, bk] of Object.entries(d.bookings || {})) {
+      if (bk.seat) {
+        const slot = slots[bk.slotId], taken = (seatsNow[bk.slotId] || {})[bk.seat];
+        if (!slot || slot.active === false || taken || bk.seat > slot.capacity) { skipped.push(bk.name || k); continue; }  // never overbook on restore
+        up[`seats/${bk.slotId}/${bk.seat}`] = bk.seat;
+      }
+      up[`bookings/${k}`] = bk;
+    }
+    for (const [c, r] of Object.entries(d.codes || {})) up[`accessCodes/${c}`] = r;
+    if (Object.keys(d.codes || {}).length) up['meta/codesInitialized'] = true;
+    await fb().update(P(''), up); await audit(by, 'cycle-restore', { backupId: id, skippedBookings: skipped });
+    return { skipped };
+  }
+  const listBackups = async () => Object.values((await rd('meta/backups')) || {}).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  return { plan, counts, run, generate, restore, listBackups };
+})();
+
+/* ===== Cycles tab UI ===== */
+(function () {
+  const $ = id => document.getElementById(id), esc = s => escapeHtml(String(s == null ? '' : s));
+  const FBA = () => (currentUser && currentUser.username) || 'admin';
+  const OPT = { results: 'مسح النتائج (المحاولات المكتملة ومجموعاتها)', submissions: 'مسح المحاولات غير المكتملة', bookings: 'إلغاء حجوزات المواعيد وتحرير المقاعد', reactivate: 'إعادة تفعيل أكواد هذه الجلسة (تبقى الأكواد، ويُمسح استخدامها)' };
+  const chk = (k, t, on) => `<label style="display:flex;gap:8px;align-items:center;margin:6px 0;text-align:right"><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}> ${t}</label>`;
+  const readOpts = () => { const o = {}; document.querySelectorAll('.swal2-html-container input[data-k]').forEach(i => { o[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; }); return o; };
+  const sel = () => $('cycSession').value;
+  const sName = id => ((DB.sessions || {})[id] || {}).name || id;
+  function summary(c, o, extra) {
+    const li = [];
+    if (o.results || o.submissions) li.push(`حذف <b>${c.attempts}</b> محاولة/نتيجة (وبالتالي مجموعاتها)`);
+    if (o.bookings) li.push(`إلغاء <b>${c.bookings}</b> حجز وتحرير مقاعده`);
+    if (o.reactivate) li.push(`إعادة تفعيل <b>${c.codesReactivated}</b> كود`);
+    if (o.deleteCodes) li.push(`حذف <b>${c.codesDeleted}</b> كود` + (o.includeUnused ? ' (يشمل الأكواد غير المستخدمة)' : ' (المستخدمة في هذه الجلسة فقط)'));
+    (extra || []).forEach(x => li.push(x));
+    let h = `<ul style="text-align:right;line-height:1.9">${li.map(x => `<li>${x}</li>`).join('')}</ul>`;
+    if (c.orphanBookings) h += `<p style="color:#f0b254">⚠️ يوجد ${c.orphanBookings} حجز سيبقى بدون نتيجة مرتبطة. فكّر في إلغاء الحجوزات أيضاً.</p>`;
+    return h + `<p class="muted">لن يُمس: ملفات الطلاب، الأرقام، المسؤولون، الإعدادات، والجلسات الأخرى. تؤخذ نسخة احتياطية تلقائياً قبل التنفيذ ويمكن استرجاعها.</p>`;
+  }
+  async function typed(title, html) {
+    const r = await Swal.fire({ title, html: html + '<p>اكتب <b>تأكيد</b> للمتابعة:</p>', input: 'text', showCancelButton: true, confirmButtonText: 'تنفيذ', cancelButtonText: 'إلغاء', icon: 'warning',
+      preConfirm: v => (String(v).trim() === 'تأكيد' ? true : (Swal.showValidationMessage('اكتب كلمة: تأكيد'), false)) });
+    return r.isConfirmed;
+  }
+  async function refreshAll() {
+    try { await loadResults(); await loadAccessCodes(); displayCodes(); if (window.displayResults) displayResults(); if (window.syncGroups) await syncGroups(); if (window.refreshAppt) refreshAppt(); if (window.displaySessions) displaySessions(); if (window.updateExtraStats) updateExtraStats(); } catch (e) { console.warn(e); }
+    window.renderCycles();
+  }
+  async function exec(o, label, title, extra) {
+    const sid = sel(); if (!sid) return showAlert('error', 'اختر جلسة');
+    try {
+      const c = Cycle.counts(await Cycle.plan(sid, o));
+      if (!(c.attempts || c.bookings || c.codesDeleted || c.codesReactivated)) return showAlert('info', 'لا توجد بيانات مطابقة في هذه الجلسة — لا شيء للتنفيذ');
+      if (!await typed(`${title} — ${sName(sid)}`, summary(c, o, extra))) return;
+      const r = await Cycle.run(sid, o, FBA(), label);
+      await refreshAll(); showAlert('success', `تم التنفيذ. نسخة احتياطية: ${r.backupId}`);
+    } catch (e) { showAlert('error', 'لم يتم تغيير أي شيء: ' + e.message); }
+  }
+  window.cycResults = async () => {
+    const r = await Swal.fire({ title: 'تصفير النتائج', html: chk('results', OPT.results, true) + chk('submissions', OPT.submissions, true) + chk('bookings', OPT.bookings, false) + chk('reactivate', OPT.reactivate, false), showCancelButton: true, confirmButtonText: 'معاينة', cancelButtonText: 'إلغاء', preConfirm: readOpts });
+    if (r.isConfirmed) exec(r.value, 'reset-results', 'تأكيد تصفير النتائج');
+  };
+  window.cycCodes = async () => {
+    const r = await Swal.fire({ title: 'مسح أكواد الامتحانات', html: chk('deleteCodes', 'حذف أكواد هذه الجلسة المستخدمة', true) + chk('includeUnused', 'حذف الأكواد غير المستخدمة أيضاً (الأكواد غير مرتبطة بجلسة)', true), showCancelButton: true, confirmButtonText: 'معاينة', cancelButtonText: 'إلغاء', preConfirm: readOpts });
+    if (r.isConfirmed) exec({ ...r.value, deleteCodes: true }, 'delete-codes', 'تأكيد مسح الأكواد');
+  };
+  window.cycNew = async () => {
+    const sid = sel(); if (!sid) return showAlert('error', 'اختر جلسة');
+    const r = await Swal.fire({ title: 'بدء دورة امتحانات جديدة', showCancelButton: true, confirmButtonText: 'معاينة', cancelButtonText: 'إلغاء',
+      html: `<p class="muted">الجلسة الحالية: <b>${esc(sName(sid))}</b></p>` + chk('results', 'مسح النتائج والمجموعات', false) + chk('submissions', OPT.submissions, false) + chk('bookings', OPT.bookings, false) + chk('deleteCodes', 'حذف أكواد الجلسة', true) + chk('includeUnused', 'وحذف الأكواد غير المستخدمة', true) + chk('archive', 'أرشفة الجلسة الحالية (تبقى بياناتها محفوظة)', true) +
+        `<input class="swal2-input" data-k="name" placeholder="اسم الجلسة الجديدة (مثال: 2027 – الامتحان الأول)"><input class="swal2-input" data-k="n" type="number" min="0" max="2000" value="0" placeholder="عدد الأكواد الجديدة">`,
+      preConfirm: () => { const o = readOpts(); if (!String(o.name || '').trim()) { Swal.showValidationMessage('اسم الجلسة الجديدة مطلوب'); return false; } return o; } });
+    if (!r.isConfirmed) return;
+    const o = r.value, n = Math.floor(Number(o.n) || 0);
+    try {
+      const c = Cycle.counts(await Cycle.plan(sid, o)), extra = [];
+      if (o.archive) extra.push(`أرشفة الجلسة «${esc(sName(sid))}»`);
+      extra.push(`إنشاء جلسة جديدة «${esc(o.name)}» وتفعيلها`); if (n) extra.push(`توليد <b>${n}</b> كود جديد`);
+      if (!await typed('تأكيد بدء دورة جديدة', summary(c, o, extra))) return;
+      let res = { backupId: null }; if (o.results || o.submissions || o.bookings || o.deleteCodes) res = await Cycle.run(sid, o, FBA(), 'new-cycle');
+      if (o.archive) await AppCore.archiveSession(FB(), sid, FBA());
+      const nid = await AppCore.createSession(FB(), o.name, FBA());
+      let codes = []; if (n) codes = await Cycle.generate(n, FBA(), nid);
+      await refreshAll();
+      if (codes.length) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeffcode\n' + codes.join('\n')], { type: 'text/csv' })); a.download = 'new-codes.csv'; a.click(); }
+      showAlert('success', 'بدأت الدورة الجديدة' + (res.backupId ? ` — نسخة احتياطية: ${res.backupId}` : ''));
+    } catch (e) { showAlert('error', 'توقفت العملية: ' + e.message + ' — راجع سجل النشاط وحالة الجلسات.'); await refreshAll(); }
+  };
+  window.cycRestore = async id => {
+    if (!await typed('استرجاع نسخة احتياطية', `<p>سيُعاد ما حُذف في <b>${esc(id)}</b>. الحجوزات التي أُخذ مقعدها بعد ذلك لن تُسترجع.</p>`)) return;
+    try { const r = await Cycle.restore(id, FBA()); await refreshAll(); showAlert('success', 'تم الاسترجاع' + (r.skipped.length ? ` — لم تُسترجع ${r.skipped.length} حجوزات لتعذر المقعد` : '')); } catch (e) { showAlert('error', e.message); }
+  };
+  window.renderCycles = async function () {
+    const ss = Object.values(DB.sessions || {}).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    const cur = ($('cycSession') && $('cycSession').value) || (DB.viewSessionId !== 'all' && DB.viewSessionId) || DB.activeSessionId || (ss[0] && ss[0].id) || '';
+    $('cycSession').innerHTML = ss.map(s => `<option value="${esc(s.id)}" ${s.id === cur ? 'selected' : ''}>${esc(s.name)}${s.status === 'archived' ? ' (مؤرشفة)' : ''}</option>`).join('');
+    let bk = []; try { bk = await Cycle.listBackups(); } catch (e) {}
+    $('cycBackups').innerHTML = bk.length ? `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>الوقت</th><th>الجلسة</th><th>المحتوى</th><th></th></tr></thead><tbody>${bk.map(b => `<tr><td>${esc(new Date(b.at).toLocaleString('ar-EG'))}</td><td>${esc(sName(b.sessionId))}</td><td>${esc((b.counts && b.counts.attempts) || 0)} محاولة، ${esc((b.counts && b.counts.bookings) || 0)} حجز، ${esc(((b.counts && b.counts.codesDeleted) || 0) + ((b.counts && b.counts.codesReactivated) || 0))} كود</td><td><button class="btn btn-warning mini" onclick="cycRestore('${esc(b.id)}')">↩️ استرجاع</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">لا توجد نسخ احتياطية بعد.</p>';
+  };
+})();
+
+
+/* ===== الفجر v3: eligibility, flexible scheduling, student center, analytics, attendance, notifications, reports, health ===== */
+(function () {
+  const E = escapeHtml, $ = id => document.getElementById(id), T = () => currentTiers(), iso = () => new Date().toISOString();
+  const rdp = async p => (await FB().get(FB().ref(FB().database, p))).val();
+  const isSuper = () => !!(currentUser && currentUser.role === 'super');
+  const viewAtt = () => (DB.attemptsAll || []).filter(a => a && (viewAll() || a.sessionId === DB.viewSessionId));
+  const eligOf = a => AppCore.eligibilityOf(a, T());
+  const eligBadge = el => `<span class="gbadge ${el === 'eligible' ? 'g-I' : el === 'pending' ? 'g-B' : 'g-none'}">${E(AppCore.ELIG_AR[el] || el || '—')}</span>`;
+  const groupCell = a => (eligOf(a) === 'pending' ? '<span class="gbadge g-B">قيد التصحيح</span>' : gbadge(AppCore.classify(a.score, a.total, T())));
+  const slotLabel = id => { const s = (DB.appointments || {})[id]; return s ? AppCore.slotTitle(s) : '—'; };
+  const bookingOf = a => (DB.bookings || {})[AppCore.bookingKey(a.sessionId, a.studentId)];
+  const sess = id => (DB.sessions || {})[id] || {};
+  const fname = s => String(s || '').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40);
+  const xlsx = async (sheets, name) => { download(new Blob([await AppCore.buildTableExcel(ExcelJS, sheets)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), name + '.xlsx'); showAlert('success', 'تم التصدير'); };
+  const pct1 = (s, t) => Math.round(AppCore.exactPct(s, t) * 10) / 10;
+  const bar = (v, max, cls) => `<div class="hbar"><i class="${cls || ''}" style="width:${max ? Math.round(v / max * 100) : 0}%"></i><span>${v}</span></div>`;
+
+  // ---------- eligibility / sync (stored group + eligibility follow the grade; bookings are flagged, never deleted) ----------
+  window.reclassifyAll = async function (notify) {
+    const r = AppCore.eligibilityUpdates(DB.attemptsAll, DB.bookings, T());
+    if (Object.keys(r.up).length) await FB().update(FB().ref(FB().database), r.up);
+    if (r.flagged) AppCore.notify(FB(), { type: 'eligibility-review', title: 'حجوزات تحتاج مراجعة', body: `${r.flagged} حجز لطلاب تغيّرت أهليتهم` });
+    if (notify) showAlert('success', `تمت إعادة التصنيف (${r.attempts} نتيجة، ${r.flagged} حجز للمراجعة)`);
+    return r;
+  };
+  window.syncGroups = async function () { if (!currentUser || syncing || !(DB.attemptsAll || []).length) return; syncing = true; try { await window.reclassifyAll(false); } catch (e) { console.error(e); } finally { syncing = false; } };
+
+  // ---------- results table ----------
+  window.displayResults = function () {
+    fillGroupFilter('resultsGroupFilter');
+    const q = AppCore.normalizeName($('resultsSearch').value), fg = $('resultsGroupFilter').value, fe = $('resultsEligFilter').value;
+    const list = (DB.results || []).filter(r => r && r.id).map(r => ({ ...r, g: AppCore.classify(r.score, r.total, T()), el: eligOf(r), ex: AppCore.exactPct(r.score, r.total) }))
+      .filter(r => (!fg || r.g === fg) && (!fe || r.el === fe) && (!q || AppCore.normalizeName(r.name).includes(q) || String(r.code).toLowerCase().includes(q.toLowerCase()))).sort((x, y) => y.ex - x.ex);
+    $('resultsContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الاسم</th><th>الكود</th><th>الجلسة</th><th>الدرجة</th><th>%</th><th>المجموعة</th><th>الأهلية</th><th>الموعد</th><th>إجراءات</th></tr></thead><tbody>` +
+      (list.length ? list.map((r, i) => { const b = bookingOf(r); return `<tr><td>${i + 1}</td><td>${E(r.name)}</td><td style="color:#f0b254;font-weight:bold">${E(r.code)}</td><td>${E(r.sessionName || '')}</td><td>${E(String(r.score))} / ${E(String(r.total))}</td><td><span class="score-badge ${r.ex >= 50 ? 'score-good' : 'score-poor'}">${Math.round(r.ex * 10) / 10}%</span></td><td>${groupCell(r)}</td><td>${eligBadge(r.el)}</td><td>${b ? E(slotLabel(b.slotId)) + (b.needsReview ? ' ⚠️' : '') : '—'}</td><td><button class="btn btn-primary" data-id="${E(r.id)}" onclick="viewStudentAnswers(this.dataset.id)" style="padding:5px 10px;font-size:.8rem">📝 عرض</button></td></tr>`; }).join('')
+        : '<tr><td colspan="10" style="text-align:center;padding:40px;color:#0f8f7a">لا توجد نتائج مطابقة</td></tr>') + '</tbody></table></div>';
+  };
+
+  // ---------- overview counters (all computed from live records) ----------
+  window.updateExtraStats = function () {
+    const set = (id, v) => { const e = $(id); if (e) e.innerText = v; }, view = viewAtt(), done = view.filter(a => a.status === 'completed'), now = Date.now(), st = DB.apptSettings || {};
+    set('statOpen', view.filter(a => a.status === 'in_progress' || a.status === 'abandoned').length);
+    const bk = Object.values(DB.bookings || {}).filter(b => b.status === 'confirmed' && (viewAll() || b.sessionId === DB.viewSessionId)); set('statBookings', bk.length);
+    const s = (DB.sessions || {})[DB.activeSessionId]; set('statSession', s ? s.name : 'لا توجد');
+    set('statStudents', Object.keys(DB.students || {}).length); const els = done.map(eligOf);
+    set('statEligible', els.filter(x => x === 'eligible').length); set('statIneligible', els.filter(x => x === 'ineligible').length); set('statPending', els.filter(x => x === 'pending').length);
+    const slots = slotsList(), open = slots.filter(x => AppCore.slotAvailability(x, { days: st.days || {} }, now).ok);
+    set('statSeats', open.reduce((n, x) => n + x.remaining, 0)); set('statFull', slots.filter(x => x.remaining === 0).length); set('statUpcoming', open.length);
+    const p = bk.filter(b => b.attendance === 'present').length, a = bk.filter(b => b.attendance === 'absent').length; set('statAttendance', p + a ? Math.round(p / (p + a) * 100) + '%' : '—');
+    const nu = (DB.notifs || []).filter(n => !n.read).length, tb = $('notifTabBtn'); if (tb) tb.textContent = '🔔 الإشعارات' + (nu ? ` (${nu})` : '');
+  };
+
+  // ---------- scheduling: days, booking window, generator, list, calendar ----------
+  const DAYS = AppCore.DAYS;
+  function syncSched() {
+    const st = DB.apptSettings || {}, box = $('dayToggles'); if (!box) return;
+    const counts = {}; Object.values(DB.bookings || {}).forEach(b => { if (b.status === 'confirmed' && (viewAll() || b.sessionId === DB.viewSessionId)) { const d = ((DB.appointments || {})[b.slotId] || {}).day; if (d) counts[d] = (counts[d] || 0) + 1; } });
+    box.innerHTML = DAYS.map(d => `<label class="daychip ${st.days && st.days[d.key] === false ? 'off' : ''}"><input type="checkbox" data-day="${d.key}" ${st.days && st.days[d.key] === false ? '' : 'checked'}> ${d.ar}${counts[d.key] ? `<small>${counts[d.key]} حجز</small>` : ''}</label>`).join('');
+    box.querySelectorAll('input').forEach(i => i.addEventListener('change', () => toggleDay(i.dataset.day, i.checked, i)));
+    if (document.activeElement !== $('apptOpensAt')) $('apptOpensAt').value = st.opensAt || ''; if (document.activeElement !== $('apptClosesAt')) $('apptClosesAt').value = st.closesAt || '';
+    const g = $('genDays'); if (g && !g.children.length) g.innerHTML = DAYS.map(d => `<label class="daychip"><input type="checkbox" data-gen="${d.key}"> ${d.ar}</label>`).join('');
+  }
+  async function toggleDay(day, enabled, el) {
+    const n = await AppCore.bookingsOnDay(FB(), day, viewAll() ? null : DB.viewSessionId);
+    if (!enabled && n) { const r = await Swal.fire({ icon: 'warning', title: 'إخفاء يوم عليه حجوزات', showCancelButton: true, confirmButtonText: 'إخفاء اليوم', cancelButtonText: 'تراجع', html: `<div style="text-align:right;line-height:1.9">يوجد <b>${n}</b> حجز مؤكد في ${AppCore.dayInfo(day).ar}.<br>✅ الحجوزات <b>تبقى كما هي</b> ولن تُلغى.<br>سيختفي اليوم من خيارات الحجز الجديدة فقط.</div>` }); if (!r.isConfirmed) { el.checked = true; return; } }
+    await AppCore.setDayEnabled(FB(), day, enabled, actor()); showAlert('success', `${AppCore.dayInfo(day).ar}: ${enabled ? 'متاح للحجز' : 'مخفي عن الطلاب'}`);
+  }
+  window.saveWindow = async function () {
+    const a = $('apptOpensAt').value, b = $('apptClosesAt').value; if (a && b && b <= a) return showAlert('error', 'نهاية الحجز يجب أن تكون بعد بدايته');
+    await FB().update(FB().ref(FB().database), { 'appointmentSettings/opensAt': a || null, 'appointmentSettings/closesAt': b || null }); AppCore.audit(FB(), actor(), 'booking-window', { opensAt: a, closesAt: b }); showAlert('success', 'تم حفظ فترة الحجز');
+  };
+  window.genSlots = async function () {
+    const sessId = DB.viewSessionId, days = [...document.querySelectorAll('#genDays input:checked')].map(i => i.dataset.gen), times = $('genTimes').value.split(/[,،\s]+/).filter(Boolean);
+    try { const r = await AppCore.generateSlots(FB(), sessId, { days, times, capacity: parseInt($('genCap').value, 10), from: $('genFrom').value, to: $('genTo').value }, actor()); showAlert('success', `تم إنشاء ${r.created} موعد${r.skipped ? ` (تخطي ${r.skipped} مكرر)` : ''}`); } catch (e) { showAlert('error', e.message); }
+  };
+  window.toggleSlotVisible = async function (id, on) { await AppCore.setSlotEnabled(FB(), id, on, actor()); };
+  const slotState = s => { const st = DB.apptSettings || {}, av = AppCore.slotAvailability(s, { days: st.days || {} }, Date.now()); return !av.ok ? (s.date && /انتهى/.test(av.reason) ? ['منتهي', 'g-none'] : ['مخفي', 'g-B']) : (s.remaining ? ['متاح', 'g-I'] : ['مكتمل', 'g-none']); };
+  window.displayAppointments = function () {
+    syncSched(); const slots = slotsList();
+    $('apptContent').innerHTML = `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>اليوم</th><th>التاريخ</th><th>الوقت</th><th>السعة</th><th>المحجوز</th><th>المتبقي</th><th>الحالة</th><th>ظاهر للطلاب</th><th>إجراءات</th></tr></thead><tbody>` +
+      (slots.length ? slots.map(s => { const [t, c] = slotState(s), arch = slotArchived(s), id = E(s.id); return `<tr><td>${AppCore.dayInfo(s.day).ar}</td><td>${E(s.date || 'أسبوعي')}</td><td>${AppCore.fmtTimeAr(s.time)}</td><td>${s.capacity}</td><td>${s.booked}</td><td>${s.remaining}</td><td><span class="gbadge ${c}">${t}</span></td>
+        <td>${arch ? '—' : `<label class="switch"><input type="checkbox" ${s.enabled === false ? '' : 'checked'} onchange="toggleSlotVisible('${id}', this.checked)"><span class="slider"></span></label>`}</td>
+        <td style="white-space:nowrap">${arch ? '<span class="muted">🔒 مؤرشف</span>' : `<button class="btn btn-warning mini" onclick="editSlot('${id}')">✏️</button> <button class="btn btn-danger mini" onclick="deleteSlotUI('${id}')">🗑</button> `}<button class="btn btn-success mini" onclick="exportSlot('${id}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${id}','pdf')">PDF</button></td></tr>`; }).join('')
+        : '<tr><td colspan="9" class="muted" style="text-align:center;padding:40px">لا توجد مواعيد بعد</td></tr>') + '</tbody></table></div>'; renderCalendar();
+  };
+  const CAL = { mode: 'week', date: new Date().toISOString().slice(0, 10) };
+  const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10), jsDay = d => new Date(d + 'T00:00:00Z').getUTCDay(), keyOfDate = d => ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][jsDay(d)];
+  window.calNav = function (k) { if (k === 'today') CAL.date = new Date().toISOString().slice(0, 10); else CAL.date = addDays(CAL.date, k * (CAL.mode === 'week' ? 7 : 1)); renderCalendar(); };
+  window.calMode = function (m) { CAL.mode = m; renderCalendar(); };
+  window.calPick = function (v) { if (v) { CAL.date = v; renderCalendar(); } };
+  function calCard(s) { const [t, c] = slotState(s); return `<div class="calslot ${c}"><b>${AppCore.fmtTimeAr(s.time)}</b><span>${s.booked}/${s.capacity}</span><div class="mbar"><i style="width:${s.capacity ? Math.round(s.booked / s.capacity * 100) : 0}%"></i></div><small>${t}${s.date ? '' : ' · أسبوعي'}</small></div>`; }
+  function renderCalendar() {
+    const box = $('apptCalendar'); if (!box) return; const slots = slotsList(); $('apptCalDate').value = CAL.date;
+    const cols = CAL.mode === 'week' ? (() => { const back = (jsDay(CAL.date) + 1) % 7, start = addDays(CAL.date, -back); return Array.from({ length: 7 }, (_, i) => addDays(start, i)); })() : [CAL.date];
+    box.innerHTML = `<div class="calgrid ${CAL.mode}">` + cols.map(d => { const k = keyOfDate(d), items = slots.filter(s => (s.date ? s.date === d : s.day === k)).sort((a, b) => a.time.localeCompare(b.time)); return `<div class="calcol"><h5>${AppCore.dayInfo(k).ar}<small>${d}</small></h5>${items.map(calCard).join('') || '<p class="muted">—</p>'}</div>`; }).join('') + '</div>';
+  }
+
+  // ---------- groups tab: eligibility, review queue, attendance ----------
+  window.markAttendance = async function (key, st) { try { await AppCore.setAttendance(FB(), key, st, actor()); } catch (e) { showAlert('error', e.message); } };
+  window.keepBooking = async function (key) {
+    const r = await Swal.fire({ icon: 'question', title: 'إبقاء الحجز؟', html: '<div style="text-align:right;line-height:1.9">سيبقى الحجز مؤكداً رغم أن حالة الطالب لم تعد مؤهلة، وستختفي علامة المراجعة.</div>', showCancelButton: true, confirmButtonText: 'إبقاء', cancelButtonText: 'تراجع' });
+    if (r.isConfirmed) { await FB().update(FB().ref(FB().database), { [`bookings/${key}/needsReview`]: null, [`bookings/${key}/reviewReason`]: null, [`bookings/${key}/reviewKeptBy`]: actor(), [`bookings/${key}/reviewKeptAt`]: iso(), [`bookings/${key}/reviewKeptReason`]: ((DB.bookings || {})[key] || {}).reviewReason || 'ineligible' }); AppCore.audit(FB(), actor(), 'review-keep', { key }); }
+  };
+  window.displayGroups = function () {
+    fillGroupFilter('grpGroupFilter'); const slots = slotsList(), sf = $('grpSlotFilter'), cur = sf.value;
+    sf.innerHTML = '<option value="">كل المواعيد</option>' + slots.map(s => `<option value="${E(s.id)}">${E(AppCore.slotTitle(s))}</option>`).join(''); sf.value = slots.some(s => s.id === cur) ? cur : '';
+    const q = AppCore.normalizeName($('grpSearch').value), fg = $('grpGroupFilter').value, filtering = !!(q || fg), tiers = T(), rmap = resultsMap(), review = [];
+    const html = slots.filter(s => !sf.value || s.id === sf.value).map(s => {
+      const all = AppCore.slotRows(s, DB.bookings, rmap, tiers); all.filter(r => r.needsReview).forEach(r => review.push({ ...r, slot: s }));
+      const rows = all.filter(r => (!fg || r.groupKey === fg) && (!q || AppCore.normalizeName(r.name).includes(q) || r.code.toLowerCase().includes(q.toLowerCase()))); if (filtering && !rows.length) return '';
+      const p = all.filter(r => r.attendance === 'present').length, a = all.filter(r => r.attendance === 'absent').length, arch = slotArchived(s);
+      return `<div class="slot-card-adm"><header><b>${E(AppCore.slotTitle(s))}</b><span>المحجوز <b>${s.booked}</b> / ${s.capacity} · المتبقي <b>${s.remaining}</b> · حضور <b>${p}</b> / غياب <b>${a}</b> / لم يُسجَّل <b>${all.length - p - a}</b></span>
+        <span><button class="btn btn-success mini" onclick="exportSlot('${E(s.id)}','xlsx')">Excel</button> <button class="btn btn-primary mini" onclick="exportSlot('${E(s.id)}','pdf')">PDF</button></span></header>
+        <div class="tbl-wrap"><table class="results-table"><thead><tr><th>#</th><th>الكود</th><th>الاسم</th><th>الهاتف</th><th>الدرجة</th><th>المجموعة</th><th>الحضور</th><th>إجراءات</th></tr></thead><tbody>` +
+        (rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td style="color:#f0b254;font-weight:bold">${E(r.code)}${r.needsReview ? ' ⚠️' : ''}</td><td>${E(r.name)}</td><td dir="ltr">${E(r.phone)}</td><td>${E(r.scoreText)}${r.total ? ` (${r.pct}%)` : ''}</td><td>${gbadge(r.groupKey)}</td>
+          <td style="white-space:nowrap"><button class="btn mini ${r.attendance === 'present' ? 'btn-success' : 'btn-primary'}" onclick="markAttendance('${E(r.key)}','${r.attendance === 'present' ? '' : 'present'}'||null)">حاضر</button> <button class="btn mini ${r.attendance === 'absent' ? 'btn-danger' : 'btn-primary'}" onclick="markAttendance('${E(r.key)}', ${r.attendance === 'absent' ? 'null' : "'absent'"})">غائب</button></td>
+          <td style="white-space:nowrap">${arch ? '' : `<button class="btn btn-warning mini" data-key="${E(r.key)}" onclick="moveStudent(this.dataset.key)">🔀 نقل</button> <button class="btn btn-danger mini" data-key="${E(r.key)}" onclick="cancelStudent(this.dataset.key)">إلغاء الحجز</button>`}</td></tr>`).join('') : '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">لا يوجد طلاب</td></tr>') + '</tbody></table></div></div>';
+    }).join('');
+    const rv = review.length ? `<div class="panel review"><h4>⚠️ حجوزات تحتاج مراجعة (${review.length})</h4><p class="muted">تغيّرت نتيجة هؤلاء الطلاب فلم يعودوا مؤهلين. الحجز لم يُحذف تلقائياً — قرّر إبقاءه أو إلغاءه.</p>` + review.map(r => `<div class="reviewrow"><b>${E(r.name)}</b> <span class="muted">${E(r.code)} · ${E(r.scoreText)} · ${E(AppCore.slotTitle(r.slot))}</span> <button class="btn btn-success mini" onclick="keepBooking('${E(r.key)}')">إبقاء</button> <button class="btn btn-danger mini" data-key="${E(r.key)}" onclick="cancelStudent(this.dataset.key)">إلغاء الحجز</button></div>`).join('') + '</div>' : '';
+    $('groupsContent').innerHTML = rv + (html || '<div class="panel muted" style="text-align:center">لا توجد نتائج</div>');
+  };
+  const _dupSlot = null;
+
+  // ---------- student management center ----------
+  function studentRows() {
+    const byId = {}; Object.values(DB.students || {}).forEach(s => { byId[s.id] = { id: s.id, name: s.name, phone: s.phone, attempts: [] }; });
+    (DB.attemptsAll || []).forEach(a => { if (!a || !a.studentId) return; (byId[a.studentId] || (byId[a.studentId] = { id: a.studentId, name: a.name, phone: a.phone, attempts: [] })).attempts.push(a); });
+    return Object.values(byId).map(s => { const done = s.attempts.filter(a => a.status === 'completed').sort((x, y) => String(y.completedAt).localeCompare(String(x.completedAt))), last = done[0], bk = last ? bookingOf(last) : null; return { ...s, done, last, bk, el: last ? eligOf(last) : 'none' }; });
+  }
+  window.displayStudents = function () {
+    const q = AppCore.normalizeName($('stSearch').value), qc = $('stSearch').value.trim().toLowerCase(), f = $('stFilter').value;
+    const list = studentRows().filter(s => (!q || AppCore.normalizeName(s.name).includes(q) || String(s.phone || '').includes(qc) || s.attempts.some(a => String(a.code).toLowerCase().includes(qc))) &&
+      (!f || (f === 'none' ? !s.last : f === 'booked' ? !!s.bk : f === 'unbooked' ? s.el === 'eligible' && !s.bk : s.el === f))).sort((a, b) => String(a.name).localeCompare(String(b.name), 'ar'));
+    $('studentsContent').innerHTML = `<p class="muted">${list.length} طالب</p><div class="tbl-wrap"><table class="results-table"><thead><tr><th>الاسم</th><th>الهاتف</th><th>المحاولات</th><th>آخر نتيجة</th><th>المجموعة</th><th>الأهلية</th><th>الحجز</th><th>الحضور</th><th></th></tr></thead><tbody>` +
+      (list.length ? list.map(s => `<tr><td><b>${E(s.name)}</b></td><td dir="ltr">${E(s.phone || '—')}</td><td>${s.attempts.length}</td><td>${s.last ? pct1(s.last.score, s.last.total) + '%' : '—'}</td><td>${s.last ? groupCell(s.last) : '—'}</td><td>${s.last ? eligBadge(s.el) : '—'}</td><td>${s.bk ? E(slotLabel(s.bk.slotId)) + (s.bk.needsReview ? ' ⚠️' : '') : '—'}</td><td>${s.bk && s.bk.attendance ? E(AppCore.ATT_AR[s.bk.attendance]) : '—'}</td><td><button class="btn btn-primary mini" data-id="${E(s.id)}" onclick="studentProfile(this.dataset.id)">الملف</button></td></tr>`).join('') : '<tr><td colspan="9" class="muted" style="text-align:center;padding:30px">لا يوجد طلاب</td></tr>') + '</tbody></table></div>';
+  };
+  window.studentProfile = async function (id) {
+    const s = studentRows().find(x => x.id === id); if (!s) return;
+    const at = s.attempts.slice().sort((a, b) => String(b.startedAt || b.completedAt).localeCompare(String(a.startedAt || a.completedAt)));
+    const bks = Object.values(DB.bookings || {}).filter(b => b.studentId === id);
+    const r = await Swal.fire({ title: s.name, showCancelButton: true, showDenyButton: true, confirmButtonText: 'إغلاق', denyButtonText: '✏️ تعديل البيانات', cancelButtonText: 'إلغاء', width: 760,
+      html: `<div style="text-align:right;direction:rtl"><p dir="ltr" style="text-align:right">📞 ${E(s.phone || '—')}</p><h4>سجل الامتحانات</h4><div class="tbl-wrap"><table class="results-table"><thead><tr><th>الجلسة</th><th>الكود</th><th>الحالة</th><th>النسبة</th><th>المجموعة</th><th>الأهلية</th></tr></thead><tbody>${at.map(a => `<tr><td>${E(a.sessionName || sess(a.sessionId).name || '')}</td><td>${E(a.code)}</td><td>${E(a.status)}</td><td>${a.status === 'completed' ? pct1(a.score, a.total) + '%' : '—'}</td><td>${a.status === 'completed' ? groupCell(a) : '—'}</td><td>${a.status === 'completed' ? eligBadge(eligOf(a)) : '—'}</td></tr>`).join('') || '<tr><td colspan="6">—</td></tr>'}</tbody></table></div>
+      <h4>سجل المواعيد</h4><div class="tbl-wrap"><table class="results-table"><thead><tr><th>الجلسة</th><th>الموعد</th><th>الحالة</th><th>الحضور</th></tr></thead><tbody>${bks.map(b => `<tr><td>${E(sess(b.sessionId).name || '')}</td><td>${E(slotLabel(b.slotId))}</td><td>${E(b.status)}${b.needsReview ? ' ⚠️ مراجعة' : ''}</td><td>${E(AppCore.ATT_AR[b.attendance] || '—')}</td></tr>`).join('') || '<tr><td colspan="4">لا توجد حجوزات</td></tr>'}</tbody></table></div></div>` });
+    if (r.isDenied) editStudent(id);
+  };
+  async function editStudent(id) {
+    const s = studentRows().find(x => x.id === id); if (!s) return;
+    const r = await Swal.fire({ title: 'تعديل بيانات الطالب', showCancelButton: true, confirmButtonText: 'حفظ', cancelButtonText: 'إلغاء', html: `<div style="text-align:right"><label>الاسم</label><input id="esName" class="swal2-input" value="${E(s.name)}"><label>رقم الهاتف</label><input id="esPhone" class="swal2-input" value="${E(s.phone || '')}"><p class="muted">يُحدَّث الاسم والهاتف في ملف الطالب ومحاولاته وحجوزاته. الدرجات والنتائج لا تتغير.</p></div>`,
+      preConfirm: () => { const n = document.getElementById('esName').value.trim().replace(/\s+/g, ' '), p = document.getElementById('esPhone').value; if (!n) { Swal.showValidationMessage('الاسم مطلوب'); return false; } if (!AppCore.isValidPhone(p)) { Swal.showValidationMessage('رقم الهاتف غير صحيح'); return false; } return { n, p: AppCore.normalizePhone(p) }; } });
+    if (!r.isConfirmed) return; const up = { [`students/${id}/name`]: r.value.n, [`students/${id}/phone`]: r.value.p, [`students/${id}/updatedAt`]: iso() };
+    s.attempts.forEach(a => { up[`attempts/${a.id}/name`] = r.value.n; up[`attempts/${a.id}/phone`] = r.value.p; if (a.originalName === undefined) { up[`attempts/${a.id}/originalName`] = a.name; up[`attempts/${a.id}/originalPhone`] = a.phone || ''; } });
+    Object.entries(DB.bookings || {}).forEach(([k, b]) => { if (b.studentId === id) { up[`bookings/${k}/name`] = r.value.n; up[`bookings/${k}/phone`] = r.value.p; } });
+    await FB().update(FB().ref(FB().database), up); AppCore.audit(FB(), actor(), 'student-edit', { id, from: { name: s.name, phone: s.phone }, to: { name: r.value.n, phone: r.value.p } }); showAlert('success', 'تم حفظ بيانات الطالب');
+  }
+  window.importStudentRows = async function (rows) {
+    const up = {}, res = { created: 0, skipped: 0, invalid: 0 };
+    rows.forEach(r => { const n = String((r[0] === undefined ? '' : r[0])).trim().replace(/\s+/g, ' '), p = r[1]; if (!n || !AppCore.isValidPhone(p)) { res.invalid++; return; } const id = AppCore.studentId(n, p); if ((DB.students || {})[id] || up[`students/${id}`]) { res.skipped++; return; } up[`students/${id}`] = { id, name: n, phone: AppCore.normalizePhone(p), createdAt: iso(), imported: true }; res.created++; });
+    if (res.created) { await FB().update(FB().ref(FB().database), up); AppCore.audit(FB(), actor(), 'students-import', res); } return res;
+  };
+  window.importStudentsFile = async function (input) {
+    const f = input.files[0]; if (!f) return; try {
+      let rows; if (/\.csv$/i.test(f.name)) rows = (await f.text()).replace(/^\ufeff/, '').split(/\r?\n/).filter(Boolean).map(l => l.split(',').map(x => x.replace(/^"|"$/g, '').trim()));
+      else { const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await f.arrayBuffer()); rows = []; wb.worksheets[0].eachRow(r => rows.push([r.getCell(1).value, r.getCell(2).value])); }
+      if (rows.length && !AppCore.isValidPhone(rows[0][1])) rows.shift(); const r = await importStudentRows(rows); showAlert(r.created ? 'success' : 'error', `تم إنشاء ${r.created} · مكرر ${r.skipped} · غير صالح ${r.invalid}`);
+    } catch (e) { showAlert('error', 'تعذر قراءة الملف: ' + e.message); } input.value = '';
+  };
+  window.exportStudents = () => { const rows = studentRows().map(s => [s.id, s.name, s.phone || '', s.attempts.length, s.last ? pct1(s.last.score, s.last.total) : '', s.last ? AppCore.groupLabel(AppCore.classify(s.last.score, s.last.total, T()), T()) : '', s.last ? AppCore.ELIG_AR[s.el] : '', s.bk ? slotLabel(s.bk.slotId) : '', s.bk ? (AppCore.ATT_AR[s.bk.attendance] || '') : '']); xlsx([{ name: 'الطلاب', headers: ['المعرف', 'الاسم', 'الهاتف', 'عدد المحاولات', 'آخر نسبة', 'المجموعة', 'الأهلية', 'الموعد', 'الحضور'], rows, widths: [16, 30, 16, 10, 10, 14, 18, 26, 10] }], 'Alfajr_Students'); };
+  window.findDuplicates = function () {
+    const rows = studentRows(), by = (k) => { const m = {}; rows.forEach(s => { const key = k(s); if (key) (m[key] = m[key] || []).push(s); }); return Object.values(m).filter(g => g.length > 1); };
+    const phones = by(s => AppCore.normalizePhone(s.phone || '')), names = by(s => AppCore.normalizeName(s.name));
+    const li = (g, why) => `<li>${why}: ${g.map(s => `<b>${E(s.name)}</b> <span dir="ltr">(${E(s.phone || '—')})</span>`).join(' ، ')}</li>`;
+    Swal.fire({ title: 'كشف التكرار', width: 700, html: `<div style="text-align:right;line-height:2"><p>رقم هاتف واحد لأكثر من اسم: <b>${phones.length}</b></p><ul>${phones.map(g => li(g, 'نفس الهاتف')).join('')}</ul><p>اسم واحد بأرقام هاتف مختلفة: <b>${names.length}</b></p><ul>${names.map(g => li(g, 'نفس الاسم')).join('')}</ul>${phones.length + names.length ? '<p class="muted">راجعها واستخدم «تعديل البيانات» لتصحيح الأخطاء الإملائية.</p>' : '<p>✅ لا يوجد تكرار</p>'}</div>` });
+    return { phones: phones.length, names: names.length };
+  };
+
+  // ---------- analytics ----------
+  window.displayAnalytics = function () {
+    const done = viewAtt().filter(a => a.status === 'completed'), r = AppCore.analyze(done, T()), tiers = T().slice().sort((a, b) => b.min - a.min), mx = Math.max(1, ...Object.values(r.groups));
+    const card = (l, v) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value" style="font-size:1.5rem">${v}</div></div>`;
+    $('anaSummary').innerHTML = card('عدد النتائج', r.n) + card('المتوسط', Math.round(r.avg * 10) / 10 + '%') + card('أعلى نسبة', Math.round(r.max * 10) / 10 + '%') + card('أدنى نسبة', Math.round(r.min * 10) / 10 + '%') + card('نسبة النجاح', Math.round(r.passRate * 10) / 10 + '%') + card('نسبة الرسوب', r.n ? Math.round((100 - r.passRate) * 10) / 10 + '%' : '0%');
+    $('anaGroups').innerHTML = '<h4>توزيع المجموعات</h4>' + tiers.map(t => `<div class="hrow"><label>${E(t.label)}</label>${bar(r.groups[t.key] || 0, mx, 'ok')}</div>`).join('') + `<div class="hrow"><label>غير مصنف</label>${bar(r.groups.none || 0, mx, 'no')}</div>`;
+    const hm = Math.max(1, ...r.hist); $('anaHist').innerHTML = '<h4>توزيع الدرجات (كل 10%)</h4>' + r.hist.map((v, i) => `<div class="hrow"><label>${i * 10}–${i === 9 ? 100 : i * 10 + 9}%</label>${bar(v, hm, i < 5 ? 'no' : 'ok')}</div>`).join('');
+    $('anaQuestions').innerHTML = '<h4>الأسئلة الأكثر خطأً (المقالي مستثنى)</h4>' + (r.questions.length ? `<div class="tbl-wrap"><table class="results-table"><thead><tr><th>السؤال</th><th>الإجابات</th><th>الصحيحة</th><th>نسبة النجاح</th></tr></thead><tbody>${r.questions.slice(0, 10).map(q => `<tr><td style="text-align:right;max-width:420px">${E(q.text || ('سؤال ' + q.id))}</td><td>${q.total}</td><td>${q.correct}</td><td>${Math.round(q.rate)}%</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">لا توجد بيانات أسئلة</p>');
+    const ss = Object.values(DB.sessions || {}).sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+    $('anaCompare').innerHTML = '<h4>مقارنة الجلسات</h4><div class="tbl-wrap"><table class="results-table"><thead><tr><th>الجلسة</th><th>النتائج</th><th>المتوسط</th><th>النجاح</th>' + tiers.map(t => `<th>${E(t.label)}</th>`).join('') + '<th>غير مصنف</th><th>الحجوزات</th></tr></thead><tbody>' + ss.map(s => { const a = AppCore.analyze((DB.attemptsAll || []).filter(x => x.sessionId === s.id), T()), b = Object.values(DB.bookings || {}).filter(x => x.sessionId === s.id && x.status === 'confirmed').length; return `<tr><td>${E(s.name)}${s.status === 'archived' ? ' 📦' : ''}</td><td>${a.n}</td><td>${Math.round(a.avg * 10) / 10}%</td><td>${Math.round(a.passRate)}%</td>${tiers.map(t => `<td>${a.groups[t.key] || 0}</td>`).join('')}<td>${a.groups.none || 0}</td><td>${b}</td></tr>`; }).join('') + '</tbody></table></div>';
+  };
+
+  // ---------- notifications + announcements ----------
+  window.displayNotifs = function () {
+    const rows = (DB.notifs || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 100), an = DB.announce || {};
+    if (document.activeElement !== $('annText')) { $('annText').value = an.text || ''; $('annActive').checked = an.active === true; }
+    $('notifContent').innerHTML = rows.length ? rows.map(n => `<div class="notif ${n.read ? '' : 'unread'}"><b>${E(n.title || n.type)}</b> <span>${E(n.body || '')}</span><small>${fmtDT(n.at)}</small></div>`).join('') : '<p class="muted" style="text-align:center;padding:24px">لا توجد إشعارات</p>';
+  };
+  window.markNotifsRead = async function () { const up = {}; (DB.notifs || []).forEach(n => { if (!n.read && n.id) up[`notifications/${n.id}/read`] = true; }); if (Object.keys(up).length) await FB().update(FB().ref(FB().database), up); };
+  window.saveAnnouncement = async function () { const text = $('annText').value.trim().slice(0, 300), active = $('annActive').checked && !!text; await FB().set(FB().ref(FB().database, 'announcements/current'), { text, active, at: iso(), by: actor() }); AppCore.audit(FB(), actor(), 'announcement', { active, text }); showAlert('success', active ? 'تم نشر الإعلان للطلاب' : 'تم حفظ الإعلان (غير منشور)'); };
+
+  // ---------- reports center (Excel; appointment lists also have PDF in their own tab) ----------
+  const sName = () => (viewAll() ? 'AllSessions' : fname(sess(DB.viewSessionId).name || 'Session'));
+  const resRow = a => { const b = bookingOf(a), el = eligOf(a); return [a.name, a.code, a.phone || '', `${a.score} / ${a.total}`, pct1(a.score, a.total), el === 'pending' ? 'قيد التصحيح' : AppCore.groupLabel(AppCore.classify(a.score, a.total, T()), T()), AppCore.ELIG_AR[el], b ? slotLabel(b.slotId) : '', b ? (AppCore.ATT_AR[b.attendance] || '') : '', a.sessionName || '', a.completedAt ? fmtDT(a.completedAt) : '']; };
+  const RES_H = ['الاسم', 'الكود', 'الهاتف', 'الدرجة', 'النسبة %', 'المجموعة', 'الأهلية', 'الموعد', 'الحضور', 'الجلسة', 'وقت التسليم'], RES_W = [28, 14, 16, 12, 10, 16, 18, 26, 10, 22, 22];
+  const doneList = () => viewAtt().filter(a => a.status === 'completed').sort((x, y) => AppCore.exactPct(y.score, y.total) - AppCore.exactPct(x.score, x.total));
+  window.rep = {
+    students: () => window.exportStudents(),
+    session: () => xlsx([{ name: 'النتائج', headers: RES_H, rows: doneList().map(resRow), widths: RES_W }], `Alfajr_Results_${sName()}`),
+    groups: () => { const sheets = T().slice().sort((a, b) => b.min - a.min).map(t => ({ name: 'مجموعة ' + t.label, headers: RES_H, rows: doneList().filter(a => eligOf(a) !== 'pending' && AppCore.classify(a.score, a.total, T()) === t.key).map(resRow), widths: RES_W })); sheets.push({ name: 'غير مصنف', headers: RES_H, rows: doneList().filter(a => eligOf(a) !== 'pending' && AppCore.classify(a.score, a.total, T()) === 'none').map(resRow), widths: RES_W }); return xlsx(sheets, `Alfajr_Groups_${sName()}`); },
+    appointments: () => { const slots = slotsList(), bk = Object.entries(DB.bookings || {}).filter(([k, b]) => b.status === 'confirmed' && slots.some(s => s.id === b.slotId)); return xlsx([{ name: 'المواعيد', headers: ['اليوم', 'التاريخ', 'الوقت', 'السعة', 'المحجوز', 'المتبقي', 'الحالة'], rows: slots.map(s => [AppCore.dayInfo(s.day).ar, s.date || 'أسبوعي', AppCore.fmtTimeAr(s.time), s.capacity, s.booked, s.remaining, slotState(s)[0]]) }, { name: 'الحجوزات', headers: ['الموعد', 'الاسم', 'الكود', 'الهاتف', 'الحضور', 'تحتاج مراجعة'], rows: bk.map(([k, b]) => [slotLabel(b.slotId), b.name, b.code, b.phone, AppCore.ATT_AR[b.attendance] || '', b.needsReview ? 'نعم' : '']) }], `Alfajr_Appointments_${sName()}`); },
+    attendance: () => { const slots = slotsList(), rows = []; slots.forEach(s => AppCore.slotRows(s, DB.bookings, resultsMap(), T()).forEach(r => rows.push([AppCore.slotTitle(s), r.name, r.code, r.phone, AppCore.ATT_AR[r.attendance] || 'لم يُسجَّل']))); const c = k => rows.filter(r => r[4] === k).length; return xlsx([{ name: 'الحضور', headers: ['الموعد', 'الاسم', 'الكود', 'الهاتف', 'الحالة'], rows }, { name: 'ملخص', headers: ['البند', 'العدد'], rows: [['حاضر', c('حاضر')], ['غائب', c('غائب')], ['لم يُسجَّل', c('لم يُسجَّل')], ['الإجمالي', rows.length]] }], `Alfajr_Attendance_${sName()}`); },
+    performance: () => { const r = AppCore.analyze(doneList(), T()), ss = Object.values(DB.sessions || {}); return xlsx([{ name: 'ملخص الأداء', headers: ['المؤشر', 'القيمة'], rows: [['عدد النتائج', r.n], ['المتوسط %', Math.round(r.avg * 10) / 10], ['أعلى نسبة %', Math.round(r.max * 10) / 10], ['أدنى نسبة %', Math.round(r.min * 10) / 10], ['نسبة النجاح %', Math.round(r.passRate * 10) / 10], ['مؤهل للحجز', r.eligible], ['غير مؤهل', r.ineligible], ['قيد التصحيح', r.pending], ...T().map(t => ['مجموعة ' + t.label, r.groups[t.key] || 0]), ['غير مصنف', r.groups.none || 0]], widths: [24, 14] }, { name: 'الأسئلة', headers: ['السؤال', 'الإجابات', 'الصحيحة', 'نسبة النجاح %'], rows: r.questions.map(q => [q.text || 'سؤال ' + q.id, q.total, q.correct, Math.round(q.rate)]), widths: [50, 12, 12, 14] }, { name: 'مقارنة الجلسات', headers: ['الجلسة', 'النتائج', 'المتوسط %', 'النجاح %'], rows: ss.map(s => { const a = AppCore.analyze((DB.attemptsAll || []).filter(x => x.sessionId === s.id), T()); return [s.name, a.n, Math.round(a.avg * 10) / 10, Math.round(a.passRate)]; }), widths: [28, 12, 12, 12] }], `Alfajr_Performance_${sName()}`); }
+  };
+
+  // ---------- data consistency check (read-only unless the admin confirms a safe fix) ----------
+  async function scan() {
+    const [seats, bks, appts, att, stu, codes] = await Promise.all(['seats', 'bookings', 'appointments', 'attempts', 'students', 'accessCodes'].map(rdp)); const out = { orphanSeats: [], overCap: [], bookingNoSeat: [], bookingNoSlot: [], attemptNoStudent: [], slotNoSession: [], codeNoAttempt: [] };
+    const owned = new Set(Object.values(bks || {}).filter(b => b.seat).map(b => `${b.slotId}/${b.seat}`));
+    Object.entries(seats || {}).forEach(([sid, m]) => { Object.keys(m || {}).forEach(n => { if (!owned.has(`${sid}/${n}`)) out.orphanSeats.push(`${sid}/${n}`); }); const s = (appts || {})[sid]; if (s && Object.keys(m || {}).length > s.capacity) out.overCap.push(sid); });
+    Object.entries(bks || {}).forEach(([k, b]) => { if (b.status === 'confirmed' && (!b.seat || !((seats || {})[b.slotId] || {})[b.seat])) out.bookingNoSeat.push(k); if (!(appts || {})[b.slotId]) out.bookingNoSlot.push(k); });
+    Object.values(att || {}).forEach(a => { if (a.studentId && !(stu || {})[a.studentId]) out.attemptNoStudent.push(a.id); });
+    Object.values(appts || {}).forEach(s => { if (!s.sessionId || !(DB.sessions || {})[s.sessionId]) out.slotNoSession.push(s.id); });
+    Object.values(codes || {}).forEach(c => { if (c && c.used && c.attemptId && !(att || {})[c.attemptId]) out.codeNoAttempt.push(c.code); });
+    return out;
+  }
+  window.healthCheck = async function () {
+    const r = await scan(), L = { orphanSeats: 'مقاعد محجوزة بلا حجز (تُستهلك من السعة)', overCap: 'مواعيد تجاوزت السعة', bookingNoSeat: 'حجوزات مؤكدة بلا مقعد', bookingNoSlot: 'حجوزات لموعد غير موجود', attemptNoStudent: 'محاولات بلا ملف طالب', slotNoSession: 'مواعيد بلا جلسة', codeNoAttempt: 'أكواد مستخدمة بلا محاولة' }, bad = Object.keys(r).filter(k => r[k].length);
+    const res = await Swal.fire({ title: 'فحص سلامة البيانات', icon: bad.length ? 'warning' : 'success', showCancelButton: !!r.orphanSeats.length, confirmButtonText: 'حسناً', cancelButtonText: 'إغلاق', ...(r.orphanSeats.length ? { showDenyButton: true, denyButtonText: 'تحرير المقاعد اليتيمة' } : {}), showCancelButton: false,
+      html: `<div style="text-align:right;line-height:2">${bad.length ? bad.map(k => `<div>⚠️ ${L[k]}: <b>${r[k].length}</b></div>`).join('') : '✅ لا توجد مشاكل: الحجوزات والمقاعد والملفات متسقة'}</div>` });
+    if (res.isDenied) { const up = {}; r.orphanSeats.forEach(p => { up['seats/' + p] = null; }); await FB().update(FB().ref(FB().database), up); AppCore.audit(FB(), actor(), 'health-fix', { releasedSeats: r.orphanSeats }); showAlert('success', `تم تحرير ${r.orphanSeats.length} مقعد`); }
+    return r;
+  };
+  window.healthScan = scan;
+
+  // ---------- role guard: destructive cycle operations are for the super admin only ----------
+  ['cycResults', 'cycCodes', 'cycNew', 'cycRestore', 'resetAllCodes', 'resetSelectedCodes'].forEach(n => { const f = window[n]; if (typeof f === 'function') window[n] = function () { if (!isSuper()) return showAlert('error', 'هذه العملية للمشرف العام فقط'); return f.apply(this, arguments); }; });
+
+  // ---------- backup before the first v3 run, then migration + sync ----------
+  window.afterLogin = async function () {
+    try {
+      if (!(await rdp('meta/v3'))) {
+        const id = 'pre_v3_' + Date.now().toString(36), data = {}; for (const p of ['attempts', 'bookings', 'appointments', 'seats', 'sessions', 'students', 'groupSettings', 'appointmentSettings', 'results', 'studentBookings', 'accessCodes', 'codeIndex']) data[p] = await rdp(p);
+        await FB().set(FB().ref(FB().database, 'backups_v3/' + id), JSON.parse(JSON.stringify({ id, at: iso(), by: actor(), label: 'pre-v3', data }))); await FB().set(FB().ref(FB().database, 'meta/v3'), iso()); AppCore.audit(FB(), actor(), 'backup-pre-v3', { id });
+      }
+    } catch (e) { console.error('backup', e); }
+    try { const r = await AppCore.migrateLegacy(FB(), actor()); if (r.migrated) showAlert('success', `تم ترحيل البيانات (${r.attempts} محاولة، ${r.bookings} حجز) — النسخ القديمة محفوظة`); } catch (e) { console.error('migration', e); }
+    await window.syncGroups();
+  };
+  // tab refresh hooks
+  const _refresh = window.refreshAppt; window.refreshAppt = function () { _refresh(); if (!$('studentsTab').classList.contains('hidden')) displayStudents(); if (!$('analyticsTab').classList.contains('hidden')) displayAnalytics(); if (!$('notifTab').classList.contains('hidden')) displayNotifs(); if (window.updateExtraStats) updateExtraStats(); };
+})();
 </script>
 </body>
 </html>
